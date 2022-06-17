@@ -54,7 +54,8 @@ def plot_histogram(model1, model2, xlim, ylim):
 
 def compare_vocab(model1,
                   model2,
-                  subword_length_threshold: Optional[int] = None) -> Tuple[Dict[str, int], List[str], List[str]]:
+                  vocab_1: int,
+                  vocab_2: int) -> Tuple[Dict[str, int], List[str], List[str]]:
 
     def get_vocab(_model, _slt: Optional[int] = None) -> List[str]:
         output_dir = join("..", "output", _model)
@@ -67,13 +68,14 @@ def compare_vocab(model1,
         vocab = list(vocab_dict.keys())
 
         if _slt:
-            vocab = [subword for subword in vocab if len(subword) <= _slt]
+            # vocab = [subword for subword in vocab if len(subword) <= _slt]
+            vocab = vocab[:_slt]
 
         return vocab
 
     # c. get overlap
-    vocab1 = get_vocab(model1, subword_length_threshold)
-    vocab2 = get_vocab(model2, subword_length_threshold)
+    vocab1 = get_vocab(model1, vocab_1)
+    vocab2 = get_vocab(model2, vocab_2)
     vocab_intersection = list(set(vocab1).intersection(set(vocab2)))
     vocab_only1 = list(set(vocab1) - set(vocab2))
     vocab_only2 = list(set(vocab2) - set(vocab1))
@@ -179,25 +181,31 @@ def plot_overview_data(_models):
     ax[2].set_title('vocab size')
 
 
-def plot_timelines(_timelines_all: List[Dict[str, List[float]]],
+def plot_timelines(steps: List[int],
+                   steps_2: int,
+                   _timelines_all: List[Dict[str, List[float]]],
                    lang: List[str],
+                   ylim: List[float],
                    ylabel: List[str],
                    title: List[str]):
     nfigs = len(_timelines_all)
-    fig, ax = plt.subplots(1, nfigs, figsize=(16, 5))
+    fig, ax = plt.subplots(1, max(2, nfigs), figsize=(8*max(2, nfigs), 5))
     for nfig in range(nfigs):
         for i, (k, v) in enumerate(_timelines_all[nfig].items()):
-            x = [j+1 for j in range(len(_timelines_all[nfig][k]))]
+            x = steps  # [j for j in range(len(_timelines_all[nfig][k]))]
             y = _timelines_all[nfig][k]
             # print(i)
             # print(x)
             # print(y)
             # print()
             ax[nfig].plot(x, y, color=COLOR[k], label=lang[i], marker="s")
-        ax[nfig].set_xlabel("subword length")
+            ax[nfig].plot(x, [steps_2]*len(x), color="k")
+            if nfig == nfigs - 1:
+                ax[nfig].plot(x, [1] * len(x), color="k")
+        ax[nfig].set_xlabel("common tokenizer vocab size")
         ax[nfig].set_ylabel(ylabel[nfig])
         ax[nfig].set_title(title[nfig])
-        ax[nfig].set_ylim([0, 1.1])
+        ax[nfig].set_ylim([0, ylim[nfig]])
         ax[nfig].legend()
 
 
