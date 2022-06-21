@@ -15,10 +15,10 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 - Create Test Data: `python script_create_test_data.py`
 - Train Tokenizer: 
-  - single run: `python script_train_tokenizer.py [--input data/test_data.json]` (uses `parameters.py`)
+  - single run: `python script_train.py --dataset_files $DATASET_FILES --dataset_name $DATASET_NAME [..]`
   - all runs: `bash train.sh`
 - Compute Upsampling:
-  - single run: `python script_upsampling.py --input $INPUT --stats $STATS --total $TOTAL --alpha 0.6`
+  - single run: `python script_upsampling.py --dataset_files $DATASET_FILES --stats $STATS --total $TOTAL --alpha 0.6`
   - all runs: `bash upsampling.sh`
 - Test Tokenizer: `python script_test_tokenizer.py --id HHMMSS`
 - Analysis: `notebooks/tokenizer_analysis.ipynb`
@@ -28,6 +28,8 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 ## Structure
 
 - `data`: contains text data
+- `notebooks`: contains notebooks
 - `output`: contains trained tokenizer (incl. vocabulary, merge rules, parameters) 
+- `src`: contains source code
 
 

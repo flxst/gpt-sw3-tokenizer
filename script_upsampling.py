@@ -229,12 +229,12 @@ def upsampling(_data_files: List[str], _stats_file: str, _total_file: str, alpha
 
 
 def main(args):
-    upsampling(args.input, args.stats, args.total, args.alpha)
+    upsampling(args.dataset_files, args.stats, args.total, args.alpha)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", nargs='+', type=str, default=["data/test.json"])
+    parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/test.json"])
     parser.add_argument("--stats", type=str, default="data/stats.json")
     parser.add_argument("--total", type=str, default="data/total.json")
     parser.add_argument("--alpha", type=float, default=1.0)
