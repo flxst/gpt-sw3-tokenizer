@@ -1,19 +1,23 @@
 import argparse
-from os.path import isfile, join
+from os.path import join
 from os import makedirs
 import time
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from tokenizers import (
     decoders,
     models,
-    normalizers,
     pre_tokenizers,
     processors,
     trainers,
     Tokenizer,
 )
-from parameters import Parameters
-from helpers import get_normalizer, export_tokenizer_for_megatron_lm, analyze_vocabulary, overview
+from src.parameters import Parameters
+from src.helpers import get_normalizer, export_tokenizer_for_megatron_lm, analyze_vocabulary, overview
+
+
+def get_training_corpus_combined(_dataset: Dataset, batch_size: int = 100000):
+    for i in range(0, len(_dataset['train']), batch_size):
+        yield _dataset['train'][i: i + batch_size]["text"]
 
 
 def main(args):
@@ -25,15 +29,20 @@ def main(args):
         minimum_frequency=args.minimum_frequency,
         vocab_size=args.vocab_size,
         add_whitespace_tokens=args.add_whitespace_tokens,
+        alpha=args.alpha,
     )
 
     data_files = args.input
+    # if args.alpha != 1.0:
+    #     upsampled_data_file = upsampling(data_files, args.alpha)
+    #     data_files += upsampled_data_file
+
     datasets = list()
 
-    # output_dir = join("output", time.strftime("%Y-%d-%m___%H-%M-%S", time.localtime()))
     output_dir = join("output", time.strftime("%H%M%S", time.localtime()))
     if parameters.use_id:
-        output_dir += parameters.get_id() + f"_{args.dataset}"
+        suffix = f"_{args.dataset}-a{args.alpha}" if args.alpha != -1 else f"_{args.dataset}"
+        output_dir += parameters.get_id() + suffix
     makedirs(output_dir, exist_ok=False)
     tokenizer_file = join(output_dir, "tokenizer")
 
@@ -41,14 +50,9 @@ def main(args):
     parameters.export(tokenizer_file)
 
     # 0. Load Datasets
-    for j, data_file in enumerate(data_files):
-        assert isfile(data_file), f"ERROR! {data_file} does not exist."
-        datasets.append(load_dataset('json', data_files={'train': data_file}))
-
-    def get_training_corpus(_datasets):
-        for dataset in datasets:
-            for i in range(0, len(dataset), 1000):
-                yield dataset['train'][i: i + 1000]["text"]
+    datasets_combined = load_dataset('json',
+                                     data_files={'train': data_files},
+                                     )
 
     # 1. Define Tokenizer
     tokenizer = Tokenizer(models.BPE(unk_token=parameters.unk_token))
@@ -64,7 +68,7 @@ def main(args):
         special_tokens=parameters.special_tokens,
         min_frequency=parameters.minimum_frequency,
     )
-    tokenizer.train_from_iterator(get_training_corpus(datasets), trainer=trainer)
+    tokenizer.train_from_iterator(get_training_corpus_combined(datasets_combined), trainer=trainer)
 
     # 3. Post-Processing
     tokenizer.post_processor = processors.ByteLevel(trim_offsets=False)
@@ -95,6 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--add_whitespace_tokens", type=int, default=0)
     parser.add_argument("--minimum_frequency", type=int, default=0)
     parser.add_argument("--vocab_size", type=int, default=500)
+    parser.add_argument("--alpha", type=float, default=-1)
     _args = parser.parse_args()
 
     main(_args)

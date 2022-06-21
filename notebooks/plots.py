@@ -98,6 +98,10 @@ COLOR = {
 }
 
 
+def color(_lang):
+    return COLOR[_lang.split("-")[0]]
+
+
 def _get_overview(_model) -> Dict[str, Any]:
     output_dir = join("..", "output", _model)
     _overview_file = join(output_dir, "overview.json")
@@ -138,9 +142,9 @@ def plot_overview(_models):
     ax.set_xlabel("dataset size [GB]")
     ax.set_ylabel("time [s]")
     time_estimate = (time[-1]-time[-2])/(dataset_size[-1]-dataset_size[-2])*1000
-    ax.set_title(f"time(1TB) ~ {time_estimate:.0f}s ~ {time_estimate/60.:.0f}min")
+    ax.set_title(f"time(1TB) ~ {time_estimate:.0f}s ~ {time_estimate/3600.:.0f}h")
     for i in range(len(dataset_size)):
-        ax.plot(dataset_size[i], time[i], marker="d", label=lang[i], color=COLOR[lang[i]])
+        ax.plot(dataset_size[i], time[i], marker="d", label=lang[i], color=color(lang[i]))
     ax.legend()
 
 
@@ -152,8 +156,8 @@ def plot_overview_data(_models):
         print("no data")
         return
 
-    lang = lang[:-1]
-    dataset_size = dataset_size[:-1]
+    # lang = lang[:-1]
+    # dataset_size = dataset_size[:-1]
 
     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
     # labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -166,18 +170,19 @@ def plot_overview_data(_models):
               autopct='%.f%%',
               shadow=False,
               startangle=90,
-              colors=[COLOR[l] for l in lang])
+              colors=[color(lg) for lg in lang])
     ax[0].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     ax[0].set_title('dataset size (fraction)')
 
     x = lang
     y = dataset_size
-    ax[1].bar(x, y, color=[COLOR[l] for l in lang])
+    ax[1].bar(x, y, color=[color(lg) for lg in lang])
     ax[1].set_title('dataset size')
 
     x = lang
-    y = [56654, 99452, 100000, 100000, 100000]  # TODO
-    ax[2].bar(x, y, color=[COLOR[l] for l in lang])
+    y = [250000]*len(lang)  # [56654, 99452, 150540, 138835, 148386]  # TODO
+    print(x, y, [color(lg) for lg in lang])
+    ax[2].bar(x, y, color=[color(lg) for lg in lang])
     ax[2].set_title('vocab size')
 
 
@@ -198,7 +203,7 @@ def plot_timelines(steps: List[int],
             # print(x)
             # print(y)
             # print()
-            ax[nfig].plot(x, y, color=COLOR[k], label=lang[i], marker="s")
+            ax[nfig].plot(x, y, color=color(k), label=lang[i], marker="s")
             ax[nfig].plot(x, [steps_2]*len(x), color="k")
             if nfig == nfigs - 1:
                 ax[nfig].plot(x, [1] * len(x), color="k")

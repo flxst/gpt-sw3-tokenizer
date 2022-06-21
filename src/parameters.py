@@ -10,7 +10,8 @@ class Parameters:
                  unicode_normalization: str = "NFC",
                  minimum_frequency: int = 0,
                  vocab_size: int = 100,
-                 add_whitespace_tokens: int = 0):
+                 add_whitespace_tokens: int = 0,
+                 alpha: float = 1.0):
 
         # add_prefix_space: "Let .." becomes [('Let', (0, 3)), ..] if False, [('ĠLet', (0, 3)), ..] if True
         self.add_prefix_space = add_prefix_space
@@ -19,14 +20,14 @@ class Parameters:
         self.minimum_frequency = minimum_frequency
         self.vocab_size = vocab_size
         self.add_whitespace_tokens = add_whitespace_tokens
+        self.alpha = alpha
 
         # DERIVED
         self.unk_token: str = "[UNK]"
         self.special_tokens: List[str] = ["<|endoftext|>"] + [self.unk_token]
-        self.added_tokens: List[str] = []
 
         # Experimental:
-        self.whitespace_token = " "  # "Ġ"
+        self.whitespace_token = " "
         if self.add_whitespace_tokens > 0:
             whitespace_tokens = [
                 self.whitespace_token * i
@@ -47,6 +48,7 @@ class Parameters:
         print(f"> unicode_normalization = {self.unicode_normalization}")
         print(f"> unknown_token = {self.unk_token}")
         print(f"> vocab_size = {self.vocab_size}")
+        print(f"> alpha = {self.alpha}")
         print("==================")
         print()
 
@@ -64,20 +66,11 @@ class Parameters:
                     f.write(f"{tup[0]} = {tup[1]}\n")
 
     def get_id(self) -> str:
-        # f"p{int(self.add_prefix_space)}-" + \
-        # f"d{int(self.individual_digits)}-" + \
-        # f"u{self.unicode_normalization}-" + \
 
-        _id = "_"
-        if 1:
-            _id += \
-                f"p{int(self.add_prefix_space)}-" + \
-                f"d{int(self.individual_digits)}-" + \
-                f"u{self.unicode_normalization}-"
-
-        _id += \
+        return "_" + \
+            f"u{self.unicode_normalization}-" + \
+            f"d{int(self.individual_digits)}-" + \
+            f"p{int(self.add_prefix_space)}-" + \
             f"w{self.add_whitespace_tokens}-" + \
             f"f{self.minimum_frequency}-" + \
-            f"v{self.vocab_size}"
-
-        return _id
+            f"v{self.vocab_size}"  # + f"v{self.vocab_size}-" + f"a{self.alpha}"

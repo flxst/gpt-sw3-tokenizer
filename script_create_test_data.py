@@ -1,5 +1,5 @@
 import json
-from test_data import TEST_CORPUS
+from src.test_data import TEST_CORPUS
 
 
 def main():

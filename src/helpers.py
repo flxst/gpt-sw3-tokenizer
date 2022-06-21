@@ -1,8 +1,8 @@
 import json
 from tokenizers import normalizers
 from datasets import Dataset
-from typing import List
-from os.path import getsize
+from typing import List, Dict
+from os.path import getsize, join
 
 UNICODE_NORMALIZATION = {
     "NFC": normalizers.NFC(),
@@ -90,8 +90,10 @@ def overview(_tokenizer_file: str,
     # a. get document count
     _overview = {
         "files": len(_datasets),
-        "documents_total": sum([len(dataset["train"]) for dataset in _datasets]),
-        "documents": [len(dataset["train"]) for dataset in _datasets],
+        # "documents_total": sum([len(dataset["train"]) for dataset in _datasets]),
+        "documents_total": -1,
+        # "documents": [len(dataset["train"]) for dataset in _datasets],
+        "documents": -1,
         "data_files": _data_files,
         "data_size_total": f"{sum([getsize(_data_file) for _data_file in _data_files])/1073741824.:.4f}G",
         "data_size": [f"{getsize(_data_file)/1073741824.:.4f}G" for _data_file in _data_files],

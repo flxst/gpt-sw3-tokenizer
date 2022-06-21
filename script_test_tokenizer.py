@@ -2,7 +2,7 @@ import argparse
 import os
 from os.path import join, isfile, isdir
 from tokenizers import Tokenizer
-from test_data import TEST_EXAMPLES
+from src.test_data import TEST_EXAMPLES
 from transformers import PreTrainedTokenizerFast
 
 
