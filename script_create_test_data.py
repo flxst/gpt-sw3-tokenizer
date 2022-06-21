@@ -9,7 +9,7 @@ def main():
             f.write(json.dumps({"text": TEST_CORPUS[i]}) + "\n")
     print(f"> wrote file '{test_data_file}'")
 
-    with open("script_train_tokenizer.py", "r") as f:
+    with open("script_train.py", "r") as f:
         code = f.read().replace("\\n", "\n")
     print(code)
 

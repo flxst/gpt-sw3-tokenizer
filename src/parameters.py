@@ -1,32 +1,35 @@
-import inspect
 from typing import List
+from os.path import join
+import time
 
 
 class Parameters:
     
     def __init__(self,
-                 add_prefix_space: bool = True,  
-                 individual_digits: bool = True,
+                 dataset_files: List[str],
+                 dataset_name: str,
                  unicode_normalization: str = "NFC",
+                 individual_digits: bool = True,
+                 add_prefix_space: bool = True,
+                 add_whitespace_tokens: int = 0,
                  minimum_frequency: int = 0,
                  vocab_size: int = 100,
-                 add_whitespace_tokens: int = 0,
                  alpha: float = 1.0):
 
-        # add_prefix_space: "Let .." becomes [('Let', (0, 3)), ..] if False, [('ĠLet', (0, 3)), ..] if True
-        self.add_prefix_space = add_prefix_space
-        self.individual_digits = individual_digits
+        self.dataset_files = dataset_files
+        self.dataset_name = dataset_name
         self.unicode_normalization = unicode_normalization
+        self.individual_digits = bool(individual_digits)
+        self.add_prefix_space = bool(add_prefix_space)
+        self.add_whitespace_tokens = add_whitespace_tokens
         self.minimum_frequency = minimum_frequency
         self.vocab_size = vocab_size
-        self.add_whitespace_tokens = add_whitespace_tokens
         self.alpha = alpha
 
         # DERIVED
         self.unk_token: str = "[UNK]"
         self.special_tokens: List[str] = ["<|endoftext|>"] + [self.unk_token]
 
-        # Experimental:
         self.whitespace_token = " "
         if self.add_whitespace_tokens > 0:
             whitespace_tokens = [
@@ -35,35 +38,24 @@ class Parameters:
             ]
             self.special_tokens += whitespace_tokens
 
-        self.use_id: bool = True
+        suffix = f"_{self.dataset_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.dataset_name}"
+        self.output_dir = join("output", time.strftime("%H%M%S", time.localtime())) + self.get_id() + suffix
 
     def show(self) -> None:
         """ print parameters """
         print("=== PARAMETERS ===")
+        print(f"> unicode_normalization = {self.unicode_normalization}")
+        print(f"> individual_digits = {self.individual_digits}")
         print(f"> add_prefix_space = {self.add_prefix_space}")
         print(f"> add_whitespace_tokens = {self.add_whitespace_tokens}")
-        print(f"> individual_digits = {self.individual_digits}")
         print(f"> minimum_frequency = {self.minimum_frequency}")
-        print(f"> special_tokens = {self.special_tokens}")
-        print(f"> unicode_normalization = {self.unicode_normalization}")
-        print(f"> unknown_token = {self.unk_token}")
         print(f"> vocab_size = {self.vocab_size}")
         print(f"> alpha = {self.alpha}")
         print("==================")
+        print(f"> special_tokens = {self.special_tokens}")
+        print(f"> unknown_token = {self.unk_token}")
+        print("==================")
         print()
-
-    def export(self, _tokenizer_file: str) -> None:
-        """ export parameters to file
-
-        Args:
-            _tokenizer_file: e.g. 'output/125842/tokenizer => export file = 'output/125842/parameters.txt'
-        """
-        _parameters_file = f"{'/'.join(_tokenizer_file.split('/')[:-1])}/parameters.txt"
-        with open(_parameters_file, "w") as f:
-            for tup in inspect.getmembers(self):
-                if not tup[0].startswith("__") and not callable(tup[1]):
-                    print(tup)
-                    f.write(f"{tup[0]} = {tup[1]}\n")
 
     def get_id(self) -> str:
 
