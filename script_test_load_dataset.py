@@ -1,3 +1,14 @@
+"""
+EXECUTION: python script_test_load_dataset.py
+           [--dataset_files data/wiki_is.jsonl data/wiki_da.jsonl
+            --batch_size 100000]
+
+PURPOSE: the script
+         - loads the data in <dataset_files> in batches of <batch_size>
+         - uses the get_training_corpus generator to read it
+         - prints information to check that everything works as expected
+"""
+import argparse
 from datasets import load_dataset, Dataset
 from typing import List
 
@@ -13,42 +24,10 @@ def get_training_corpus_combined(_dataset: Dataset, batch_size: int):
         yield _dataset['train'][i: i + batch_size]["text"]
 
 
-"""
-def get_training_corpus_combined_nohf(_data_files: List[str]):
-    for data_file in _data_files:
-        with open(data_file, 'r') as lines:
-            for line in lines:
-                yield json.loads(line)['text']
-"""
+def main(args):
+    dataset_files = args.dataset_files
+    batch_size = args.batch_size
 
-"""
-from datasets import Features, Value, Sequence
-features = Features({
-    'text': Value(dtype='string', id=None),
-    'filename': Value(dtype='string', id=None),
-    'filters': Sequence(feature=Value(dtype='null', id=None), length=-1, id=None),
-    'keep': Value(dtype='int64', id=None),
-    'len_char': Value(dtype='int64', id=None),
-    'len_utf8bytes': Value(dtype='int64', id=None),
-    'len_words': Value(dtype='int64', id=None),
-    'len_sents': Value(dtype='int64', id=None),
-    'lang': Value(dtype='string', id=None),
-    'md5': Value(dtype='string', id=None),
-    'id': Value(dtype='string', id=None),
-    'url': Value(dtype='string', id=None),
-    'size_pdf': Value(dtype='int64', id=None),
-})
-"""
-
-BATCH_SIZE = 100000
-if 1:
-    DATA_FILES = ["data/wiki_is.jsonl", "data/wiki_da.jsonl"]
-else:
-    DATA_FILES = ["data/data_100_final/conversational/final_is.jsonl",
-                  "data/data_100_final/conversational/final_da.jsonl"]
-
-
-def main():
     # 0. Load Datasets
     datasets = [
         load_dataset('json',
@@ -56,11 +35,11 @@ def main():
                      # field=["text", "id"],
                      # features=features,
                      )
-        for data_file in DATA_FILES
+        for data_file in dataset_files
     ]
 
     datasets_combined = load_dataset('json',
-                                     data_files={'train': DATA_FILES},
+                                     data_files={'train': dataset_files},
                                      )
 
     for i, dataset in enumerate([datasets, datasets_combined]):
@@ -70,14 +49,19 @@ def main():
         if i == 0:
             for j in range(len(dataset)):
                 print(f"> length dataset {j}: {len(dataset[j]['train'])}")
-            generator = get_training_corpus(dataset, BATCH_SIZE)
+            generator = get_training_corpus(dataset, batch_size)
         else:
             print(f"> length dataset: {len(dataset['train'])}")
-            generator = get_training_corpus_combined(dataset, BATCH_SIZE)
+            generator = get_training_corpus_combined(dataset, batch_size)
 
         for elem in generator:
             print(type(elem), len(elem), len(elem[0]), elem[0][:10])
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/wiki_is.jsonl", "data/wiki_da.jsonl"])
+    parser.add_argument("--batch_size", type=int, default=100000)
+    _args = parser.parse_args()
+
+    main(_args)

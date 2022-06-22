@@ -1,3 +1,20 @@
+"""
+EXECUTION: python script_train.py
+           --dataset_files
+           --dataset_name
+           --add_prefix_space
+           --individual_digits
+           --unicode_normalization
+           --add_whitespace_tokens
+           --minimum_frequency
+           --vocab_size
+           --alpha
+
+PURPOSE: the script trains a tokenizer named <tokenizer_name> on the <dataset_files>
+         using the rest of the arguments as parameters.
+
+         the trained tokenizer is saved at output/HHMMSS_[parameters]_<tokenizer_name>
+"""
 import argparse
 from os.path import join
 import time
@@ -67,10 +84,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/test.json"])
     parser.add_argument("--dataset_name", type=str, default="?")
-    parser.add_argument("--add_prefix_space", type=int, default=1)
-    parser.add_argument("--individual_digits", type=int, default=1)
     parser.add_argument("--unicode_normalization", type=str, default="NFC")
-    parser.add_argument("--add_whitespace_tokens", type=int, default=0)
+    parser.add_argument("--individual_digits", type=int, default=1)
+    parser.add_argument("--add_prefix_space", type=int, default=1)
+    parser.add_argument("--add_whitespace_tokens", type=int, default=24)
     parser.add_argument("--minimum_frequency", type=int, default=0)
     parser.add_argument("--vocab_size", type=int, default=500)
     parser.add_argument("--alpha", type=float, default=-1)

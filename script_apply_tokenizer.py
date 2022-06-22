@@ -1,3 +1,11 @@
+"""
+EXECUTION: python script_apply_tokenizer.py
+           --id 123456
+
+PURPOSE: the script
+         - loads the tokenizer with the given <id> (that needs to be present in the folder output/<id>_*)
+         - applies it to the data in TEST_EXAMPLES and prints the result
+"""
 import argparse
 import os
 from os.path import join, isfile, isdir

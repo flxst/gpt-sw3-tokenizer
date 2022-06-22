@@ -1,3 +1,10 @@
+"""
+EXECUTION: python script_create_test_data.py
+
+PURPOSE: the script creates data files for testing:
+         - data/test.json (contains TEST_CORPUS)
+         - data/code.json (contains script_train.py as string)
+"""
 import json
 from src.test_data import TEST_CORPUS
 

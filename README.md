@@ -10,26 +10,39 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
         pip install -r requirements.txt
 
-
-## Usage
-
-- Create Test Data: `python script_create_test_data.py`
-- Train Tokenizer: 
-  - single run: `python script_train.py --dataset_files $DATASET_FILES --dataset_name $DATASET_NAME [..]`
-  - all runs: `bash train.sh`
-- Compute Upsampling:
-  - single run: `python script_upsampling.py --dataset_files $DATASET_FILES --stats $STATS --total $TOTAL --alpha 0.6`
-  - all runs: `bash upsampling.sh`
-- Test Tokenizer: `python script_test_tokenizer.py --id HHMMSS`
-- Analysis: `notebooks/tokenizer_analysis.ipynb`
-
-
-
-## Structure
+## Repo Structure
 
 - `data`: contains text data
 - `notebooks`: contains notebooks
-- `output`: contains trained tokenizer (incl. vocabulary, merge rules, parameters) 
+- `output`: contains trained tokenizer (incl. vocabulary, merge rules, parameters)
 - `src`: contains source code
 
+## Usage
 
+### Optional Preparations (Data & Testing)
+
+- Create Test Data: `python script_create_test_data.py`
+- Load Dataset Testing: `python script_test_load_dataset.py`
+
+### Training
+
+- Train Tokenizer: 
+  - single run: `python script_train.py --dataset_files $DATASET_FILES --dataset_name $DATASET_NAME [..]`
+  - all runs: `bash train.sh`
+
+- Compute Upsampling:
+  - single run: `python script_upsampling.py --dataset_files $DATASET_FILES --stats $STATS --total $TOTAL --alpha 0.6`
+  - all runs: `bash upsampling.sh`
+
+### Analysis
+
+- Apply Tokenizer: `python script_apply_tokenizer.py --id HHMMSS`
+- Analysis: `notebooks/tokenizer_analysis.ipynb`
+
+### Next Steps
+
+Once you have decided on a tokenizer (`output/HHMMSS_*`), take
+- the vocabulary (`tokenizer_vocab.json`) and merge (`tokenizer_merge.txt`) files
+- the data you used to train the tokenizer (in `data`)
+
+and use it together with Megatron-LM's Data Preprocessing tool (`tools/preprocess_data.py`)
