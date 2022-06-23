@@ -1,4 +1,9 @@
 TEST_CORPUS = [
+    """def fibRec(n):
+    if n < 2:
+        return n
+    else:
+        return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
     "Det här är ett test.",
     "Två meningar!",
     "12345",
@@ -8,24 +13,19 @@ TEST_CORPUS = [
     'ℌej Hej --- TVÅ TVÅ TVÅ',
     "Exempel med siffror: 1234.5 plus 2^5.",
     "Exempel med whitespace: ett två  tre   fyra    .",
-    """def fibRec(n):
-    if n < 2:
-        return n
-    else:
-        return fibRec(n-1) + fibRec(n-2)"""
 ]
 
 TEST_EXAMPLES = [
     # "Let's test this tokenizer.",
+    """def fibRec(n):
+    if n < 2:
+        return n
+    else:
+        return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
     'ℌej Hej --- TVÅ TVÅ TVÅ',
     'ℌej Hej --- TVÅ TVÅ TVÅ --- Ç Ç',
     "Exempel ett.",
     "Exempel med siffror: 1234.5 plus 2^5.",
     "Exempel med whitespace: ett två  tre   fyra    .",
     "\ndef main(args):\n    parameters = Parameters()\n    for i in range(5):\n        print(i)",
-    """def fibRec(n):
-    if n < 2:
-        return n
-    else:
-        return fibRec(n-1) + fibRec(n-2)"""
 ]

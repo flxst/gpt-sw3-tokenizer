@@ -45,4 +45,4 @@ Once you have decided on a tokenizer (`output/HHMMSS_*`), take
 - the vocabulary (`tokenizer_vocab.json`) and merge (`tokenizer_merge.txt`) files
 - the data you used to train the tokenizer (in `data`)
 
-and use it together with Megatron-LM's Data Preprocessing tool (`tools/preprocess_data.py`)
+and use it together with Megatron-LM's data preprocessing tool (`tools/preprocess_data.py`)

@@ -27,8 +27,7 @@ class Parameters:
         self.alpha = alpha
 
         # DERIVED
-        self.unk_token: str = "[UNK]"
-        self.special_tokens: List[str] = ["<|endoftext|>"] + [self.unk_token]
+        self.special_tokens: List[str] = ["<|endoftext|>"]
 
         self.whitespace_token = " "
         if self.add_whitespace_tokens > 0:
@@ -53,7 +52,6 @@ class Parameters:
         print(f"> alpha = {self.alpha}")
         print("==================")
         print(f"> special_tokens = {self.special_tokens}")
-        print(f"> unknown_token = {self.unk_token}")
         print("==================")
         print()
 

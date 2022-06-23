@@ -206,27 +206,6 @@ def upsampling(_data_files: List[str], _stats_file: str, _total_file: str, alpha
     for k, v in upsampling_need.items():
         print(k, v)
 
-    """
-    for lang in ["is"]:
-        print(f"> upsample for lang = {lang}")
-        upsample_data(
-            "is",
-            alpha,
-            _data_files,
-            upsampling_need["char"]["is"],
-            stats["char"]["is"],
-            _total_file
-        )
-
-    #
-    _upsampled_data_file = join("data", f"upsampled_a{alpha}.json")
-    print(_upsampled_data_file)
-    no_documents = 1  # TODO
-    print(f"> alpha = {alpha} => wrote {no_documents} documents to {_upsampled_data_file}")
-    exit()
-    return _upsampled_data_file
-    """
-
 
 def main(args):
     upsampling(args.dataset_files, args.stats, args.total, args.alpha)

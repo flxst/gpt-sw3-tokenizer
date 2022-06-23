@@ -49,8 +49,9 @@ def main(args):
     datasets_combined = load_dataset('json', data_files={'train': parameters.dataset_files})
 
     # 1. Define Tokenizer
-    tokenizer = Tokenizer(models.BPE(unk_token=parameters.unk_token))
+    tokenizer = Tokenizer(models.BPE())
     tokenizer.normalizer = get_normalizer(parameters.unicode_normalization)
+
     pre_tokenizer_features = [pre_tokenizers.ByteLevel(add_prefix_space=parameters.add_prefix_space)]
     if parameters.individual_digits:
         pre_tokenizer_features += [pre_tokenizers.Digits(individual_digits=True)]
@@ -61,6 +62,8 @@ def main(args):
         vocab_size=parameters.vocab_size,
         special_tokens=parameters.special_tokens,
         min_frequency=parameters.minimum_frequency,
+        initial_alphabet=pre_tokenizers.ByteLevel.alphabet(),
+        # https://github.com/huggingface/tokenizers/issues/813#issuecomment-937847770
     )
     tokenizer.train_from_iterator(
         get_training_corpus_combined(datasets_combined),
