@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument("--unicode_normalization", type=str, default="NFC")
     parser.add_argument("--individual_digits", type=int, default=1)
     parser.add_argument("--add_prefix_space", type=int, default=1)
-    parser.add_argument("--add_whitespace_tokens", type=int, default=24)
+    parser.add_argument("--add_whitespace_tokens", type=int, default=1)
     parser.add_argument("--minimum_frequency", type=int, default=0)
     parser.add_argument("--vocab_size", type=int, default=500)
     parser.add_argument("--alpha", type=float, default=-1)

@@ -11,7 +11,7 @@ class Parameters:
                  unicode_normalization: str = "NFC",
                  individual_digits: bool = True,
                  add_prefix_space: bool = True,
-                 add_whitespace_tokens: int = 0,
+                 add_whitespace_tokens: bool = True,
                  minimum_frequency: int = 0,
                  vocab_size: int = 100,
                  alpha: float = 1.0):
@@ -21,7 +21,7 @@ class Parameters:
         self.unicode_normalization = unicode_normalization
         self.individual_digits = bool(individual_digits)
         self.add_prefix_space = bool(add_prefix_space)
-        self.add_whitespace_tokens = add_whitespace_tokens
+        self.add_whitespace_tokens = bool(add_whitespace_tokens)
         self.minimum_frequency = minimum_frequency
         self.vocab_size = vocab_size
         self.alpha = alpha
@@ -29,11 +29,11 @@ class Parameters:
         # DERIVED
         self.special_tokens: List[str] = ["<|endoftext|>"]
 
-        self.whitespace_token = " "
-        if self.add_whitespace_tokens > 0:
+        if self.add_whitespace_tokens:
+            whitespace_token = " "
             whitespace_tokens = [
-                self.whitespace_token * i
-                for i in range(2, self.add_whitespace_tokens + 1)  # 2-24 consecutive whitespaces
+                whitespace_token * i
+                for i in range(2, 25)  # 2-24 consecutive whitespaces
             ]
             self.special_tokens += whitespace_tokens
 
@@ -61,6 +61,6 @@ class Parameters:
             f"u{self.unicode_normalization}-" + \
             f"d{int(self.individual_digits)}-" + \
             f"p{int(self.add_prefix_space)}-" + \
-            f"w{self.add_whitespace_tokens}-" + \
+            f"w{int(self.add_whitespace_tokens)}-" + \
             f"f{self.minimum_frequency}-" + \
             f"v{self.vocab_size}"  # + f"v{self.vocab_size}-" + f"a{self.alpha}"
