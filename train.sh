@@ -5,6 +5,7 @@ UNICODE_NORMALIZATION="NFC"
 INDIVIDUAL_DIGITS=1
 ADD_PREFIX_SPACE=1
 ADD_WHITESPACE_TOKENS=1
+ADD_CODE_TOKENS=1
 MINIMUM_FREQUENCY=0
 VOCAB_SIZE=250000
 ALPHA=-1
@@ -33,8 +34,9 @@ then
                      data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json")
   ListDatasetName=("2p")
   VOCAB_SIZE=100000
-  ADD_PREFIX_SPACE=0
-  ADD_WHITESPACE_TOKENS=0
+  # ADD_PREFIX_SPACE=0
+  # ADD_WHITESPACE_TOKENS=0
+  ADD_CODE_TOKENS=1
 fi
 
 ##################################################################################################
@@ -117,6 +119,7 @@ then
         --individual_digits $INDIVIDUAL_DIGITS \
         --add_prefix_space $ADD_PREFIX_SPACE \
         --add_whitespace_tokens $ADD_WHITESPACE_TOKENS \
+        --add_code_tokens $ADD_CODE_TOKENS \
         --minimum_frequency $MINIMUM_FREQUENCY \
         --vocab_size $VOCAB_SIZE \
         --alpha $ALPHA

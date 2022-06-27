@@ -1,5 +1,5 @@
 TEST_CORPUS = [
-    """def fibRec(n):
+    """<|python|> def fibRec(n):
     if n < 2:
         return n
     else:
@@ -17,7 +17,7 @@ TEST_CORPUS = [
 
 TEST_EXAMPLES = [
     # "Let's test this tokenizer.",
-    """def fibRec(n):
+    """<|python|> def fibRec(n):
     if n < 2:
         return n
     else:

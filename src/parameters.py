@@ -1,6 +1,7 @@
 from typing import List
 from os.path import join
 import time
+from src.code_tokens import CODE_TOKENS
 
 
 class Parameters:
@@ -12,6 +13,7 @@ class Parameters:
                  individual_digits: bool = True,
                  add_prefix_space: bool = True,
                  add_whitespace_tokens: bool = True,
+                 add_code_tokens: bool = True,
                  minimum_frequency: int = 0,
                  vocab_size: int = 100,
                  alpha: float = 1.0):
@@ -22,6 +24,7 @@ class Parameters:
         self.individual_digits = bool(individual_digits)
         self.add_prefix_space = bool(add_prefix_space)
         self.add_whitespace_tokens = bool(add_whitespace_tokens)
+        self.add_code_tokens = bool(add_code_tokens)
         self.minimum_frequency = minimum_frequency
         self.vocab_size = vocab_size
         self.alpha = alpha
@@ -37,6 +40,9 @@ class Parameters:
             ]
             self.special_tokens += whitespace_tokens
 
+        if self.add_code_tokens:
+            self.special_tokens += CODE_TOKENS
+
         suffix = f"_{self.dataset_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.dataset_name}"
         self.output_dir = join("output", time.strftime("%H%M%S", time.localtime())) + self.get_id() + suffix
 
@@ -47,6 +53,7 @@ class Parameters:
         print(f"> individual_digits = {self.individual_digits}")
         print(f"> add_prefix_space = {self.add_prefix_space}")
         print(f"> add_whitespace_tokens = {self.add_whitespace_tokens}")
+        print(f"> add_code_tokens = {self.add_code_tokens}")
         print(f"> minimum_frequency = {self.minimum_frequency}")
         print(f"> vocab_size = {self.vocab_size}")
         print(f"> alpha = {self.alpha}")
@@ -62,5 +69,6 @@ class Parameters:
             f"d{int(self.individual_digits)}-" + \
             f"p{int(self.add_prefix_space)}-" + \
             f"w{int(self.add_whitespace_tokens)}-" + \
+            f"c{int(self.add_code_tokens)}-" + \
             f"f{self.minimum_frequency}-" + \
             f"v{self.vocab_size}"  # + f"v{self.vocab_size}-" + f"a{self.alpha}"
