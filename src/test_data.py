@@ -4,6 +4,11 @@ TEST_CORPUS = [
         return n
     else:
         return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
+    """def fibRec(n):
+    if n < 2:
+        return n
+    else:
+        return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
     "Det här är ett test.",
     "Två meningar!",
     "12345",
@@ -18,6 +23,11 @@ TEST_CORPUS = [
 TEST_EXAMPLES = [
     # "Let's test this tokenizer.",
     """<|python|> def fibRec(n):
+    if n < 2:
+        return n
+    else:
+        return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
+    """def fibRec(n):
     if n < 2:
         return n
     else:

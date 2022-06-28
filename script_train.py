@@ -1,5 +1,6 @@
 """
 EXECUTION: python script_train.py
+           --library
            --dataset_files
            --dataset_name
            --add_prefix_space
@@ -10,7 +11,7 @@ EXECUTION: python script_train.py
            --vocab_size
            --alpha
 
-PURPOSE: the script trains a tokenizer named <tokenizer_name> on the <dataset_files>
+PURPOSE: the script uses <library> to train a tokenizer named <tokenizer_name> on the <dataset_files>
          using the rest of the arguments as parameters.
 
          the trained tokenizer is saved at output/HHMMSS_[parameters]_<tokenizer_name>
@@ -31,42 +32,31 @@ from src.parameters import Parameters
 from src.helpers import get_normalizer, get_training_corpus_combined
 from src.output import Output
 
+import sentencepiece as spm
 
-def main(args):
-    ts = time.time()
 
-    # -1. Preparations: parameters & output
-    parameters = Parameters(**vars(args))
-    parameters.show()
-
-    output = Output(parameters.output_dir)
-    output.export_parameters(parameters)
-
-    # 0. Load Datasets
-    # if args.alpha != 1.0:
-    #     upsampled_data_file = upsampling(parameters.dataset_files, args.alpha)
-    #     data_files += upsampled_data_file
-    datasets_combined = load_dataset('json', data_files={'train': parameters.dataset_files})
-
+def train_hf(_parameters, _output, _datasets_combined):
     # 1. Define Tokenizer
     tokenizer = Tokenizer(models.BPE())
-    tokenizer.normalizer = get_normalizer(parameters.unicode_normalization)
+    _normalizer = get_normalizer(_parameters.unicode_normalization)
+    if _normalizer is not None:
+        tokenizer.normalizer = _normalizer
 
-    pre_tokenizer_features = [pre_tokenizers.ByteLevel(add_prefix_space=parameters.add_prefix_space)]
-    if parameters.individual_digits:
+    pre_tokenizer_features = [pre_tokenizers.ByteLevel(add_prefix_space=_parameters.add_prefix_space)]
+    if _parameters.individual_digits:
         pre_tokenizer_features += [pre_tokenizers.Digits(individual_digits=True)]
     tokenizer.pre_tokenizer = pre_tokenizers.Sequence(pre_tokenizer_features)
 
     # 2. Train
     trainer = trainers.BpeTrainer(
-        vocab_size=parameters.vocab_size,
-        special_tokens=parameters.special_tokens,
-        min_frequency=parameters.minimum_frequency,
+        vocab_size=_parameters.vocab_size,
+        special_tokens=_parameters.special_tokens,
+        min_frequency=_parameters.minimum_frequency,
         initial_alphabet=pre_tokenizers.ByteLevel.alphabet(),
         # https://github.com/huggingface/tokenizers/issues/813#issuecomment-937847770
     )
     tokenizer.train_from_iterator(
-        get_training_corpus_combined(datasets_combined),
+        get_training_corpus_combined(_datasets_combined),
         trainer=trainer
     )
 
@@ -75,7 +65,51 @@ def main(args):
     tokenizer.decoder = decoders.ByteLevel()
 
     # 4. Save
-    tokenizer.save(join(output.path, "tokenizer.json"))
+    tokenizer.save(join(_output.path, "tokenizer.json"))
+
+
+def train_sp(_parameters, _output, _datasets_combined):
+    spm.SentencePieceTrainer.train(
+        sentence_iterator=get_training_corpus_combined(_datasets_combined, batch_size=1),
+        model_prefix=_output.model_prefix,
+        model_type="BPE",
+        bos_id=-1,
+        eos_id=-1,
+        # shrinking_factor=0.95,  # default: 0.75
+        max_sentence_length=1000000,  # default: 4192, TODO
+        # byte_fallback=True,
+        character_coverage=1.0,
+        normalization_rule_name="identity",                              # 1. unicode normalization
+        split_digits=_parameters.individual_digits,                      # 2. individual digits
+        add_dummy_prefix=_parameters.add_prefix_space,                   # 3. add prefix space
+        remove_extra_whitespaces=False,                                  # 4a. add whitespace
+        user_defined_symbols=_parameters.special_tokens,                 # 4a. add whitespace & 4b. code tokens
+        vocab_size=_parameters.vocab_size,                               # 6. vocabulary size
+    )
+
+
+def main(args):
+    ts = time.time()
+
+    # -1. Preparations: parameters & output
+    parameters = Parameters(**vars(args))
+    parameters.show()
+
+    output = Output(parameters.output_dir, parameters.library)
+    output.export_parameters(parameters)
+
+    # 0. Load Datasets
+    # if args.alpha != 1.0:
+    #     upsampled_data_file = upsampling(parameters.dataset_files, args.alpha)
+    #     data_files += upsampled_data_file
+    datasets_combined = load_dataset('json', data_files={'train': parameters.dataset_files})
+
+    if parameters.library == "HF":
+        train_hf(parameters, output, datasets_combined)
+    elif parameters.library == "SP":
+        train_sp(parameters, output, datasets_combined)
+    else:
+        raise Exception(f"library = {parameters.library} unknown, should be HF or SP")
 
     # 5. Output
     output.export_tokenizer_for_megatron_lm()
@@ -85,6 +119,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--library", type=str, default="HF")
     parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/test.json"])
     parser.add_argument("--dataset_name", type=str, default="?")
     parser.add_argument("--unicode_normalization", type=str, default="NFC")

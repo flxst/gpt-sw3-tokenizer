@@ -1,7 +1,9 @@
 #!/bin/bash
 
 ### STANDARD PARAMETERS ##############################
-UNICODE_NORMALIZATION="NFC"
+# LIBRARY="HF"
+LIBRARY="SP"
+UNICODE_NORMALIZATION="None"
 INDIVIDUAL_DIGITS=1
 ADD_PREFIX_SPACE=1
 ADD_WHITESPACE_TOKENS=1
@@ -16,13 +18,14 @@ ALPHA=-1
 ##################################################################################################
 
 # anforanden
-if [ 0 -eq 1 ]
+if [ 1 -eq 1 ]
 then
   ListDatasetFiles=("data/anforanden.jsonl")
   ListDatasetName=("2")
-  VOCAB_SIZE=100000
-  ADD_PREFIX_SPACE=0
-  ADD_WHITESPACE_TOKENS=0
+  LIBRARY="HF"
+  # LIBRARY="SP"
+  ADD_PREFIX_SPACE=1
+  VOCAB_SIZE=10000
 fi
 
 # anforanden + code
@@ -113,6 +116,7 @@ then
   for i in "${!ListDatasetFiles[@]}";
   do
       python script_train.py \
+        --library $LIBRARY \
         --dataset_files ${ListDatasetFiles[i]} \
         --dataset_name ${ListDatasetName[i]} \
         --unicode_normalization $UNICODE_NORMALIZATION \

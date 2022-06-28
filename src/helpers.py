@@ -2,6 +2,7 @@ from tokenizers import normalizers
 from datasets import Dataset
 
 UNICODE_NORMALIZATION = {
+    "None": None,
     "NFC": normalizers.NFC(),
     "NFKC": normalizers.NFKC(),
     "NFKD": normalizers.NFKD(),

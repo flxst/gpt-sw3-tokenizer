@@ -7,6 +7,7 @@ from src.code_tokens import CODE_TOKENS
 class Parameters:
     
     def __init__(self,
+                 library: str,
                  dataset_files: List[str],
                  dataset_name: str,
                  unicode_normalization: str = "NFC",
@@ -18,6 +19,8 @@ class Parameters:
                  vocab_size: int = 100,
                  alpha: float = 1.0):
 
+        assert library in ["HF", "SP"], f"ERROR! library = {library} unknown, needs to be HF or SP"
+        self.library = library
         self.dataset_files = dataset_files
         self.dataset_name = dataset_name
         self.unicode_normalization = unicode_normalization
@@ -33,7 +36,7 @@ class Parameters:
         self.special_tokens: List[str] = ["<|endoftext|>"]
 
         if self.add_whitespace_tokens:
-            whitespace_token = " "
+            whitespace_token = " " if self.library == "HF" else "▁"
             whitespace_tokens = [
                 whitespace_token * i
                 for i in range(2, 25)  # 2-24 consecutive whitespaces
@@ -49,6 +52,7 @@ class Parameters:
     def show(self) -> None:
         """ print parameters """
         print("=== PARAMETERS ===")
+        print(f"> library = {self.library}")
         print(f"> unicode_normalization = {self.unicode_normalization}")
         print(f"> individual_digits = {self.individual_digits}")
         print(f"> add_prefix_space = {self.add_prefix_space}")
@@ -65,6 +69,7 @@ class Parameters:
     def get_id(self) -> str:
 
         return "_" + \
+            f"{self.library}-" + \
             f"u{self.unicode_normalization}-" + \
             f"d{int(self.individual_digits)}-" + \
             f"p{int(self.add_prefix_space)}-" + \

@@ -67,6 +67,8 @@ def compare_vocab(model1,
 
         vocab = list(vocab_dict.keys())
 
+        vocab = [elem.replace("Ġ", "▁") for elem in vocab]  # for compatibility between HF & SP
+
         if _slt:
             # vocab = [subword for subword in vocab if len(subword) <= _slt]
             vocab = vocab[:_slt]

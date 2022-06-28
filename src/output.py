@@ -4,18 +4,31 @@ from os import makedirs
 from typing import List
 from os.path import getsize, join
 from datasets import Dataset
+import sentencepiece as spm
 
 
 class Output:
 
     def __init__(self,
-                 path: str):
+                 path: str,
+                 library: str):
         """
         Args:
             path: e.g. 'output/125842/
         """
         self.path = path
+        self.library = library
         makedirs(self.path, exist_ok=False)
+
+        self.parameters_file = join(self.path, "parameters.txt")
+        self.tokenizer_file = join(self.path, "tokenizer.json")
+        self.vocab_file = join(self.path, "tokenizer_vocab.json")
+        self.merge_file = join(self.path, "tokenizer_merge.txt")
+        self.subword_lengths_file = join(self.path, "tokenizer_subword_lengths.json")
+
+        # SP
+        self.model_prefix = join(self.path, "model")
+        self.model_file = join(self.path, "model.model")
 
     def export_parameters(self, parameters) -> None:
         """ export parameters to file
@@ -23,8 +36,7 @@ class Output:
         e.g. 'output/125842/
               => parameters file = 'output/125842/parameters.txt'
         """
-        _parameters_file = join(self.path, "parameters.txt")
-        with open(_parameters_file, "w") as f:
+        with open(self.parameters_file, "w") as f:
             for k, v in parameters.__dict__.items():
                 if not k.startswith("__") and not callable(v):
                     f.write(f"{k} = {v}\n")
@@ -37,24 +49,30 @@ class Output:
                                    'output/125842/tokenizer_vocab.json'
         """
 
-        # a. load tokenizer_file json
-        with open(join(self.path, "tokenizer.json"), "r") as file:
-            r = json.load(file)
-        vocab = r["model"]["vocab"]
-        merges = r["model"]["merges"]
+        if self.library == "HF":
+            # a. load tokenizer_file json
+            with open(self.tokenizer_file, "r", encoding="utf-8") as file:
+                r = json.load(file)
+            vocab = r["model"]["vocab"]
+            merges = r["model"]["merges"]
+        elif self.library == "SP":
+            sp = spm.SentencePieceProcessor()
+            sp.Load(self.model_file)
+            vocab = {sp.IdToPiece(_id): _id for _id in range(sp.GetPieceSize())}
+            merges = []  # TODO
+        else:
+            raise Exception(f"library = {self.library} unknown, should be HF or SP")
 
         # b. export vocab
-        _vocab_file = join(self.path, "tokenizer_vocab.json")
-        with open(_vocab_file, "w", encoding="utf-8") as f:
+        with open(self.vocab_file, "w", encoding="utf-8") as f:
             f.write(json.dumps(vocab))
-        print(f"> wrote vocab  file '{_vocab_file}': #vocab = {len(vocab)}")
+        print(f"> wrote vocab  file '{self.vocab_file}': #vocab = {len(vocab)}")
 
         # c. export merge
-        _merge_file = join(self.path, "tokenizer_merge.txt")
-        with open(_merge_file, "w", encoding="utf-8") as f:
+        with open(self.merge_file, "w", encoding="utf-8") as f:
             for i in range(len(merges)):
                 f.write(merges[i] + "\n")
-        print(f"> wrote merges file '{_merge_file}': #merges = {len(merges)}")
+        print(f"> wrote merges file '{self.merge_file}': #merges = {len(merges)}")
 
     def analyze_vocabulary(self) -> None:
         """ analyze vocabulary w.r.t. vocabulary size & subword token length
@@ -64,8 +82,7 @@ class Output:
         """
 
         # a. get subword lengths = dict w/ keys = subword length, value = occurrences in vocabulary
-        _vocab_file = join(self.path, "tokenizer_vocab.json")
-        with open(_vocab_file, "r", encoding="utf-8") as f:
+        with open(self.vocab_file, "r", encoding="utf-8") as f:
             vocab = json.load(f)
         subwords = list(vocab.keys())
         subword_lengths_list = [len(elem) for elem in subwords]
@@ -75,10 +92,9 @@ class Output:
         subword_lengths["vocab_size"] = len(vocab)
 
         # b. export subword lengths
-        _subword_lengths_file = join(self.path, "tokenizer_subword_lengths.json")
-        with open(_subword_lengths_file, "w", encoding="utf-8") as f:
+        with open(self.subword_lengths_file, "w", encoding="utf-8") as f:
             f.write(json.dumps(subword_lengths))
-        print(f"> wrote subword length file '{_subword_lengths_file}'")
+        print(f"> wrote subword length file '{self.subword_lengths_file}'")
 
     def overview(self,
                  _dataset_combined: Dataset,
