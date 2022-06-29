@@ -9,6 +9,8 @@ ADD_PREFIX_SPACE=1
 ADD_WHITESPACE_TOKENS=1
 ADD_CODE_TOKENS=1
 MINIMUM_FREQUENCY=0
+BYTE_FALLBACK=1
+CHARACTER_COVERAGE=0.9999
 VOCAB_SIZE=128000
 ALPHA=-1
 
@@ -22,9 +24,10 @@ if [ 1 -eq 1 ]
 then
   ListDatasetFiles=("data/anforanden.jsonl")
   ListDatasetName=("2")
-  LIBRARY="HF"
-  # LIBRARY="SP"
-  ADD_PREFIX_SPACE=1
+  # LIBRARY="HF"
+  LIBRARY="SP"
+  # ADD_PREFIX_SPACE=1
+  # CHARACTER_COVERAGE=0.98
   VOCAB_SIZE=10000
 fi
 
@@ -125,6 +128,8 @@ then
         --add_whitespace_tokens $ADD_WHITESPACE_TOKENS \
         --add_code_tokens $ADD_CODE_TOKENS \
         --minimum_frequency $MINIMUM_FREQUENCY \
+        --byte_fallback $BYTE_FALLBACK \
+        --character_coverage $CHARACTER_COVERAGE \
         --vocab_size $VOCAB_SIZE \
         --alpha $ALPHA
   done

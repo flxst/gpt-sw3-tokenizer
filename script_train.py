@@ -75,15 +75,16 @@ def train_sp(_parameters, _output, _datasets_combined):
         model_type="BPE",
         bos_id=-1,
         eos_id=-1,
+        # allow_whitespace_only_pieces=True,  # default: False
         # shrinking_factor=0.95,  # default: 0.75
         max_sentence_length=1000000,  # default: 4192, TODO
-        # byte_fallback=True,
-        character_coverage=1.0,
         normalization_rule_name="identity",                              # 1. unicode normalization
         split_digits=_parameters.individual_digits,                      # 2. individual digits
         add_dummy_prefix=_parameters.add_prefix_space,                   # 3. add prefix space
         remove_extra_whitespaces=False,                                  # 4a. add whitespace
         user_defined_symbols=_parameters.special_tokens,                 # 4a. add whitespace & 4b. code tokens
+        byte_fallback=_parameters.byte_fallback,                         # SP extra
+        character_coverage=_parameters.character_coverage,               # SP extra
         vocab_size=_parameters.vocab_size,                               # 6. vocabulary size
     )
 
@@ -128,6 +129,8 @@ if __name__ == "__main__":
     parser.add_argument("--add_whitespace_tokens", type=int, default=1)
     parser.add_argument("--add_code_tokens", type=int, default=1)
     parser.add_argument("--minimum_frequency", type=int, default=0)
+    parser.add_argument("--byte_fallback", type=int, default=1)
+    parser.add_argument("--character_coverage", type=float, default=1.0)
     parser.add_argument("--vocab_size", type=int, default=500)
     parser.add_argument("--alpha", type=float, default=-1)
     _args = parser.parse_args()
