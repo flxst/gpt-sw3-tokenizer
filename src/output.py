@@ -14,7 +14,8 @@ class Output:
                  library: str):
         """
         Args:
-            path: e.g. 'output/125842/
+            path: e.g. 'output/125842_[..]
+            library: e.g. 'SP'
         """
         self.path = path
         self.library = library
@@ -59,7 +60,7 @@ class Output:
             sp = spm.SentencePieceProcessor()
             sp.Load(self.model_file)
             vocab = {sp.IdToPiece(_id): _id for _id in range(sp.GetPieceSize())}
-            merges = []  # TODO
+            merges = []  # use script_merge.py to extract merges from vocab
         else:
             raise Exception(f"library = {self.library} unknown, should be HF or SP")
 
@@ -69,10 +70,11 @@ class Output:
         print(f"> wrote vocab  file '{self.vocab_file}': #vocab = {len(vocab)}")
 
         # c. export merge
-        with open(self.merge_file, "w", encoding="utf-8") as f:
-            for i in range(len(merges)):
-                f.write(merges[i] + "\n")
-        print(f"> wrote merges file '{self.merge_file}': #merges = {len(merges)}")
+        if len(merges) > 0:
+            with open(self.merge_file, "w", encoding="utf-8") as f:
+                for i in range(len(merges)):
+                    f.write(merges[i] + "\n")
+            print(f"> wrote merges file '{self.merge_file}': #merges = {len(merges)}")
 
     def analyze_vocabulary(self) -> None:
         """ analyze vocabulary w.r.t. vocabulary size & subword token length
