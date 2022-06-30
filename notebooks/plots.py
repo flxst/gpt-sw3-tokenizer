@@ -228,7 +228,7 @@ def plot_vocab_size(_model):
     models = [model for model in models if _start in model and model.endswith(_end)]
 
     model_dict = {
-        int(model.split("-f")[-1].split("-v")[0]): model
+        int(model.split("-f")[-1].split("-")[0]): model
         for model in models
     }
     model_dict = dict(sorted(model_dict.items(), key=lambda item: item[0]))
