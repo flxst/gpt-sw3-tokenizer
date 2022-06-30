@@ -18,6 +18,7 @@ class Parameters:
                  minimum_frequency: int = 0,
                  byte_fallback: bool = True,
                  character_coverage: float = 1.0,
+                 train_extremely_large_corpus: bool = True,
                  vocab_size: int = 100,
                  alpha: float = 1.0):
 
@@ -33,6 +34,7 @@ class Parameters:
         self.minimum_frequency = minimum_frequency
         self.byte_fallback = bool(byte_fallback) if self.library == "SP" else "?"
         self.character_coverage = character_coverage if self.library == "SP" else "?"
+        self.train_extremely_large_corpus = bool(train_extremely_large_corpus) if self.library == "SP" else "?"
         self.vocab_size = vocab_size
         self.alpha = alpha
 
@@ -65,6 +67,7 @@ class Parameters:
         print(f"> minimum_frequency = {self.minimum_frequency}")
         print(f"> byte_fallback = {self.byte_fallback}")
         print(f"> character_coverage = {self.character_coverage}")
+        print(f"> train_extremely_large_corpus = {self.train_extremely_large_corpus}")
         print(f"> vocab_size = {self.vocab_size}")
         print(f"> alpha = {self.alpha}")
         print("==================")
@@ -84,4 +87,5 @@ class Parameters:
             f"f{self.minimum_frequency}-" + \
             f"bf{int(self.byte_fallback)}-" + \
             f"cc{self.character_coverage}-" + \
+            f"x{int(self.train_extremely_large_corpus)}-" + \
             f"v{self.vocab_size}"  # + f"v{self.vocab_size}-" + f"a{self.alpha}"
