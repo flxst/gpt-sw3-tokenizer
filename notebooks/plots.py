@@ -3,8 +3,110 @@ import os
 from os.path import join, isfile, isdir
 import json
 from typing import List, Tuple, Dict, Any, Optional
+from termcolor import colored
+from transformers import PreTrainedTokenizerFast
+import sentencepiece as spm
+
+OUTPUT_DIR = "../output"
 
 
+###########################################################################################
+# 0. START ################################################################################
+###########################################################################################
+def get_models_in_output_dir() -> List[str]:
+    return [
+        elem for elem in sorted(os.listdir(OUTPUT_DIR))
+        if not elem.startswith(".") and not elem.startswith("evaluation")
+    ]
+
+
+###########################################################################################
+# 1. SHOW EXAMPLES ########################################################################
+###########################################################################################
+def decode_hack(_decoded_elementwise):
+    """
+    needs to be improved:
+    - should only be applied if add_prefix_space == True & add_whitespace_tokens == 24
+    - should only change an element if the next element is a non-whitespace-element
+    """
+    return [
+        elem[:-1]
+        if set(elem) == {' '}
+        else elem
+        for elem in _decoded_elementwise
+    ]
+    # return "".join(decoded_elementwise_hack)
+
+
+def display(_example_decoded_per_token, show_linebreak=False, equal_to_original=None):
+    newline = "↩\n" if show_linebreak else "↩"
+    example_decoded_per_token = [
+        elem.replace("\n", newline).replace(" ", "-")
+        for elem in _example_decoded_per_token
+    ]
+
+    colors = ["red", "blue"]
+    for i, elem in enumerate(example_decoded_per_token):
+        print(colored(elem, colors[i % len(colors)]), end="")
+    print()
+    if equal_to_original is None:
+        print(f"> {len(example_decoded_per_token)} tokens")
+    else:
+        print(f"> equal to original: {equal_to_original}")
+    print()
+
+
+def tokenize_hf(_model: str, _example: str) -> Dict[str, Any]:
+    # 1. load tokenizer
+    tokenizer_file = join(OUTPUT_DIR, _model, "tokenizer.json")
+    tokenizer_fast = PreTrainedTokenizerFast(tokenizer_file=tokenizer_file)
+
+    # 2. tokenize & de-tokenize
+    _texample = dict()
+    _texample['encoded'] = tokenizer_fast.encode(_example)
+    _texample['tokenized'] = tokenizer_fast.convert_ids_to_tokens(_texample['encoded'])
+    _texample['de-tokenized'] = tokenizer_fast.decode(_texample['tokenized'])
+    _texample['de-tokenized_elementwise'] = [tokenizer_fast.decode(elem) for elem in _texample['encoded']]
+
+    _texample['de-tokenized_elementwise_hack'] = decode_hack(_texample['de-tokenized_elementwise'])
+
+    return _texample
+
+
+def tokenize_sp(_model: str, _example: str) -> Dict[str, Any]:
+    # 1. load tokenizer
+    tokenizer_file = join(OUTPUT_DIR, _model, "model.model")
+    sp = spm.SentencePieceProcessor(model_file=tokenizer_file)
+
+    # 2. tokenize & de-tokenize
+    _texample = dict()
+    _texample['encoded'] = sp.encode(_example, out_type=int)
+    _texample['tokenized'] = sp.encode(_example, out_type=str)
+    _texample['de-tokenized'] = sp.decode(_texample['tokenized'])
+
+    _texample['de-tokenized_elementwise'] = list()
+    idx_end = 0
+    for i, token in enumerate(_texample['tokenized']):
+        if i == 0 and token.startswith("▁"):
+            _token = token[1:]
+        elif i > 0 and token.startswith("▁"):
+            _token = token.replace("▁", " ")
+        else:
+            _token = token
+
+        if _token.startswith("<") and _token.endswith(">"):
+            _token = sp.decode(_token)
+
+        idx_start = _texample['de-tokenized'][idx_end:].find(_token) + idx_end
+        idx_end = idx_start + len(_token)
+        _texample['de-tokenized_elementwise'].append(_texample['de-tokenized'][idx_start: idx_end])
+
+    return _texample
+
+
+###########################################################################################
+# 2. SUBWORDS #############################################################################
+###########################################################################################
 def _get_data(model):
     output_dir = join("..", "output", model)
     _subword_lengths_file = join(output_dir, "tokenizer_subword_lengths.json")
@@ -115,9 +217,10 @@ def _get_overview(_model) -> Dict[str, Any]:
     return overview_dict
 
 
-def _get_lang_dataset_size_time(_models):
+def _get_lang_dataset_size_time(_models, verbose=False):
     overview = {_model: _get_overview(_model) for _model in _models}
-    print(overview)
+    if verbose:
+        print(overview)
 
     if len(overview) == 0:
         return None, None, None
@@ -130,10 +233,11 @@ def _get_lang_dataset_size_time(_models):
     return lang, dataset_size, time
 
 
-def plot_overview(_models):
+def plot_overview(_models, verbose=False):
 
     lang, dataset_size, time = _get_lang_dataset_size_time(_models)
-    print(lang, dataset_size, time)
+    if verbose:
+        print(lang, dataset_size, time)
 
     if lang is None:
         print("no data")
@@ -150,23 +254,123 @@ def plot_overview(_models):
     ax.legend()
 
 
-def plot_overview_data(_models):
-    lang, dataset_size, time = _get_lang_dataset_size_time(_models)
-    print(lang, dataset_size, time)
+###########################################################################################
+# 3. GET MODELS & VOCAB SIZE ##############################################################
+###########################################################################################
+def get_models_multilinguality(_models: List[str], verbose: bool = False) -> List[str]:
+    _models_multilinguality = [model for model in _models if model.count("_3") > 0]
+    if len(_models_multilinguality):
+        _core = list(set(["_".join(model.split("_")[1:-1])
+                          for model in _models_multilinguality
+                          if model.endswith("da")]
+                         ))[0]
+        core = _core  #.split("-v")[0]
+        # vocab = _core.split("-v")[-1]
+        # print(vocab)
+        _models_multilinguality = [model for model in _models_multilinguality if core in model]
+        _models_multilinguality.sort(key=lambda x: x.split("_3")[-1])
+        _models_multilinguality = {model.split("_3")[-1]: model for model in _models_multilinguality}
+
+        if verbose:
+            print(core)
+            print(_models_multilinguality)
+
+    return _models_multilinguality
+
+
+def split_models_multilinguality(_models_multilinguality: Dict[str, str]) -> Dict[str, Any]:
+    _ml = dict()
+    if len(_models_multilinguality):
+        _ml["lang_complete"] = list(_models_multilinguality.keys())
+        _ml["lang_all"] = [l for l in _ml["lang_complete"] if l.startswith("all")]
+        _ml["lang_pure"] = [l for l in _ml["lang_complete"] if not l.startswith("all")]
+
+        _ml["models_complete"] = _models_multilinguality
+        _ml["models_all"] = {k: _models_multilinguality[k] for k in _ml["lang_all"]}
+        _ml["models_pure"] = {k: _models_multilinguality[k] for k in _ml["lang_pure"]}
+    else:
+        _ml = {
+            k: []
+            for k in ["lang_complete", "lang_all", "lang_pure", "models_complete", "models_all", "models_pure"]
+        }
+    return _ml
+
+
+def get_intersection(_models_multilinguality: Dict[str, str],
+                     lang_1: str,
+                     lang_2: str,
+                     vocab_1: int,
+                     vocab_2: int):
+    model_1 = _models_multilinguality[lang_1]
+    model_2 = _models_multilinguality[lang_2]
+    v, _, _ = compare_vocab(model_1, model_2, vocab_1, vocab_2)
+    return v["intersection"]
+
+
+def get_intersections(_models_multilinguality: Dict[str, str],
+                      _ml: Dict[str, Dict],
+                      _vocabs_1: List[int],
+                      _vocabs_2: List[int]) -> Dict[str, Dict]:
+    _timelines = dict()
+    if len(_models_multilinguality):
+        intersections = {
+            lang_1: {
+                lang_2: {
+                    vocab_1: {
+                        vocab_2: get_intersection(_models_multilinguality,
+                                                  lang_1,
+                                                  lang_2,
+                                                  vocab_1,
+                                                  vocab_2)
+                        for vocab_2 in _vocabs_2
+                    }
+                    for vocab_1 in _vocabs_1
+                }
+                for lang_2 in _ml["lang_complete"]
+            }
+            for lang_1 in _ml["lang_all"]
+        }
+
+        _timelines['abs'] = {
+            lang_1: {
+                vocab_2: {
+                    lang_2:
+                        [intersections[lang_1][lang_2][vocab_1][vocab_2] for vocab_1 in _vocabs_1]
+                    for lang_2 in _ml["lang_pure"]
+                }
+                for vocab_2 in _vocabs_2
+            }
+            for lang_1 in _ml["lang_all"]
+        }
+
+        _timelines['rel'] = {
+            lang_1: {
+                vocab_2: {
+                    lang_2:
+                        [intersections[lang_1][lang_2][vocab_1][vocab_2] / intersections[lang_1][lang_1][vocab_2][
+                            vocab_2] for vocab_1 in _vocabs_1]
+                    for lang_2 in _ml["lang_pure"]
+                }
+                for vocab_2 in _vocabs_2
+            }
+            for lang_1 in _ml["lang_all"]
+        }
+    else:
+        _timelines = None
+
+    return _timelines
+
+
+def plot_overview_data(_models, verbose=False):
+    lang, dataset_size, time = _get_lang_dataset_size_time(_models, verbose)
+    if verbose:
+        print(lang, dataset_size, time)
 
     if lang is None:
         print("no data")
         return
 
-    # lang = lang[:-1]
-    # dataset_size = dataset_size[:-1]
-
-    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    # labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
-    # sizes = [15, 30, 45, 10, 10]
-    # explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
-
-    fig, ax = plt.subplots(1, 3, figsize=(16, 5))
+    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
     ax[0].pie(dataset_size,
               labels=lang,
               autopct='%.f%%',
@@ -179,41 +383,7 @@ def plot_overview_data(_models):
     x = lang
     y = dataset_size
     ax[1].bar(x, y, color=[color(lg) for lg in lang])
-    ax[1].set_title('dataset size')
-
-    x = lang
-    y = [250000]*len(lang)  # [56654, 99452, 150540, 138835, 148386]  # TODO
-    print(x, y, [color(lg) for lg in lang])
-    ax[2].bar(x, y, color=[color(lg) for lg in lang])
-    ax[2].set_title('vocab size')
-
-
-def plot_timelines(steps: List[int],
-                   steps_2: int,
-                   _timelines_all: List[Dict[str, List[float]]],
-                   lang: List[str],
-                   ylim: List[float],
-                   ylabel: List[str],
-                   title: List[str]):
-    nfigs = len(_timelines_all)
-    fig, ax = plt.subplots(1, max(2, nfigs), figsize=(8*max(2, nfigs), 5))
-    for nfig in range(nfigs):
-        for i, (k, v) in enumerate(_timelines_all[nfig].items()):
-            x = steps  # [j for j in range(len(_timelines_all[nfig][k]))]
-            y = _timelines_all[nfig][k]
-            # print(i)
-            # print(x)
-            # print(y)
-            # print()
-            ax[nfig].plot(x, y, color=color(k), label=lang[i], marker="s")
-            ax[nfig].plot(x, [steps_2]*len(x), color="k")
-            if nfig == nfigs - 1:
-                ax[nfig].plot(x, [1] * len(x), color="k")
-        ax[nfig].set_xlabel("common tokenizer vocab size")
-        ax[nfig].set_ylabel(ylabel[nfig])
-        ax[nfig].set_title(title[nfig])
-        ax[nfig].set_ylim([0, ylim[nfig]])
-        ax[nfig].legend()
+    ax[1].set_title('dataset size [GB]')
 
 
 def plot_vocab_size(_model):
@@ -253,3 +423,89 @@ def plot_vocab_size(_model):
     ax[1].set_xlabel("minimum_frequency")
     ax[1].set_title("mean(subword length)")
     ax[1].set_ylim([0, max(mean)*1.1])
+
+
+def plot_timelines(steps: List[int],
+                   steps_2: int,
+                   _timelines_all: List[Dict[str, List[float]]],
+                   lang: List[str],
+                   ylim: List[float],
+                   ylabel: List[str],
+                   title: List[str]):
+    nfigs = len(_timelines_all)
+    fig, ax = plt.subplots(1, nfigs, figsize=(8 * nfigs, 5))
+    _ax = [ax] if nfigs == 1 else ax
+
+    for nfig in range(nfigs):
+        for i, (k, v) in enumerate(_timelines_all[nfig].items()):
+            x = steps  # [j for j in range(len(_timelines_all[nfig][k]))]
+            y = _timelines_all[nfig][k]
+            # print(i)
+            # print(x)
+            # print(y)
+            # print()
+            x_full = [elem for elem in x if elem > 50000]
+            threshold_empty = len(x) - len(x_full)
+            y_full = y[threshold_empty:]
+            _ax[nfig].plot(x, y, color=color(k), label=None, marker="s", markerfacecolor="w")
+            _ax[nfig].plot(x_full, y_full, color=color(k), label=lang[i], marker="s")
+            _ax[nfig].plot(x, [steps_2]*len(x), color="k")
+            if ylabel[nfig] == "relative":
+                _ax[nfig].plot(x, [1] * len(x), color="k")
+                _ax[nfig].text(x[0], 1.03, steps_2)
+        _ax[nfig].set_xlabel("common tokenizer vocab size")
+        _ax[nfig].set_ylabel(ylabel[nfig])
+        _ax[nfig].set_title(title[nfig])
+        _ax[nfig].set_ylim([0, ylim[nfig]])
+        _ax[nfig].legend()
+
+
+###########################################################################################
+# 3. Evaluation #2 ########################################################################
+###########################################################################################
+def get_list_of_results():
+    evaluation_dir = join(OUTPUT_DIR, "evaluation")
+    results = [elem.split("results_")[-1].split(".json")[0] for elem in sorted(os.listdir(evaluation_dir))]
+    return results
+
+
+def read_results(_result):
+    _results_path = join(OUTPUT_DIR, "evaluation", f"results_{_result}.json")
+    with open(_results_path, "r") as file:
+        r = json.load(file)
+    return r
+
+
+def retrieve_bf_cc_from_results(_results):
+    models = list(set(_results.keys()))
+    bfs = list(set([model.split("-bf")[1].split("-cc")[0] for model in models]))
+    ccs = list(set([model.split("-cc")[1].split("-x")[0] for model in models]))
+    return bfs, ccs
+
+
+def retrieve_parameters_from_results(_bf, _cc, _results, verbose: bool = False):
+    models = list(set(_results.keys()))
+    vocabs = sorted(list(set([int(model.split("-v")[1].split("_")[0]) for model in models])))
+    vocabs_model = {
+        vocab: [
+            model
+            for model in models
+            if f"-bf{_bf}" in model
+               and f"-cc{_cc}" in model
+               and f"-v{vocab}_" in model
+        ][0]
+        for vocab in vocabs
+    }
+    files = list(_results[models[0]].keys())
+
+    languages = [file.split("/")[-1].split(".json")[0].split("_")[1] for file in
+                 files]  # WORKS ONLY FOR 'wiki_??_t1p'!!!
+    languages_files = {k: v for k, v in zip(languages, files)}
+
+    if verbose:
+        print(vocabs)
+        print(vocabs_model)
+        print(files)
+        print(languages)
+
+    return vocabs, vocabs_model, files, languages, languages_files

@@ -77,7 +77,7 @@ then
                      data/wiki_no_h1p.jsonl
                      data/wiki_sv_h1p.jsonl")
   ListDatasetName=("3all")
-  BYTE_FALLBACK=1
+  BYTE_FALLBACK=0
   CHARACTER_COVERAGE=1.0  # 0.9999
   VOCAB_SIZE=51200
   # VOCAB_SIZE=64000

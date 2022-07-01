@@ -99,6 +99,9 @@ if __name__ == "__main__":
         NAME = "bf-bc"
         MODELS = [
             "output/123500_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v51200_3all-a1.0",
+            "output/132109_SP-uNone-d1-p1-w1-c1-f0-bf0-cc0.9999-x1-v51200_3all-a1.0",
+            "output/161742_SP-uNone-d1-p1-w1-c1-f0-bf1-cc1.0-x1-v51200_3all-a1.0",
+            "output/185909_SP-uNone-d1-p1-w1-c1-f0-bf0-cc1.0-x1-v51200_3all-a1.0",
         ]
         DATA = [
             "data/wiki_da_t1p.jsonl",
