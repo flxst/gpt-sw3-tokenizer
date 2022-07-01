@@ -33,7 +33,7 @@ from src.helpers import get_normalizer, get_training_corpus_combined
 from src.output import Output
 
 import sentencepiece as spm
-from script_move_special_tokens import add_tokens
+from script_add_special_tokens import add_special_tokens
 
 
 def train_hf(_parameters, _output, _datasets_combined):
@@ -92,7 +92,7 @@ def train_sp(_parameters, _output, _datasets_combined):
     )
 
     if _parameters.add_whitespace_tokens == 2:
-        add_tokens(_model_path=_output.path)
+        add_special_tokens(_model_path=_output.path)
 
 
 def main(args):
