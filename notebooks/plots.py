@@ -11,17 +11,28 @@ OUTPUT_DIR = "../output"
 
 
 ###########################################################################################
-# 0. START ################################################################################
+# 1. MODELS ###############################################################################
 ###########################################################################################
-def get_models_in_output_dir() -> List[str]:
-    return [
-        elem for elem in sorted(os.listdir(OUTPUT_DIR))
-        if not elem.startswith(".") and not elem.startswith("evaluation")
+def get_models_in_output_dir(subdirs: List[str]) -> Dict[str, List[str]]:
+    _models = dict()
+
+    for subdir in subdirs:
+        _models[subdir] = sorted([
+            join(subdir, model)
+            for model in os.listdir(join(OUTPUT_DIR, subdir))
+        ])
+
+    _models["all"] = [
+        model
+        for subdir in subdirs
+        for model in _models.get(subdir)
     ]
 
+    return _models
+
 
 ###########################################################################################
-# 1. SHOW EXAMPLES ########################################################################
+# 1. TOKENIZATION EXAMPLES ################################################################
 ###########################################################################################
 def decode_hack(_decoded_elementwise):
     """
@@ -65,7 +76,7 @@ def tokenize_hf(_model: str, _example: str) -> Dict[str, Any]:
     _texample = dict()
     _texample['encoded'] = tokenizer_fast.encode(_example)
     _texample['tokenized'] = tokenizer_fast.convert_ids_to_tokens(_texample['encoded'])
-    _texample['de-tokenized'] = tokenizer_fast.decode(_texample['tokenized'])
+    _texample['de-tokenized'] = tokenizer_fast.decode(_texample['encoded'])
     _texample['de-tokenized_elementwise'] = [tokenizer_fast.decode(elem) for elem in _texample['encoded']]
 
     _texample['de-tokenized_elementwise_hack'] = decode_hack(_texample['de-tokenized_elementwise'])
@@ -255,7 +266,7 @@ def plot_overview(_models, verbose=False):
 
 
 ###########################################################################################
-# 3. GET MODELS & VOCAB SIZE ##############################################################
+# 3. VOCAB SIZE & MULTILINGUALITY #########################################################
 ###########################################################################################
 def get_models_multilinguality(_models: List[str], verbose: bool = False) -> List[str]:
     _models_multilinguality = [model for model in _models if model.count("_3") > 0]
@@ -387,12 +398,17 @@ def plot_overview_data(_models, verbose=False):
 
 
 def plot_vocab_size(_model):
-    # print(_model)
+    subdir = _model.split("/")[0]
 
     # 1. get all models that only differ w.r.t. minimum vocabulary
-    output_dir = join("..", "output")
-    models = [subdir for subdir in os.listdir(output_dir) if isdir(join(output_dir, subdir))]
-    _model_wo_id = "_".join(_model.split("_")[1:])
+    output_dir = join("..", "output", subdir)
+    models = [
+        join(subdir, model)
+        for model in os.listdir(output_dir)
+        if isdir(join(output_dir, model))
+    ]
+
+    _model_wo_id = "_".join(_model.split("/")[-1].split("_")[1:])
     _start = _model_wo_id.split("-f")[0]
     _end = _model_wo_id.split("-v")[-1]
     models = [model for model in models if _start in model and model.endswith(_end)]
@@ -402,11 +418,9 @@ def plot_vocab_size(_model):
         for model in models
     }
     model_dict = dict(sorted(model_dict.items(), key=lambda item: item[0]))
-    # print(model_dict)
 
     # 2. get data from all models
     model_data = {k: _get_data(v) for k, v in model_dict.items()}
-    # print(model_data)
 
     min_frequency = [k for k in model_data.keys()]
     vocab_size = [v["vocab_size"] for v in model_data.values()]

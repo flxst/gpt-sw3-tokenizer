@@ -21,22 +21,24 @@ ALPHA=-1
 ##################################################################################################
 
 # anforanden
-if [ 0 -eq 1 ]
+if [ 1 -eq 1 ]
 then
-  ListDatasetFiles=("data/anforanden.jsonl")
+  ListDatasetFiles=("data/books_sv_epub_100.jsonl")
   ListDatasetName=("2")
   # LIBRARY="HF"
-  # LIBRARY="SP"
-  # ADD_PREFIX_SPACE=1
-  # CHARACTER_COVERAGE=0.98
-  # VOCAB_SIZE=128000
+  LIBRARY="SP"
+  ADD_PREFIX_SPACE=1
+  ADD_WHITESPACE_TOKENS=1
+  BYTE_FALLBACK=0
+  CHARACTER_COVERAGE=1.0
+  VOCAB_SIZE=10000
 fi
 
 # anforanden + code
 if [ 0 -eq 1 ]
 then
   # ListDatasetFiles=("data/anforanden.jsonl data/code.json data/fibrec.json")
-  ListDatasetFiles=("data/anforanden.jsonl
+  ListDatasetFiles=("data/books_sv_epub_100.jsonl
                      data/code.json data/code.json data/code.json data/code.json data/code.json data/code.json
                      data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json")
   ListDatasetName=("2p")
@@ -69,7 +71,7 @@ fi
 ##################################################################################################
 
 # ALPHA=1.0
-if [ 1 -eq 1 ]
+if [ 0 -eq 1 ]
 then
   ListDatasetFiles=("data/wiki_da_h1p.jsonl
                      data/wiki_en_h1p.jsonl
