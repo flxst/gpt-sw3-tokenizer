@@ -33,6 +33,7 @@ from src.helpers import get_normalizer, get_training_corpus_combined
 from src.output import Output
 
 import sentencepiece as spm
+from script_move_special_tokens import add_tokens
 
 
 def train_hf(_parameters, _output, _datasets_combined):
@@ -90,6 +91,9 @@ def train_sp(_parameters, _output, _datasets_combined):
         minloglevel=1,  # default: 0 (=log everything?)
     )
 
+    if _parameters.add_whitespace_tokens == 2:
+        add_tokens(_model_path=_output.path)
+
 
 def main(args):
     ts = time.time()
@@ -128,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument("--unicode_normalization", type=str, default="NFC")
     parser.add_argument("--individual_digits", type=int, default=1)
     parser.add_argument("--add_prefix_space", type=int, default=1)
-    parser.add_argument("--add_whitespace_tokens", type=int, default=1)
+    parser.add_argument("--add_whitespace_tokens", type=int, default=2)
     parser.add_argument("--add_code_tokens", type=int, default=1)
     parser.add_argument("--minimum_frequency", type=int, default=0)
     parser.add_argument("--byte_fallback", type=int, default=1)

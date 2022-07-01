@@ -13,8 +13,8 @@ class Parameters:
                  unicode_normalization: str = "NFC",
                  individual_digits: bool = True,
                  add_prefix_space: bool = True,
-                 add_whitespace_tokens: bool = True,
-                 add_code_tokens: bool = True,
+                 add_whitespace_tokens: int = 2,
+                 add_code_tokens: int = 1,
                  minimum_frequency: int = 0,
                  byte_fallback: bool = True,
                  character_coverage: float = 1.0,
@@ -29,8 +29,8 @@ class Parameters:
         self.unicode_normalization = unicode_normalization
         self.individual_digits = bool(individual_digits)
         self.add_prefix_space = bool(add_prefix_space)
-        self.add_whitespace_tokens = bool(add_whitespace_tokens)
-        self.add_code_tokens = bool(add_code_tokens)
+        self.add_whitespace_tokens = add_whitespace_tokens
+        self.add_code_tokens = add_code_tokens
         self.minimum_frequency = minimum_frequency
         self.byte_fallback = bool(byte_fallback) if self.library == "SP" else 0
         self.character_coverage = character_coverage if self.library == "SP" else 0
@@ -41,7 +41,7 @@ class Parameters:
         # DERIVED
         self.special_tokens: List[str] = ["<|endoftext|>"]
 
-        if self.add_whitespace_tokens:
+        if self.add_whitespace_tokens == 1:
             whitespace_token = " " if self.library == "HF" else "▁"
             whitespace_tokens = [
                 whitespace_token * i
@@ -49,7 +49,7 @@ class Parameters:
             ]
             self.special_tokens += whitespace_tokens
 
-        if self.add_code_tokens:
+        if self.add_code_tokens == 1:
             self.special_tokens += CODE_TOKENS
 
         suffix = f"_{self.dataset_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.dataset_name}"
@@ -82,8 +82,8 @@ class Parameters:
             f"u{self.unicode_normalization}-" + \
             f"d{int(self.individual_digits)}-" + \
             f"p{int(self.add_prefix_space)}-" + \
-            f"w{int(self.add_whitespace_tokens)}-" + \
-            f"c{int(self.add_code_tokens)}-" + \
+            f"w{self.add_whitespace_tokens}-" + \
+            f"c{self.add_code_tokens}-" + \
             f"f{self.minimum_frequency}-" + \
             f"bf{int(self.byte_fallback)}-" + \
             f"cc{self.character_coverage}-" + \
