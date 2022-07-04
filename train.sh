@@ -24,6 +24,9 @@ ALPHA=-1
 if [ 1 -eq 1 ]
 then
   ListDatasetFiles=("data/books_sv_epub_100.jsonl")
+  # ListDatasetFiles=("data/books_sv_epub_100_max4000.jsonl")
+  # ListDatasetFiles=("data/books_sv_epub_100_max40000.jsonl")
+  # ListDatasetFiles=("data/books_sv_epub_100_max400000.jsonl")
   ListDatasetName=("2")
   # LIBRARY="HF"
   # LIBRARY="SP"

@@ -78,7 +78,7 @@ def train_sp(_parameters, _output, _datasets_combined):
         eos_id=-1,
         # allow_whitespace_only_pieces=True,  # default: False
         # shrinking_factor=0.95,  # default: 0.75
-        max_sentence_length=1000000,  # default: 4192, TODO
+        max_sentence_length=2000000,  # default: 4192, TODO
         normalization_rule_name="identity",                                     # 1. unicode normalization
         split_digits=_parameters.individual_digits,                             # 2. individual digits
         add_dummy_prefix=_parameters.add_prefix_space,                          # 3. add prefix space

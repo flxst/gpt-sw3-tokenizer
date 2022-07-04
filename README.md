@@ -23,6 +23,7 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 - [Optional] Create Test Data: `python script_create_test_data.py`
 - [Optional] Load Dataset Testing: `python script_test_load_dataset.py`
+- [Optional] Split Data: `python script_split_data.py --max_sentence_length [int]`
 
 ### Training
 
