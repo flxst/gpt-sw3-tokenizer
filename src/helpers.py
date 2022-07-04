@@ -95,7 +95,7 @@ def add_special_tokens(_model_path: str,
             f.write(f"{special_token}\t{int(lowest_score-1)}\n")
 
 
-def create_merge_rules(_vocab_file: str, _merge_file: str) -> List[str]:
+def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False) -> List[str]:
 
     print("\n=== CREATE MERGE RULES ===")
 
@@ -106,37 +106,45 @@ def create_merge_rules(_vocab_file: str, _merge_file: str) -> List[str]:
     print()
     print(f"> found {len(vocab)} subwords in {_vocab_file}")
 
-    # 2a. find index of first "real" subword (i.e. no special token or byte fallback)
+    # 2a. find index of first "real" subword (i.e. no special token, byte fallback, 1-char-token)
     for i, subword in enumerate(vocab):
         if subword.startswith("<") and subword.endswith(">"):  # byte fallback (or special token)
             continue
-        elif list(set(subword)) == ["▁"]:  # special whitespace token
+        elif list(set(subword)) == ["▁"] or list(set(subword)) == [" "]:  # special whitespace token
+            continue
+        elif len(subword) == 1:  # one character
             continue
         else:
             idx_a = i
             break
-    print(f"> the first {idx_a} subwords are special tokens or byte fallback tokens")
+    print(f"> the first {idx_a} subwords are special tokens, byte fallback tokens or 1-char-tokens")
 
     # 2b. find index of first non-one-character subword (starting from the end)
     for i, subword in enumerate(reversed(vocab)):
         if len(subword) == 1:  # one-character subword
             continue
-        elif list(set(subword)) == ["▁"]:  # special whitespace token
+        elif list(set(subword)) == ["▁"] or list(set(subword)) == [" "]:  # special whitespace token
             continue
         else:
             idx_b = i
             break
-    print(f"> the last  {idx_b} subwords are one-character tokens")
+    print(f"> the last  {idx_b} subwords are special whitespace tokens or 1-char-tokens")
 
     # 3. create merge rules
     ts = time.time()
     _merge_rules = list()
-    vocab_filtered = vocab[:-idx_b][idx_a:]
+    vocab_filtered = vocab[:-idx_b][idx_a:] if idx_b > 0 else vocab[idx_a:]
     assert len(vocab_filtered) == len(vocab) - idx_a - idx_b, \
         f"ERROR! len(vocab_filtered) = {len(vocab_filtered)}, len(vocab) = {len(vocab)}, idx_a = {idx_a}, idx_b = {idx_b}"
 
     print()
     print(f"> find merge rules for {len(vocab_filtered)} = {len(vocab)} - {idx_a} - {idx_b} subwords")
+
+    def _get_index(_list, _subword):
+        if _subword in _list:
+            return _list.index(_subword)
+        else:
+            return -1
 
     error_counter = 0
     for i, subword in enumerate(vocab_filtered):
@@ -152,17 +160,55 @@ def create_merge_rules(_vocab_file: str, _merge_file: str) -> List[str]:
             merge_rule = f"{subword_1} {subword_2}"
         elif len(subword) > 2:
             error = 1
-            for len_first_subword in range(1, len(subword)):
-                subword_1 = subword[:len_first_subword]
-                subword_2 = subword[len_first_subword:]
-                if subword_1 in vocab_filtered[:i] or subword_2 in vocab_filtered[:i]:
-                    merge_rule = f"{subword_1} {subword_2}"
+            _previous_merge_rules = dict()
+            if verbose:
+                print()
+                print("========")
+                print(f"i, subword = {i}, {subword}")
+            for idx_start in range(0, len(subword)):
+                for idx_end in range(idx_start + 1, len(subword) + 1):
+                    chunk = subword[idx_start: idx_end]
+                    _idx = _get_index(vocab_filtered[:i], chunk)
+                    if _idx > -1:
+                        _previous_merge_rules[_idx] = chunk  # _previous_merge_rules[_idx]
                     error = 0
-                    break
-
             if error:
                 merge_rule = "---"
                 error_counter += 1
+            else:
+                _list = [char for char in subword]
+                _previous_merge_rules = {k: v for (k, v) in sorted(_previous_merge_rules.items())}
+                if verbose:
+                    print("_list:", _list)
+                    print("_previous_merge_rules:", _previous_merge_rules)
+
+                while 1:
+                    for k, v in _previous_merge_rules.items():
+                        adj = 0
+                        for j in range(len(_list) - 1):
+                            # print(adj, j, _list)
+                            if j > len(_list) - 1 - adj:
+                                break
+                            for w in range(1, len(v)):
+                                subword_1 = v[:w]
+                                subword_2 = v[w:]
+                                if _list[j] == subword_1 and _list[j+1] == subword_2:
+                                    _list[j] = "".join(_list[j: j+2])
+                                    del _list[j+1]
+                                    adj += 1
+                                    break
+                        if len(_list) == 2:
+                            break
+                    if len(_list) == 2:
+                        break
+
+                if verbose:
+                    print("_list:", _list)
+
+                assert len(_list) <= 2, f"ERROR! len(_list) = {len(_list)}"
+
+                merge_rule = f"{_list[0]} {_list[1]}"
+
         _merge_rules.append(merge_rule)
 
     if 1:
@@ -184,5 +230,3 @@ def create_merge_rules(_vocab_file: str, _merge_file: str) -> List[str]:
     print(f"\n>>> time = {te-ts:.1f}s")
 
     return _merge_rules
-
-
