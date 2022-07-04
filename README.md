@@ -21,8 +21,8 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 ### Optional Preparations (Data & Testing)
 
-- Create Test Data: `python script_create_test_data.py`
-- Load Dataset Testing: `python script_test_load_dataset.py`
+- [Optional] Create Test Data: `python script_create_test_data.py`
+- [Optional] Load Dataset Testing: `python script_test_load_dataset.py`
 
 ### Training
 
@@ -30,7 +30,7 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
   - single run: `python script_train.py --dataset_files $DATASET_FILES --dataset_name $DATASET_NAME [..]`
   - all runs: `bash train.sh`
 
-- Compute Upsampling:
+- [Optional] Compute Upsampling:
   - single run: `python script_upsampling.py --dataset_files $DATASET_FILES --stats $STATS --total $TOTAL --alpha 0.6`
   - all runs: `bash upsampling.sh`
 

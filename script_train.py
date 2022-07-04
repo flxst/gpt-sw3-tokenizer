@@ -30,10 +30,10 @@ from tokenizers import (
 )
 from src.parameters import Parameters
 from src.helpers import get_normalizer, get_training_corpus_combined
+from src.helpers import add_special_tokens, create_merge_rules
 from src.output import Output
 
 import sentencepiece as spm
-from script_add_special_tokens import add_special_tokens
 
 
 def train_hf(_parameters, _output, _datasets_combined):
@@ -122,6 +122,9 @@ def main(args):
     output.export_tokenizer_for_megatron_lm()
     output.analyze_vocabulary()
     output.overview(datasets_combined, parameters.dataset_files, _time=f"{time.time() - ts:.2f}s")
+
+    if parameters.library == "SP":
+        create_merge_rules(output.vocab_file, output.merge_file)
 
 
 if __name__ == "__main__":
