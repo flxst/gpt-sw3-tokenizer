@@ -1,12 +1,12 @@
 """
 EXECUTION: python script_upsampling.py
-           --data_files data/file-is.json data/file-sv.json
-           --stats_file data/file-stats.json
-           --total_file data/file-total.json
+           --data_files file-is.json file-sv.json
+           --stats_file file-stats.json
+           --total_file file-total.json
            --alpha 0.8
 
 - upsample data in _data_files using alpha parameter
-- write upsampling factors to "data/file-upsampled.json"
+- write upsampling factors to "file-upsampled.json"
 """
 import argparse
 from typing import List, Dict
@@ -18,7 +18,7 @@ def analyze_data(_data_files: List[str]) -> Dict[str, Dict[str, int]]:
     """
 
     Args:
-        _data_files: e.g. ["data/file-is.json", "data/file-sv.json", ..]
+        _data_files: e.g. ["file-is.json", "file-sv.json", ..]
 
     Returns:
         _stats: e.g. {
@@ -146,7 +146,7 @@ def upsample_data(_lang: str,
     Args:
         _lang: e.g. "is"
         _alpha: e.g. 0.8
-        _data_files: e.g. ["data/file-is.json", "data/file-sv.json", ..]
+        _data_files: e.g. ["file-is.json", "file-sv.json", ..]
         _upsampling_need: e.g. 111627017
         _stats: e.g. 53560978
         _total_file: e.g.
@@ -180,13 +180,13 @@ def upsampling(_data_files: List[str], _stats_file: str, _total_file: str, alpha
     Upsamples data in _data_files using alpha parameter
 
     Args:
-        _data_files: e.g. ["data/file-is.json", "data/file-sv.json", ..]
-        _stats_file: e.g. "data/file-stats.json"
-        _total_file: e.g. "data/file-total.json"
+        _data_files: e.g. ["file-is.json", "file-sv.json", ..]
+        _stats_file: e.g. "file-stats.json"
+        _total_file: e.g. "file-total.json"
         alpha: e.g. 0.8
 
     Returns:
-        _upsampled_data_file: e.g. "data/file-upsampled.json"
+        _upsampled_data_file: e.g. "file-upsampled.json"
     """
     # 1. analyze _data_files
     print()
@@ -223,9 +223,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/test.json"])
-    parser.add_argument("--stats", type=str, default="data/stats.json")
-    parser.add_argument("--total", type=str, default="data/total.json")
+    parser.add_argument("--dataset_files", nargs='+', type=str, default=["test.json"])
+    parser.add_argument("--stats", type=str, default="stats.json")
+    parser.add_argument("--total", type=str, default="total.json")
     parser.add_argument("--alpha", type=float, default=1.0)
     _args = parser.parse_args()
 

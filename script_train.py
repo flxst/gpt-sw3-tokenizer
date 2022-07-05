@@ -14,7 +14,7 @@ EXECUTION: python script_train.py
 PURPOSE: the script uses <library> to train a tokenizer named <tokenizer_name> on the <dataset_files>
          using the rest of the arguments as parameters.
 
-         the trained tokenizer is saved at output/HHMMSS_[parameters]_<tokenizer_name>
+         the trained tokenizer is saved at <OUTPUT>/HHMMSS_[parameters]_<tokenizer_name>
 """
 import argparse
 from os.path import join
@@ -129,7 +129,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/test.json"])
+    parser.add_argument("--dataset_files", nargs='+', type=str, default=["test.json"])
     parser.add_argument("--dataset_name", type=str, default="?")
     parser.add_argument("--library", type=str, default="SP")
     parser.add_argument("--unicode_normalization", type=str, default="None")

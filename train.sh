@@ -23,10 +23,10 @@ ALPHA=-1
 # anforanden
 if [ 0 -eq 1 ]
 then
-  ListDatasetFiles=("data/books_sv_epub_100.jsonl")
-  # ListDatasetFiles=("data/books_sv_epub_100_max4000.jsonl")
-  # ListDatasetFiles=("data/books_sv_epub_100_max40000.jsonl")
-  # ListDatasetFiles=("data/books_sv_epub_100_max400000.jsonl")
+  ListDatasetFiles=("books_sv_epub_100.jsonl")
+  # ListDatasetFiles=("books_sv_epub_100_max4000.jsonl")
+  # ListDatasetFiles=("books_sv_epub_100_max40000.jsonl")
+  # ListDatasetFiles=("books_sv_epub_100_max400000.jsonl")
   ListDatasetName=("2")
   # LIBRARY="HF"
   # LIBRARY="SP"
@@ -40,10 +40,10 @@ fi
 # anforanden + code
 if [ 0 -eq 1 ]
 then
-  # ListDatasetFiles=("data/anforanden.jsonl data/code.json data/fibrec.json")
-  ListDatasetFiles=("data/books_sv_epub_100.jsonl
-                     data/code.json data/code.json data/code.json data/code.json data/code.json data/code.json
-                     data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json data/fibrec.json")
+  # ListDatasetFiles=("anforanden.jsonl code.json fibrec.json")
+  ListDatasetFiles=("books_sv_epub_100.jsonl
+                     code.json code.json code.json code.json code.json code.json
+                     fibrec.json fibrec.json fibrec.json fibrec.json fibrec.json fibrec.json")
   ListDatasetName=("2p")
   VOCAB_SIZE=128000
   # ADD_PREFIX_SPACE=0
@@ -56,15 +56,15 @@ fi
 ##################################################################################################
 if [ 0 -eq 1 ]
 then
-  ListDatasetFiles=("data/wiki_da_h1p.jsonl"
-                    "data/wiki_en_h1p.jsonl"
-                    "data/wiki_is_h1p.jsonl"
-                    "data/wiki_no_h1p.jsonl"
-                    "data/wiki_sv_h1p.jsonl")
+  ListDatasetFiles=("wiki_da_h1p.jsonl"
+                    "wiki_en_h1p.jsonl"
+                    "wiki_is_h1p.jsonl"
+                    "wiki_no_h1p.jsonl"
+                    "wiki_sv_h1p.jsonl")
   ListDatasetName=("3da" "3en" "3is" "3no" "3sv")
   VOCAB_SIZE=128000
 
-  # ListDatasetFiles=("data/wiki_is_1p.jsonl")
+  # ListDatasetFiles=("wiki_is_1p.jsonl")
   # ListDatasetName=("3is")
   # VOCAB_SIZE=100000
 fi
@@ -75,11 +75,11 @@ fi
 # ALPHA=1.0
 if [ 0 -eq 1 ]
 then
-  ListDatasetFiles=("data/wiki_da_h1p.jsonl
-                     data/wiki_en_h1p.jsonl
-                     data/wiki_is_h1p.jsonl
-                     data/wiki_no_h1p.jsonl
-                     data/wiki_sv_h1p.jsonl")
+  ListDatasetFiles=("wiki_da_h1p.jsonl
+                     wiki_en_h1p.jsonl
+                     wiki_is_h1p.jsonl
+                     wiki_no_h1p.jsonl
+                     wiki_sv_h1p.jsonl")
   ListDatasetName=("3all")
   # BYTE_FALLBACK=0
   # CHARACTER_COVERAGE=1.0  # 0.9999
@@ -95,11 +95,11 @@ fi
 # ALPHA=0.8
 if [ 0 -eq 1 ]
 then
-  ListDatasetFiles=("data/wiki_da.jsonl data/wiki_da.jsonl
-                     data/wiki_en.jsonl
-                     data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl
-                     data/wiki_no.jsonl data/wiki_no.jsonl
-                     data/wiki_sv.jsonl data/wiki_sv.jsonl")
+  ListDatasetFiles=("wiki_da.jsonl wiki_da.jsonl
+                     wiki_en.jsonl
+                     wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl
+                     wiki_no.jsonl wiki_no.jsonl
+                     wiki_sv.jsonl wiki_sv.jsonl")
   ListDatasetName=("3all")
   ALPHA=0.8
 fi
@@ -107,11 +107,11 @@ fi
 # ALPHA=0.6
 if [ 0 -eq 1 ]
 then
-  ListDatasetFiles=("data/wiki_da.jsonl data/wiki_da.jsonl data/wiki_da.jsonl data/wiki_da.jsonl
-                     data/wiki_en.jsonl
-                     data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl data/wiki_is.jsonl
-                     data/wiki_no.jsonl data/wiki_no.jsonl data/wiki_no.jsonl data/wiki_no.jsonl
-                     data/wiki_sv.jsonl data/wiki_sv.jsonl data/wiki_sv.jsonl")
+  ListDatasetFiles=("wiki_da.jsonl wiki_da.jsonl wiki_da.jsonl wiki_da.jsonl
+                     wiki_en.jsonl
+                     wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl wiki_is.jsonl
+                     wiki_no.jsonl wiki_no.jsonl wiki_no.jsonl wiki_no.jsonl
+                     wiki_sv.jsonl wiki_sv.jsonl wiki_sv.jsonl")
   ListDatasetName=("3all")
   ALPHA=0.6
 fi

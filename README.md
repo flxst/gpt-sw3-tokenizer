@@ -2,6 +2,14 @@
 
 Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
+## Repo Structure
+
+- `./notebooks`: contains notebooks
+- `./src`: contains source code
+- `.`: contains python and bash scripts as well as environment variables (`env.ini`)
+
+
+
 ## Setup
 
 - Create virtual environment
@@ -10,24 +18,21 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
         pip install -r requirements.txt
 
-## Repo Structure
-
-- `./data`: contains text data
-- `./notebooks`: contains notebooks
-- `./output`: contains trained tokenizer (incl. vocabulary, merge rules, parameters)
-- `./src`: contains source code
-- `.`: contains python and bash scripts
+- Specify the following folders in `./env.ini`:
+  - `<data_original>`: contains original text data
+  - `<data_sampled>`: contains sampled text data
+  - `<output>`: contains trained tokenizer (incl. vocabulary, merge rules, parameters)
 
 ## Main Usage
 
 To train a tokenizer, 
-- move your data to the `./data` folder, e.g. `./data/my-data-*.jsonl`
+- move your data to the `<data_sampled>` folder, e.g. `<data_sampled>/my-data-*.jsonl`
 - choose a name for the resulting tokenizer, e.g. `tokenizer1`
 - run the training:
 
   ```
   python script_train.py 
-      --dataset_files data/my-data-1 data/my-data-2
+      --dataset_files <data_sampled>/my-data-1 <data_sampled>/my-data-2
       --dataset_name tokenizer1
       [--library SP]                         # SP = SentencePiece, HF = HuggingFace
       [--unicode_normalization None]         # None, NFC, NFKC
@@ -43,7 +48,7 @@ To train a tokenizer,
       [--train_extremely_large_corpus 1]     # 0, 1
   ```
 
-The trained tokenizer can be found e.g. in the folder `./output/*_tokenizer1`. 
+The trained tokenizer can be found e.g. in the folder `<output>/*_tokenizer1`. 
 In particular, the model is named
 - `model.model` (if library == "SP")
 - `tokenizer.json` (if library == "HF")
@@ -67,9 +72,9 @@ and analyze the results.
   ```
 
   creates the following data for testing: 
-    - data/test.json   (contains TEST_CORPUS)
-    - data/code.json   (contains script_train.py as string)
-    - data/fibrec.json (contains fibRec function as string)
+    - <data_sampled>/test.json   (contains TEST_CORPUS)
+    - <data_sampled>/code.json   (contains script_train.py as string)
+    - <data_sampled>/fibrec.json (contains fibRec function as string)
 
 - ```
   python script_test_load_dataset.py
@@ -114,7 +119,7 @@ and analyze the results.
 - ```
   python script_apply_tokenizer.py --id HHMMSS
   ```
-  - loads the tokenizer with the given <id> (that needs to be present in the folder output/<id>_*)
+  - loads the tokenizer with the given <id> (that needs to be present in the folder <output>/<id>_*)
   - applies it to the data in TEST_EXAMPLES and prints the result
   
 - ```
@@ -122,7 +127,7 @@ and analyze the results.
   [parameters = <tokenizers>, <datasets> are hardcoded in the script]
   ```
   - applies each tokenizer on each dataset and computes unk_rate & closeness_to_character_level
-  - writes results to `./output/evaluation/results_*.json`
+  - writes results to `<output>/evaluation/results_*.json`
 
 
 - `notebooks/tokenizer_analysis.ipynb`
@@ -140,7 +145,7 @@ and analyze the results.
   - training data
   - evaluation data
 
-  ready in a folder `<sampled_data>`
+  ready in the folder `<data_sampled>`
 
 ### 2. Tokenizer Training
 
@@ -159,7 +164,7 @@ and analyze the results.
 
 ### 4. Analysis
 
-- Move tokenizer folders `output/*v<VOCAB_SIZE>*` to `output/multilinguality`
+- Move tokenizer folders `<output>/*v<VOCAB_SIZE>*` to `<output>/multilinguality`
 
   (not the one with a different vocab_size created in 3.)
 - Run notebook `./notebooks/tokenizer_analysis.ipynb`

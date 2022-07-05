@@ -3,11 +3,11 @@ NAME_ALL = "4all-a1.0"
 
 # ---
 DATA_EVAL = [
-    "data/wiki_da_t1p.jsonl",
-    "data/wiki_en_t1p.jsonl",
-    "data/wiki_is_t1p.jsonl",
-    "data/wiki_no_t1p.jsonl",
-    "data/wiki_sv_t1p.jsonl",
+    "wiki_da_t1p.jsonl",
+    "wiki_en_t1p.jsonl",
+    "wiki_is_t1p.jsonl",
+    "wiki_no_t1p.jsonl",
+    "wiki_sv_t1p.jsonl",
 ]
 
 # --- last entry needs to be the same as in DATA_TRAIN.sh ---

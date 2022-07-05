@@ -2,6 +2,9 @@ from typing import List
 from os.path import join
 import time
 from src.code_tokens import CODE_TOKENS
+from src.env import Env
+
+env = Env()
 
 
 class Parameters:
@@ -24,7 +27,7 @@ class Parameters:
 
         assert library in ["HF", "SP"], f"ERROR! library = {library} unknown, needs to be HF or SP"
         self.library = library
-        self.dataset_files = dataset_files
+        self.dataset_files = [join(env.data_sampled, dataset_file) for dataset_file in dataset_files]
         self.dataset_name = dataset_name
         self.unicode_normalization = unicode_normalization
         self.individual_digits = bool(individual_digits)
@@ -53,7 +56,7 @@ class Parameters:
             self.special_tokens += CODE_TOKENS
 
         suffix = f"_{self.dataset_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.dataset_name}"
-        self.output_dir = join("output", time.strftime("%H%M%S", time.localtime())) + self.get_id() + suffix
+        self.output_dir = join(env.output, time.strftime("%H%M%S", time.localtime())) + self.get_id() + suffix
 
     def show(self) -> None:
         """ print parameters """

@@ -1,10 +1,10 @@
-# DATASETS_DA="data/wiki_da_h1p.jsonl
-#              data/wiki_da_h1p.jsonl"
-DATASETS_DA="data/wiki_da_h1p.jsonl"
-DATASETS_IS="data/wiki_is_h1p.jsonl"
-DATASETS_EN="data/wiki_en_h1p.jsonl"
-DATASETS_NO="data/wiki_no_h1p.jsonl"
-DATASETS_SV="data/wiki_sv_h1p.jsonl"
+# DATASETS_DA="wiki_da_h1p.jsonl
+#              wiki_da_h1p.jsonl"
+DATASETS_DA="wiki_da_h1p.jsonl"
+DATASETS_IS="wiki_is_h1p.jsonl"
+DATASETS_EN="wiki_is_h1p.jsonl"  # TODO!!!!
+DATASETS_NO="wiki_no_h1p.jsonl"
+DATASETS_SV="wiki_sv_h1p.jsonl"
 DATASETS_ALL="${DATASETS_DA} ${DATASETS_IS} ${DATASETS_EN} ${DATASETS_NO} ${DATASETS_SV}"
 
 # single language name needs to be int + char + char!

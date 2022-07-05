@@ -14,7 +14,7 @@ class Output:
                  library: str):
         """
         Args:
-            path: e.g. 'output/125842_[..]
+            path: e.g. '<OUTPUT>/125842_[..]
             library: e.g. 'SP'
         """
         self.path = path

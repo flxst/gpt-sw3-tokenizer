@@ -6,8 +6,10 @@ from typing import List, Tuple, Dict, Any, Optional
 from termcolor import colored
 from transformers import PreTrainedTokenizerFast
 import sentencepiece as spm
+from src.env import Env
+env = Env("..")
 
-OUTPUT_DIR = "../output"
+OUTPUT_DIR = env.output
 
 
 ###########################################################################################
@@ -171,7 +173,7 @@ def compare_vocab(model1,
                   vocab_2: int) -> Tuple[Dict[str, int], List[str], List[str]]:
 
     def get_vocab(_model, _slt: Optional[int] = None) -> List[str]:
-        output_dir = join("..", "output", _model)
+        output_dir = join(env.output, _model)
         _vocab_file = join(output_dir, "tokenizer_vocab.json")
         assert isfile(_vocab_file), f"ERROR! could not find {_vocab_file}"
 
@@ -218,7 +220,7 @@ def color(_lang):
 
 
 def _get_overview(_model) -> Dict[str, Any]:
-    output_dir = join("..", "output", _model)
+    output_dir = join(env.output, _model)
     _overview_file = join(output_dir, "overview.json")
     assert isfile(_overview_file), f"ERROR! could not find {_overview_file}"
 

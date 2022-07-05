@@ -1,6 +1,6 @@
 """
 EXECUTION: python script_test_load_dataset.py
-           [--dataset_files data/wiki_is.jsonl data/wiki_da.jsonl
+           [--dataset_files wiki_is.jsonl wiki_da.jsonl
             --batch_size 100000]
 
 PURPOSE: the script
@@ -56,7 +56,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_files", nargs='+', type=str, default=["data/wiki_is.jsonl", "data/wiki_da.jsonl"])
+    parser.add_argument("--dataset_files", nargs='+', type=str, default=["wiki_is.jsonl", "wiki_da.jsonl"])
     parser.add_argument("--batch_size", type=int, default=100000)
     _args = parser.parse_args()
 
