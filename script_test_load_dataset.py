@@ -11,17 +11,13 @@ PURPOSE: the script
 import argparse
 from datasets import load_dataset, Dataset
 from typing import List
+from src.helpers import get_training_corpus_combined
 
 
 def get_training_corpus(_datasets: List[Dataset], batch_size: int):
     for dataset in _datasets:
         for i in range(0, len(dataset['train']), batch_size):
-            yield dataset['train'][i: i + batch_size]["text"]
-
-
-def get_training_corpus_combined(_dataset: Dataset, batch_size: int):
-    for i in range(0, len(_dataset['train']), batch_size):
-        yield _dataset['train'][i: i + batch_size]["text"]
+            yield str(dataset['train'][i: i + batch_size]["text"])
 
 
 def main(args):

@@ -1,3 +1,13 @@
+"""
+EXECUTION: python script_upsampling.py
+           --data_files data/file-is.json data/file-sv.json
+           --stats_file data/file-stats.json
+           --total_file data/file-total.json
+           --alpha 0.8
+
+- upsample data in _data_files using alpha parameter
+- write upsampling factors to "data/file-upsampled.json"
+"""
 import argparse
 from typing import List, Dict
 from os.path import isfile

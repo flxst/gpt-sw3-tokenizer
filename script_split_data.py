@@ -1,4 +1,13 @@
+"""
+EXECUTION: python script_split_data.py
+           --dataset_file books_sv_epub_100.jsonl
+           --max_sentence_length 10000
 
+PURPOSE: the script
+         - loads the data in <dataset_file>
+         - splits the documents such that they contain <max_sentence_length> characters
+         - writes the split data to new file *_max<max_sentence_length>.json
+"""
 from os.path import join
 import json
 import argparse
@@ -6,7 +15,7 @@ import argparse
 
 def main(_args):
     max_sentence_length = _args.max_sentence_length
-    original_path = join("data", "books_sv_epub_100.jsonl")
+    original_path = join("data", _args.dataset_file)
     new_path = original_path.replace(".jsonl", f"_max{max_sentence_length}.jsonl")
 
     print("\n=== ORIGINAL DATA ===")
@@ -33,6 +42,7 @@ def main(_args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset_file", type=str, required=True, default="books_sv_epub_100.jsonl")
     parser.add_argument("--max_sentence_length", type=int, required=True)
     _args = parser.parse_args()
 

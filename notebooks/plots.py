@@ -236,7 +236,7 @@ def _get_lang_dataset_size_time(_models, verbose=False):
     if len(overview) == 0:
         return None, None, None
 
-    lang = [_model.split("_3")[-1] for _model in _models]
+    lang = [_model.split("_")[-1][-2:] for _model in _models]
     dataset_size = [float(overview[_model]["data_size_total"][:-1]) for _model in _models]
     time = [float(overview[_model]["time"][:-1]) for _model in _models]
     dataset_size, time, lang = zip(*sorted(zip(dataset_size, time, lang)))
@@ -269,7 +269,7 @@ def plot_overview(_models, verbose=False):
 # 3. VOCAB SIZE & MULTILINGUALITY #########################################################
 ###########################################################################################
 def get_models_multilinguality(_models: List[str], verbose: bool = False) -> List[str]:
-    _models_multilinguality = [model for model in _models if model.count("_3") > 0]
+    _models_multilinguality = [model for model in _models if model.startswith("multilinguality") > 0]
     if len(_models_multilinguality):
         _core = list(set(["_".join(model.split("_")[1:-1])
                           for model in _models_multilinguality
@@ -279,8 +279,8 @@ def get_models_multilinguality(_models: List[str], verbose: bool = False) -> Lis
         # vocab = _core.split("-v")[-1]
         # print(vocab)
         _models_multilinguality = [model for model in _models_multilinguality if core in model]
-        _models_multilinguality.sort(key=lambda x: x.split("_3")[-1])
-        _models_multilinguality = {model.split("_3")[-1]: model for model in _models_multilinguality}
+        _models_multilinguality.sort(key=lambda x: x.split("_")[-1])
+        _models_multilinguality = {model.split("_")[-1][1:]: model for model in _models_multilinguality}
 
         if verbose:
             print(core)
@@ -293,8 +293,8 @@ def split_models_multilinguality(_models_multilinguality: Dict[str, str]) -> Dic
     _ml = dict()
     if len(_models_multilinguality):
         _ml["lang_complete"] = list(_models_multilinguality.keys())
-        _ml["lang_all"] = [l for l in _ml["lang_complete"] if l.startswith("all")]
-        _ml["lang_pure"] = [l for l in _ml["lang_complete"] if not l.startswith("all")]
+        _ml["lang_all"] = [l for l in _ml["lang_complete"] if "all" in l]
+        _ml["lang_pure"] = [l for l in _ml["lang_complete"] if not "all" in l]
 
         _ml["models_complete"] = _models_multilinguality
         _ml["models_all"] = {k: _models_multilinguality[k] for k in _ml["lang_all"]}

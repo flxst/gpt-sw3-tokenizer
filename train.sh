@@ -17,11 +17,11 @@ ALPHA=-1
 
 
 ##################################################################################################
-### TEST DATA (WITH CODE) ########################################################################
+### 2. TEST DATA (WITH CODE) #####################################################################
 ##################################################################################################
 
 # anforanden
-if [ 1 -eq 1 ]
+if [ 0 -eq 1 ]
 then
   ListDatasetFiles=("data/books_sv_epub_100.jsonl")
   # ListDatasetFiles=("data/books_sv_epub_100_max4000.jsonl")
@@ -52,7 +52,7 @@ then
 fi
 
 ##################################################################################################
-### WIKI: SINGLE LANGUAGE ########################################################################
+### 3. WIKI: SINGLE LANGUAGE #####################################################################
 ##################################################################################################
 if [ 0 -eq 1 ]
 then
@@ -70,9 +70,8 @@ then
 fi
 
 ##################################################################################################
-### WIKI: ALL ##########################################################################################
+### 3. WIKI: ALL #################################################################################
 ##################################################################################################
-
 # ALPHA=1.0
 if [ 0 -eq 1 ]
 then
@@ -82,8 +81,8 @@ then
                      data/wiki_no_h1p.jsonl
                      data/wiki_sv_h1p.jsonl")
   ListDatasetName=("3all")
-  BYTE_FALLBACK=0
-  CHARACTER_COVERAGE=1.0  # 0.9999
+  # BYTE_FALLBACK=0
+  # CHARACTER_COVERAGE=1.0  # 0.9999
   VOCAB_SIZE=51200
   # VOCAB_SIZE=64000
   # VOCAB_SIZE=80000
@@ -118,16 +117,29 @@ then
 fi
 
 ##################################################################################################
-### FINAL100: SINGLE LANGUAGE ####################################################################
+### 4. REAL DATASETS #############################################################################
 ##################################################################################################
-if [ 0 -eq 1 ]
+source DATA_TRAIN.sh
+
+if [ 1 -eq 1 ]
 then
-  ListDatasetFiles=("data/data_100_final/books/final_da.jsonl
-                     data/data_100_final/conversational/final_da.jsonl
-                     data/data_100_final/misc/final_da.jsonl
-                     data/data_100_final/web_commoncrawl/final_da.jsonl
-                     data/data_100_final/web_sources/final_da.jsonl")
-  ListDatasetName=("4da")
+  echo "DATASETS_DA: " ${DATASETS_DA}
+  echo "DATASETS_IS: " ${DATASETS_IS}
+  echo "DATASETS_EN: " ${DATASETS_EN}
+  echo "DATASETS_NO: " ${DATASETS_NO}
+  echo "DATASETS_SV: " ${DATASETS_SV}
+  echo "DATASETS_ALL:" ${DATASETS_ALL}
+  echo ""
+  echo "VOCAB_SIZE:  " ${VOCAB_SIZE}
+  echo ""
+  ListDatasetFiles=("${DATASETS_DA}"
+                    "${DATASETS_IS}"
+                    "${DATASETS_EN}"
+                    "${DATASETS_NO}"
+                    "${DATASETS_SV}"
+                    "${DATASETS_ALL}"
+                   )
+  ListDatasetName=("${NAME_DA}" "${NAME_IS}" "${NAME_EN}" "${NAME_NO}" "${NAME_SV}" "${NAME_ALL}")
 fi
 
 ##################################################################################################
@@ -141,16 +153,16 @@ then
         --library $LIBRARY \
         --dataset_files ${ListDatasetFiles[i]} \
         --dataset_name ${ListDatasetName[i]} \
-        --unicode_normalization $UNICODE_NORMALIZATION \
-        --individual_digits $INDIVIDUAL_DIGITS \
-        --add_prefix_space $ADD_PREFIX_SPACE \
-        --add_whitespace_tokens $ADD_WHITESPACE_TOKENS \
-        --add_code_tokens $ADD_CODE_TOKENS \
-        --minimum_frequency $MINIMUM_FREQUENCY \
-        --byte_fallback $BYTE_FALLBACK \
-        --character_coverage $CHARACTER_COVERAGE \
-        --train_extremely_large_corpus $TRAIN_EXTREMELY_LARGE_CORPUS \
-        --vocab_size $VOCAB_SIZE \
-        --alpha $ALPHA
+        --unicode_normalization ${UNICODE_NORMALIZATION} \
+        --individual_digits ${INDIVIDUAL_DIGITS} \
+        --add_prefix_space ${ADD_PREFIX_SPACE} \
+        --add_whitespace_tokens ${ADD_WHITESPACE_TOKENS} \
+        --add_code_tokens ${ADD_CODE_TOKENS} \
+        --minimum_frequency ${MINIMUM_FREQUENCY} \
+        --byte_fallback ${BYTE_FALLBACK} \
+        --character_coverage ${CHARACTER_COVERAGE} \
+        --train_extremely_large_corpus ${TRAIN_EXTREMELY_LARGE_CORPUS} \
+        --vocab_size ${VOCAB_SIZE} \
+        --alpha ${ALPHA}
   done
 fi

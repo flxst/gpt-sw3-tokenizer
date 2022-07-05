@@ -1,4 +1,13 @@
+"""
+EXECUTION: python script_evaluate.py
+           [parameters = <tokenizers>, <datasets> are hardcoded in the script]
 
+PURPOSE: the script
+         - applies each tokenizer on each dataset and computes unk_rate & closeness_to_character_level
+         - writes results to `./output/evaluation/results_*.json`
+"""
+
+import os
 from os.path import isfile, join, isdir
 import json
 # from transformers import PreTrainedTokenizerFast
@@ -6,7 +15,9 @@ import sentencepiece as spm
 from collections import Counter
 import time
 from itertools import product
-from typing import Tuple
+from typing import Tuple, List
+from DATA_EVALUATION import NAME_ALL, VOCAB_SIZES, DATA_EVAL
+from sentencepiece import sentencepiece_model_pb2 as model_pb2
 
 DATA_DIR = "../data"
 OUTPUT_DIR = "../output"
@@ -83,27 +94,71 @@ def extract_bf_cc_from_model(_model) -> Tuple[str, str]:
     return _bf, _cc
 
 
+def get_info_automatically() -> Tuple[str, str, List[str]]:
+    _name = NAME_ALL
+    subdirs = [elem for elem in os.listdir("output") if isdir(join("output", elem)) and elem.endswith(_name)]
+    assert len(subdirs) > 0, f"ERROR! did not find any subdirectories that end with {_name} in 'output'"
+    assert len(subdirs) == 1, f"ERROR! found multiple subdirectories: {subdirs}"
+    _models = join("output", subdirs[0])
+    _data_eval = DATA_EVAL
+    return _name, _models, _data_eval
+
+
+def prune_vocab_size(_models: str,
+                     _vocab_sizes: List[int]) -> List[str]:
+    """only works for library == SP"""
+    vocab_size_model = _vocab_sizes[-1]
+    assert str(vocab_size_model) in _models, \
+        f"ERROR! vocab size = {vocab_size_model} is not in _models = {_models}"
+    model_file = join(_models, "model.model")
+    m = model_pb2.ModelProto()
+    m.ParseFromString(open(model_file, 'rb').read())
+    for _vocab_size in _vocab_sizes[:-1]:
+        m_pruned = model_pb2.ModelProto()
+        pruned_model_dir = _models.replace(f"v{vocab_size_model}", f"v{_vocab_size}")
+        os.makedirs(pruned_model_dir, exist_ok=False)
+        pruned_model = join(pruned_model_dir, "model.model")
+        for i, _ in enumerate(m.pieces):
+            if i < _vocab_size or i >= vocab_size_model:
+                m_pruned.pieces.add()
+                m_pruned.pieces[-1].piece = m.pieces[i].piece
+                m_pruned.pieces[-1].score = m.pieces[i].score
+
+        for j in [0, 1, 2]:
+            assert m.pieces[j].piece == m_pruned.pieces[j].piece, \
+                f"ERROR for j = {j}, piece: {m.pieces[j].piece} != {m_pruned.pieces[j].piece}"
+            assert m.pieces[j].score == m_pruned.pieces[j].score, \
+                f"ERROR for j = {j}, score: {m.pieces[j].score} != {m_pruned.pieces[j].score}"
+
+        with open(pruned_model, 'wb') as f:
+            f.write(m_pruned.SerializeToString())
+        print(f"> wrote new model to {pruned_model}")
+    exit()
+
+    return [_models]
+
+
 if __name__ == "__main__":
     if 0:
-        NAME = "bf-cc-test"
-        MODELS = [
+        name = "bf-cc-test"
+        models = [
             "output/194127_SP-uNone-d1-p1-w1-c1-f0-bf0-cc1.0-v10000_2",
             "output/194837_SP-uNone-d1-p1-w1-c1-f0-bf1-cc1.0-v10000_2",
             "output/100846_SP-uNone-d1-p1-w1-c1-f0-bf0-cc0.9999-v10000_2",
             "output/101142_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-v10000_2",
         ]
-        DATA = [
+        data_eval = [
            "data/books_sv_epub_100.jsonl",
         ]
-    if 1:
-        NAME = "bf-bc"
-        MODELS = [
+    if 0:
+        name = "bf-bc"
+        models = [
             "output/123500_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v51200_3all-a1.0",
             "output/132109_SP-uNone-d1-p1-w1-c1-f0-bf0-cc0.9999-x1-v51200_3all-a1.0",
             "output/161742_SP-uNone-d1-p1-w1-c1-f0-bf1-cc1.0-x1-v51200_3all-a1.0",
             "output/185909_SP-uNone-d1-p1-w1-c1-f0-bf0-cc1.0-x1-v51200_3all-a1.0",
         ]
-        DATA = [
+        data_eval = [
             "data/wiki_da_t1p.jsonl",
             "data/wiki_en_t1p.jsonl",
             "data/wiki_is_t1p.jsonl",
@@ -111,8 +166,8 @@ if __name__ == "__main__":
             "data/wiki_sv_t1p.jsonl",
         ]
     if 0:
-        NAME = "all-a1.0"
-        MODELS = [
+        name = "all-a1.0"
+        models = [
             "output/123500_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v51200_3all-a1.0",
             "output/180630_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v64000_3all-a1.0",
             "output/191536_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v80000_3all-a1.0",
@@ -120,23 +175,28 @@ if __name__ == "__main__":
             "output/061243_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v112000_3all-a1.0",
             "output/080856_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v128000_3all-a1.0",
         ]
-        DATA = [
+        data_eval = [
             "data/wiki_da_t1p.jsonl",
             "data/wiki_en_t1p.jsonl",
             "data/wiki_is_t1p.jsonl",
             "data/wiki_no_t1p.jsonl",
             "data/wiki_sv_t1p.jsonl",
         ]
+    if 1:
+        name, models, data_eval = get_info_automatically()
+
+    if isinstance(models, str):
+        models = prune_vocab_size(models, VOCAB_SIZES)  # returns list
 
     results = {
         model: {
             data: dict()
-            for data in DATA
+            for data in data_eval
         }
-        for model in MODELS
+        for model in models
     }
 
-    for model, data in product(MODELS, DATA):
+    for model, data in product(models, data_eval):
         # bf, cc = extract_bf_cc_from_model(model)
         # print()
         # print(f"> model = {model}")
@@ -150,6 +210,6 @@ if __name__ == "__main__":
     print("---------------")
     print(results)
 
-    results_file = f"output/evaluation/results_{NAME}.json"
+    results_file = f"output/evaluation/results_{name}.json"
     with open(results_file, "w", encoding="utf-8") as f:
         f.write(json.dumps(results))
