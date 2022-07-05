@@ -183,10 +183,10 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
                     print("_previous_merge_rules:", _previous_merge_rules)
 
                 while 1:
+                    llist_before = len(_list)
                     for k, v in _previous_merge_rules.items():
                         adj = 0
                         for j in range(len(_list) - 1):
-                            # print(adj, j, _list)
                             if j > len(_list) - 1 - adj:
                                 break
                             for w in range(1, len(v)):
@@ -199,6 +199,10 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
                                     break
                         if len(_list) == 2:
                             break
+                    llist_after = len(_list)
+                    assert llist_after < llist_before, \
+                        f"ERROR! length of list did not decrase! " \
+                        f"llist_before = {llist_before}, llist_after = {llist_after}"
                     if len(_list) == 2:
                         break
 
