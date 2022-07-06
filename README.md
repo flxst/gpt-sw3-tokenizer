@@ -139,13 +139,16 @@ and analyze the results.
 
 ## REAL DATA
 
-### 1. Data
+### 0. Data Original
 
-- Have the (sampled)
-  - training data
-  - evaluation data
+- Have the (original) data
+  ready in the folder `<data_original>`
 
-  ready in the folder `<data_sampled>`
+### 1. Data Sampled
+
+- Make sure the weights in `DATA_WEIGHTS.py` are up-to-date
+
+- Run `python script_data_sampling.py --percent 10`
 
 ### 2. Tokenizer Training
 
