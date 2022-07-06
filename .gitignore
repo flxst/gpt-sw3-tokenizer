@@ -1,4 +1,3 @@
 *ipynb_checkpoints
-data_original
-data_sampled
-output
+data_*
+output_*

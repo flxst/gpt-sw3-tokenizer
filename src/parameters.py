@@ -9,17 +9,22 @@ from src.helpers import LIST_OF_SPECIAL_TOKENS
 env = Env()
 
 
-def get_dataset_files_in_folder(_folder: str) -> List[str]:
+def get_dataset_files_in_folder(_folder: str, _dataset_filter: str) -> List[str]:
     print(f"> get files in {_folder}")
-    return [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
+    _files = [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
+    if len(_dataset_filter) and _dataset_filter != "<all>":
+        _files = [elem for elem in _files if _dataset_filter in elem]
+    assert len(_files), f"ERROR! no files found in {_folder} (that contain '{_dataset_filter}')"
+    return [join(_folder, elem) for elem in _files]
 
 
 class Parameters:
     
     def __init__(self,
                  library: str,
+                 tokenizer_name: str,
                  dataset_files: List[str],
-                 dataset_name: str,
+                 dataset_filter: str = "<all>",
                  unicode_normalization: str = "NFC",
                  individual_digits: bool = True,
                  add_prefix_space: bool = True,
@@ -33,16 +38,16 @@ class Parameters:
                  alpha: float = 1.0):
 
         assert library in ["HF", "SP"], f"ERROR! library = {library} unknown, needs to be HF or SP"
+        assert len(tokenizer_name), \
+            "ERROR! need to specify --tokenizer_name <str>"
         assert len(dataset_files), \
             "ERROR need to specify --dataset_files <str>"
-        assert len(dataset_name), \
-            "ERROR! need to specify --dataset_name <str>"
         self.library = library
         if dataset_files == ["all"]:
-            self.dataset_files = get_dataset_files_in_folder(env.data_sampled)
+            self.dataset_files = get_dataset_files_in_folder(env.data_sampled, dataset_filter)
         else:
             self.dataset_files = [join(env.data_sampled, dataset_file) for dataset_file in dataset_files]
-        self.dataset_name = dataset_name
+        self.tokenizer_name = tokenizer_name
         self.unicode_normalization = unicode_normalization
         self.individual_digits = bool(individual_digits)
         self.add_prefix_space = bool(add_prefix_space)
@@ -53,6 +58,7 @@ class Parameters:
         self.character_coverage = character_coverage if self.library == "SP" else 0
         self.train_extremely_large_corpus = bool(train_extremely_large_corpus) if self.library == "SP" else 0
         self.vocab_size = vocab_size
+        self.vocab_size_external = vocab_size
         self.alpha = alpha
 
         # DERIVED
@@ -71,7 +77,7 @@ class Parameters:
         if self.add_code_tokens == 1:
             self.special_tokens += CODE_TOKENS
 
-        suffix = f"_{self.dataset_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.dataset_name}"
+        suffix = f"_{self.tokenizer_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.tokenizer_name}"
         self.output_dir = join(env.output, time.strftime("%H%M%S", time.localtime())) + self.get_id() + suffix
 
     def show(self) -> None:
@@ -87,7 +93,7 @@ class Parameters:
         print(f"> byte_fallback = {self.byte_fallback}")
         print(f"> character_coverage = {self.character_coverage}")
         print(f"> train_extremely_large_corpus = {self.train_extremely_large_corpus}")
-        print(f"> vocab_size = {self.vocab_size}")
+        print(f"> vocab_size = {self.vocab_size_external}")
         print(f"> alpha = {self.alpha}")
         print("==================")
         print(f"> special_tokens = {self.special_tokens}")
@@ -107,4 +113,4 @@ class Parameters:
             f"bf{int(self.byte_fallback)}-" + \
             f"cc{self.character_coverage}-" + \
             f"x{int(self.train_extremely_large_corpus)}-" + \
-            f"v{self.vocab_size}"  # + f"v{self.vocab_size}-" + f"a{self.alpha}"
+            f"v{self.vocab_size_external}"

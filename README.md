@@ -55,14 +55,16 @@ and ready to be used for training in the next step.
 ### Training
 
 To train the tokenizer on data in the `<data_sampled>` folder, do the following: 
-- choose your data files, e.g. `<data_sampled>/my-data-*.jsonl`: 
+- choose your data files, e.g. `<data_sampled>/my-data-*.jsonl` 
+  
+  (all files in `<data_sampled>` is also possible, see below)
 - choose a name for the resulting tokenizer, e.g. `tokenizer1`
 - run the training:
 
   ```
   python script_train.py 
-      --dataset_files my-data-1 my-data-2
-      --dataset_name tokenizer1
+      --tokenizer_name tokenizer1
+      --dataset_files my-data-1 my-data-2    # all = all files in <data_sampled>
       [--library SP]                         # SP = SentencePiece, HF = HuggingFace
       [--unicode_normalization None]         # None, NFC, NFKC
       [--individual_digits 1]                # 0, 1
@@ -166,37 +168,48 @@ and analyze the results.
     - vocabulary overlap 
     - unk_rate & closeness_to_char_level
 
-## REAL DATA
+## REAL DATA EXPERIMENTS
 
 ### 0. Data Original
 
 - Have the (original) data
   ready in the folder `<data_original>`
 
-### 1. Data Sampled
+### 1. Data Sampled & Data Eval
 
 - Make sure the weights in `DATA_WEIGHTS.csv` are up-to-date
 
-- Run `python script_data_sampling.py --percent 10`
+
+- Choose your percentage (e.g. `<percent> = 10` 
+  and rerun `python script_data_sampling.py --percent <percent>`
+
+
+- Adjust Env such that the target directory is `<data_eval>` 
+  
+  and run `python script_data_sampling.py --percent <percent>`
 
 ### 2. Tokenizer Training
 
-- In `DATA_TRAIN.sh`, specify the training datasets (for each language) and vocab_size
+- In `train.sh`, specify the training datasets (for each language) and vocab_size
+
 
 - Run `bash train.sh`
 
 ### 3. Evaluation
 (unk_rate & closeness_to_character_level)
 
-- In `DATA_EVALUATION.py`, specify the evaluation datasets and vocab_sizes
+- For the run you want to evaluate, 
+  take its name (e.g. `<name> = 4all-a1.0`) and its vocab size (e.g. `128000`) 
+  and add pruned vocab sizes you want to test (e.g. `<vocab_sizes> = 64000 96000 128000`)
 
-- Run `script_evaluate.py`
 
-  (make sure that "get_info_automatically" part is used)
+- Run `python script_evaluate.py --name <name> --vocab_sizes <vocab_sizes>`
 
 ### 4. Analysis
 
 - Move tokenizer folders `<output>/*v<VOCAB_SIZE>*` to `<output>/multilinguality`
 
-  (not the one with a different vocab_size created in 3.)
+  (not the ones with pruned vocab sizes created in 3.)
+
+
 - Run notebook `./notebooks/tokenizer_analysis.ipynb`

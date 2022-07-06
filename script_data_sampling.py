@@ -12,6 +12,7 @@ import os
 from src.sampling import get_file_path, read_data_weights
 from itertools import product
 from os.path import isfile, dirname
+import time
 
 
 import random
@@ -47,6 +48,8 @@ def main(args):
         print(f"> category = {category}, language = {language}, weight = {weight}")
 
         if weight > 0:
+            ts = time.time()
+
             # 2. make sure that all original data files exist
             file_path_original = get_file_path(category, language)
             assert isfile(file_path_original), \
@@ -68,6 +71,10 @@ def main(args):
                 print(f".. from {number_of_original_documents} original documents, "
                       f"wrote {number_of_sampled_documents} sampled documents to {file_path_sampled}")
                 print()
+
+            te = time.time()
+            print(f"[time = {te-ts:.1f}s]")
+
         else:
             if args.verbose:
                 print(f".. skipped")

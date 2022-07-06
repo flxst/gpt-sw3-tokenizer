@@ -121,28 +121,62 @@ fi
 ##################################################################################################
 if [ 1 -eq 1 ]
 then
-  source DATA_TRAIN.sh
-  echo "DATASETS_DA: " ${DATASETS_DA}
-  echo "DATASETS_IS: " ${DATASETS_IS}
-  echo "DATASETS_EN: " ${DATASETS_EN}
-  echo "DATASETS_NO: " ${DATASETS_NO}
-  echo "DATASETS_SV: " ${DATASETS_SV}
-  echo "DATASETS_ALL:" ${DATASETS_ALL}
+  # CHANGE THIS START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  TOKENIZER_NUMBER=5
+
+  DATASET_FILTER_DA="_da"
+  DATASET_FILTER_IS="_is"
+  DATASET_FILTER_EN="_is"  # TODO!!!!
+  DATASET_FILTER_NO="_no"
+  DATASET_FILTER_SV="_sv"
+  DATASET_FILTER_CD="_cd"
+  DATASET_FILTER_ALL="<all>"
+
+  VOCAB_SIZE=20000
+  # CHANGE THIS END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  # single language name needs to be int + char + char!
+  # multi  language name needs to be int + all-a?.?!
+  NAME_DA=$TOKENIZER_NUMBER"da"
+  NAME_IS=$TOKENIZER_NUMBER"is"
+  NAME_EN=$TOKENIZER_NUMBER"en"
+  NAME_NO=$TOKENIZER_NUMBER"no"
+  NAME_SV=$TOKENIZER_NUMBER"sv"
+  NAME_CD=$TOKENIZER_NUMBER"cd"
+  NAME_ALL=$TOKENIZER_NUMBER"all-a1.0"
+
+  echo "DATASET_FILTER_DA: " ${DATASET_FILTER_DA}
+  echo "DATASET_FILTER_IS: " ${DATASET_FILTER_IS}
+  echo "DATASET_FILTER_EN: " ${DATASET_FILTER_EN}
+  echo "DATASET_FILTER_NO: " ${DATASET_FILTER_NO}
+  echo "DATASET_FILTER_SV: " ${DATASET_FILTER_SV}
+  echo "DATASET_FILTER_CD: " ${DATASET_FILTER_CD}
+  echo "DATASET_FILTER_ALL:" ${DATASET_FILTER_ALL}
   echo ""
   echo "VOCAB_SIZE:  " ${VOCAB_SIZE}
   echo ""
-  ListDatasetFiles=("${DATASETS_DA}"
-                    "${DATASETS_IS}"
-                    "${DATASETS_EN}"
-                    "${DATASETS_NO}"
-                    "${DATASETS_SV}"
-                    "${DATASETS_ALL}"
+  ListDatasetFiles=("all"
+                    "all"
+                    "all"
+                    "all"
+                    "all"
+                    "all"
+                    "all"
+                    )
+  ListDatasetFilters=("${DATASET_FILTER_DA}"
+                      "${DATASET_FILTER_IS}"
+                      "${DATASET_FILTER_EN}"
+                      "${DATASET_FILTER_NO}"
+                      "${DATASET_FILTER_SV}"
+                      "${DATASET_FILTER_CD}"
+                      "${DATASET_FILTER_ALL}"
                    )
   ListDatasetName=("${NAME_DA}"
                    "${NAME_IS}"
                    "${NAME_EN}"
                    "${NAME_NO}"
                    "${NAME_SV}"
+                   "${NAME_CD}"
                    "${NAME_ALL}"
                    )
 fi
@@ -156,8 +190,9 @@ then
   do
       python script_train.py \
         --library $LIBRARY \
+        --tokenizer_name ${ListDatasetName[i]} \
         --dataset_files ${ListDatasetFiles[i]} \
-        --dataset_name ${ListDatasetName[i]} \
+        --dataset_filter ${ListDatasetFilters[i]} \
         --unicode_normalization ${UNICODE_NORMALIZATION} \
         --individual_digits ${INDIVIDUAL_DIGITS} \
         --add_prefix_space ${ADD_PREFIX_SPACE} \

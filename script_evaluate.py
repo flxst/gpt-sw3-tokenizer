@@ -10,13 +10,13 @@ PURPOSE: the script
 import os
 from os.path import isfile, join, isdir
 import json
+import argparse
 # from transformers import PreTrainedTokenizerFast
 import sentencepiece as spm
 from collections import Counter
 import time
 from itertools import product
 from typing import Tuple, List
-from DATA_EVALUATION import NAME_ALL, VOCAB_SIZES, DATA_EVAL
 from sentencepiece import sentencepiece_model_pb2 as model_pb2
 from src.env import Env
 
@@ -73,8 +73,15 @@ def evaluate(_model_dir, _data_path):
                 # print(example_encoded[:10])
                 break
 
-        _unk_rate = number_of_unk/float(sentence_length_in_subwords)
-        _closeness_to_character_level = float(sentence_length_in_subwords)/sentence_length_in_characters
+        try:
+            _unk_rate = number_of_unk/float(sentence_length_in_subwords)
+        except ZeroDivisionError:
+            _unk_rate = -1
+
+        try:
+            _closeness_to_character_level = float(sentence_length_in_subwords)/sentence_length_in_characters
+        except ZeroDivisionError:
+            _closeness_to_character_level = -1
 
         if VERBOSE:
             print()
@@ -96,14 +103,12 @@ def extract_bf_cc_from_model(_model) -> Tuple[str, str]:
     return _bf, _cc
 
 
-def get_info_automatically() -> Tuple[str, List[str], List[str]]:
-    _name = NAME_ALL
+def get_models(_name: str) -> List[str]:
     subdirs = [elem for elem in os.listdir(env.output) if isdir(join(env.output, elem)) and elem.endswith(_name)]
     assert len(subdirs) > 0, f"ERROR! did not find any subdirectories that end with {_name} in env.output = {env.output}"
     assert len(subdirs) == 1, f"ERROR! found multiple subdirectories: {subdirs}"
     _models = subdirs
-    _data_eval = DATA_EVAL
-    return _name, _models, _data_eval
+    return _models
 
 
 def prune_vocab_size(_models: str,
@@ -139,6 +144,44 @@ def prune_vocab_size(_models: str,
     return [_models]
 
 
+def main(_name, _models, _vocab_sizes=None):
+    _models = [join(env.output, model) for model in _models]
+    _data_eval = [join(env.data_sampled, elem) for elem in os.listdir(env.data_sampled)]
+    print(_data_eval)
+
+    if len(_models) == 1:
+        _models = prune_vocab_size(_models[0], _vocab_sizes)  # returns list
+
+    results = {
+        model: {
+            data: dict()
+            for data in _data_eval
+        }
+        for model in _models
+    }
+
+    for model, data in product(_models, _data_eval):
+        # bf, cc = extract_bf_cc_from_model(model)
+        # print()
+        # print(f"> model = {model}")
+        # print(f"> data = {data}")
+        # print(".", end="")
+        Xunk_rate, Xcloseness_to_character_level = evaluate(model, data)
+        results[model][data]["unk_rate"] = Xunk_rate
+        results[model][data]["closeness_to_character_level"] = Xcloseness_to_character_level
+
+    print()
+    print("--- results ---")
+    print(results)
+    print("---------------")
+
+    os.makedirs(join(env.output, "evaluation"), exist_ok=True)
+    results_file = join(env.output, "evaluation", f"results_{_name}.json")
+    with open(results_file, "w", encoding="utf-8") as f:
+        f.write(json.dumps(results))
+    print(f"> wrote results to {results_file}")
+
+
 if __name__ == "__main__":
     if 0:
         name = "bf-cc-test"
@@ -151,6 +194,7 @@ if __name__ == "__main__":
         data_eval = [
            "books_sv_epub_100.jsonl",
         ]
+        vocab_sizes = None
     if 0:
         name = "bf-bc"
         models = [
@@ -166,6 +210,7 @@ if __name__ == "__main__":
             "wiki_no_t1p.jsonl",
             "wiki_sv_t1p.jsonl",
         ]
+        vocab_sizes = None
     if 0:
         name = "all-a1.0"
         models = [
@@ -183,38 +228,18 @@ if __name__ == "__main__":
             "wiki_no_t1p.jsonl",
             "wiki_sv_t1p.jsonl",
         ]
+        vocab_sizes = None
+
     if 1:
-        name, models, data_eval = get_info_automatically()
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--name", type=str, required=True)
+        parser.add_argument("--vocab_sizes", nargs='+', type=int, default=[])
+        _args = parser.parse_args()
 
-    models = [join(env.output, model) for model in models]
-    data_eval = [join(env.data_sampled, data) for data in data_eval]
+        name = _args.name
+        models = get_models(name)
+        vocab_sizes = _args.vocab_sizes
 
-    if len(models) == 1:
-        models = prune_vocab_size(models[0], VOCAB_SIZES)  # returns list
+    main(name, models, vocab_sizes)
 
-    results = {
-        model: {
-            data: dict()
-            for data in data_eval
-        }
-        for model in models
-    }
 
-    for model, data in product(models, data_eval):
-        # bf, cc = extract_bf_cc_from_model(model)
-        # print()
-        # print(f"> model = {model}")
-        # print(f"> data = {data}")
-        # print(".", end="")
-        Xunk_rate, Xcloseness_to_character_level = evaluate(model, data)
-        results[model][data]["unk_rate"] = Xunk_rate
-        results[model][data]["closeness_to_character_level"] = Xcloseness_to_character_level
-
-    print()
-    print("---------------")
-    print(results)
-
-    os.makedirs(join(env.output, "evaluation"), exist_ok=True)
-    results_file = join(env.output, "evaluation", f"results_{name}.json")
-    with open(results_file, "w", encoding="utf-8") as f:
-        f.write(json.dumps(results))

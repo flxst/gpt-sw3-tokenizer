@@ -121,7 +121,7 @@ def tokenize_sp(_model: str, _example: str) -> Dict[str, Any]:
 # 2. SUBWORDS #############################################################################
 ###########################################################################################
 def _get_data(model):
-    output_dir = join("..", "output", model)
+    output_dir = join(env.output, model)
     _subword_lengths_file = join(output_dir, "tokenizer_subword_lengths.json")
     assert isfile(_subword_lengths_file), f"ERROR! could not find {_subword_lengths_file}"
 
@@ -210,6 +210,7 @@ COLOR = {
     "no": "purple",
     "en": "gray",
     "is": "blue",
+    "cd": "green",
     "all": "black",
     "all+": "black",
 }
