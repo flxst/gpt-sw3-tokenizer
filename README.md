@@ -25,8 +25,37 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 ## Main Usage
 
-To train a tokenizer, 
-- move your data to the `<data_sampled>` folder, e.g. `<data_sampled>/my-data-*.jsonl`
+Training a tokenizer is often a 2 step process:
+1. Sampling
+2. Training
+
+### Sampling
+
+Often times (especially in the case of very large datasets), 
+one only wants to use a certain fraction of the original data for the tokenizer training.
+
+Note 1: If you want to skip this step, just point the 
+`<data_sampled>` to the `<data_original>` folder 
+in `env.ini` and proceed with the training.
+
+Note 2: Sampling is only implemented for the case where you have
+categories (e.g. books, articles, ..) and languages (e.g. sv, da, ..)
+and your data files have the format `<data_original>/<category>_<language>.jsonl`
+
+To sample data from these files, do the following: 
+- Specify the categories, languages and weights in `DATA_WEIGHTS.csv`
+- Choose the fraction of your samples in percent, e.g. `<percent> = 10`
+- Run `python script_data_sampling.py --percent <percent>`
+
+The sampled files can be found at
+`<data_sampled>/<category>_<language>_<percent>p.jsonl`
+and ready to be used for training in the next step.
+
+
+### Training
+
+To train the tokenizer on data in the `<data_sampled>` folder, do the following: 
+- choose your data files, e.g. `<data_sampled>/my-data-*.jsonl`: 
 - choose a name for the resulting tokenizer, e.g. `tokenizer1`
 - run the training:
 
