@@ -3,6 +3,7 @@ from os.path import join
 import time
 from src.code_tokens import CODE_TOKENS
 from src.env import Env
+from src.helpers import LIST_OF_SPECIAL_TOKENS
 
 env = Env()
 
@@ -51,6 +52,8 @@ class Parameters:
                 for i in range(2, 25)  # 2-24 consecutive whitespaces
             ]
             self.special_tokens += whitespace_tokens
+        elif self.add_whitespace_tokens == 2:  # only self.library == "SP"
+            self.vocab_size -= len(LIST_OF_SPECIAL_TOKENS)
 
         if self.add_code_tokens == 1:
             self.special_tokens += CODE_TOKENS
