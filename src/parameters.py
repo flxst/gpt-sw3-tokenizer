@@ -1,11 +1,17 @@
+import os
 from typing import List
-from os.path import join
+from os.path import join, isfile
 import time
 from src.code_tokens import CODE_TOKENS
 from src.env import Env
 from src.helpers import LIST_OF_SPECIAL_TOKENS
 
 env = Env()
+
+
+def get_dataset_files_in_folder(_folder: str) -> List[str]:
+    print(f"> get files in {_folder}")
+    return [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
 
 
 class Parameters:
@@ -27,8 +33,15 @@ class Parameters:
                  alpha: float = 1.0):
 
         assert library in ["HF", "SP"], f"ERROR! library = {library} unknown, needs to be HF or SP"
+        assert len(dataset_files), \
+            "ERROR need to specify --dataset_files <str>"
+        assert len(dataset_name), \
+            "ERROR! need to specify --dataset_name <str>"
         self.library = library
-        self.dataset_files = [join(env.data_sampled, dataset_file) for dataset_file in dataset_files]
+        if dataset_files == ["all"]:
+            self.dataset_files = get_dataset_files_in_folder(env.data_sampled)
+        else:
+            self.dataset_files = [join(env.data_sampled, dataset_file) for dataset_file in dataset_files]
         self.dataset_name = dataset_name
         self.unicode_normalization = unicode_normalization
         self.individual_digits = bool(individual_digits)
