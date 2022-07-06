@@ -2,10 +2,11 @@
 EXECUTION: python script_create_test_data.py
 
 PURPOSE: the script creates data files for testing:
-         - <DATA>/test.json   (contains TEST_CORPUS)
-         - <DATA>/code.json   (contains script_train.py as string)
-         - <DATA>/fibrec.json (contains fibRec function as string)
+         - <data_sampled>/test.json   (contains TEST_CORPUS)
+         - <data_sampled>/code.json   (contains script_train.py as string)
+         - <data_sampled>/fibrec.json (contains fibRec function as string)
 """
+import os
 from os.path import join
 import json
 from src.test_data import TEST_CORPUS
@@ -30,6 +31,8 @@ def _add_features(_d):
 
 def main():
     env = Env()
+    os.makedirs(env.data_sampled, exist_ok=True)
+
     test_data_file = join(env.data_sampled, "test.json")
     with open(test_data_file, "w", encoding="utf-8") as f:
         for i in range(len(TEST_CORPUS)):

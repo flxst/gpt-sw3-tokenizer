@@ -12,12 +12,15 @@ from os.path import join, isfile, isdir
 from tokenizers import Tokenizer
 from src.test_data import TEST_EXAMPLES
 from transformers import PreTrainedTokenizerFast
+from src.env import Env
 
 
 def main(args):
-    assert isdir("output"), f"ERROR! output directory does not exist."
-    _id = [elem for elem in os.listdir("output") if args.id in elem][0]
-    tokenizer_file = join("output", _id, "tokenizer.json")
+    env = Env()
+
+    assert isdir(env.output), f"ERROR! output directory {env.output} does not exist."
+    _id = [elem for elem in os.listdir(env.output) if args.id in elem][0]
+    tokenizer_file = join(env.output, _id, "tokenizer.json")
     assert isfile(tokenizer_file), f"ERROR! {tokenizer_file} does not exist."
 
     tokenizer = Tokenizer.from_file(tokenizer_file)

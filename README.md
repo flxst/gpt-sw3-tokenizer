@@ -68,7 +68,7 @@ and analyze the results.
 ### Data & Testing (Optional Preparations)
 
 - ```
-  python script_create_test_data.py
+  python script_create_test_data_sampled.py
   ```
 
   creates the following data for testing: 
