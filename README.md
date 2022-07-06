@@ -61,7 +61,7 @@ To train the tokenizer on data in the `<data_sampled>` folder, do the following:
 
   ```
   python script_train.py 
-      --dataset_files <data_sampled>/my-data-1 <data_sampled>/my-data-2
+      --dataset_files my-data-1 my-data-2
       --dataset_name tokenizer1
       [--library SP]                         # SP = SentencePiece, HF = HuggingFace
       [--unicode_normalization None]         # None, NFC, NFKC

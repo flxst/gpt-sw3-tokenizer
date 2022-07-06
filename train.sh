@@ -138,7 +138,13 @@ then
                     "${DATASETS_SV}"
                     "${DATASETS_ALL}"
                    )
-  ListDatasetName=("${NAME_DA}" "${NAME_IS}" "${NAME_EN}" "${NAME_NO}" "${NAME_SV}" "${NAME_ALL}")
+  ListDatasetName=("${NAME_DA}"
+                   "${NAME_IS}"
+                   "${NAME_EN}"
+                   "${NAME_NO}"
+                   "${NAME_SV}"
+                   "${NAME_ALL}"
+                   )
 fi
 
 ##################################################################################################
