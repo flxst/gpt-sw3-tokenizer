@@ -146,7 +146,7 @@ and analyze the results.
 
 ### 1. Data Sampled
 
-- Make sure the weights in `DATA_WEIGHTS.py` are up-to-date
+- Make sure the weights in `DATA_WEIGHTS.csv` are up-to-date
 
 - Run `python script_data_sampling.py --percent 10`
 
