@@ -33,7 +33,7 @@ def reservoir_sampling(l, k):
         if s < k:
             result[s] = item
 
-    random.shuffle(result)
+    # random.shuffle(result)  # additional cost without effect
     return result
 
 
@@ -44,28 +44,34 @@ def main(args):
 
     for category, language in product(categories, languages):
         weight = data_weights_sampling[category][language]
-        print(f"\n> category = {category}, language = {language}, weight = {weight}")
+        print(f"> category = {category}, language = {language}, weight = {weight}")
 
-        # 2. make sure that all original data files exist
-        file_path_original = get_file_path(category, language)
-        assert isfile(file_path_original), \
-            f"ERROR! file for category = {category}, language = {language} does not exist at {file_path_original}"
+        if weight > 0:
+            # 2. make sure that all original data files exist
+            file_path_original = get_file_path(category, language)
+            assert isfile(file_path_original), \
+                f"ERROR! file for category = {category}, language = {language} does not exist at {file_path_original}"
 
-        # 3. make sure that <data_sampled> folder exists
-        file_path_sampled = get_file_path(category, language, original=False, percent=args.percent)
-        os.makedirs(dirname(file_path_sampled), exist_ok=True)
+            # 3. make sure that <data_sampled> folder exists
+            file_path_sampled = get_file_path(category, language, original=False, percent=args.percent)
+            os.makedirs(dirname(file_path_sampled), exist_ok=True)
 
-        # 4. sample <percent>% of the original data and write
-        number_of_original_documents = sum(1 for _ in open(file_path_original))
-        fraction = int(weight*number_of_original_documents)
+            # 4. sample <percent>% of the original data and write
+            number_of_original_documents = sum(1 for _ in open(file_path_original))
+            number_of_sampled_documents = int(weight*number_of_original_documents)
 
-        with open(file_path_original) as infile, open(file_path_sampled, 'w') as outfile:
-            for line in reservoir_sampling(infile, fraction):
-                outfile.write(line)
+            with open(file_path_original) as infile, open(file_path_sampled, 'w') as outfile:
+                for line in reservoir_sampling(infile, number_of_sampled_documents):
+                    outfile.write(line)
 
-        if args.verbose:
-            print(f".. from {number_of_original_documents} original documents, "
-                  f"wrote {fraction} sampled documents to {file_path_sampled}")
+            if args.verbose:
+                print(f".. from {number_of_original_documents} original documents, "
+                      f"wrote {number_of_sampled_documents} sampled documents to {file_path_sampled}")
+                print()
+        else:
+            if args.verbose:
+                print(f".. skipped")
+                print()
 
 
 if __name__ == "__main__":
