@@ -2,7 +2,7 @@
 EXECUTION: python script_test_data_original.py
            --number_of_documents 20
 
-PURPOSE: for each combination of <category> & <language> (as specified in DATA_WEIGHTS.csv), the script
+PURPOSE: for each combination of <category> & <language> (as specified in SAMPLING_WEIGHTS.csv), the script
          - creates <number_of_documents> fake original documents for testing
          - writes the fake original data to <data_original>/<category>_<language>.jsonl
 """
@@ -11,22 +11,22 @@ import argparse
 import os
 from src.env import Env
 import json
-from src.sampling import get_file_path, read_data_weights
+from src.sampling import get_file_path, read_sampling_weights
 
 
 def main(args):
     env = Env()
     os.makedirs(env.data_original, exist_ok=True)
 
-    # 1. read DATA_WEIGHTS.csv
-    categories, languages, data_weights, _ = read_data_weights(verbose=True)
+    # 1. read SAMPLING_WEIGHTS.csv
+    categories, languages, sampling_weights, _ = read_sampling_weights(verbose=True)
 
     # 2. write fake original data
     number_of_files = 0
     number_of_zero_weights = 0
     for category in categories:
         for language in languages:
-            if data_weights[category][language] > 0:
+            if sampling_weights[category][language] > 0:
                 file_path_original = get_file_path(category, language)
                 data = [f"Example {category}_{language} nr. {n}" for n in range(args.number_of_documents)]
                 with open(file_path_original, "w") as file:

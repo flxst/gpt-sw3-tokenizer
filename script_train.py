@@ -124,8 +124,8 @@ def main(args):
     output.analyze_vocabulary()
     output.overview(datasets_combined, parameters.dataset_files, _time=f"{time.time() - ts:.2f}s")
 
-    if parameters.library == "SP":
-        create_merge_rules(output.vocab_file, output.merge_file)
+    # if parameters.library == "SP":
+    #     create_merge_rules(output.vocab_file, output.merge_file)
 
 
 if __name__ == "__main__":

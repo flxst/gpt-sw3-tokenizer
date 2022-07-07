@@ -147,7 +147,6 @@ def prune_vocab_size(_models: str,
 def main(_name, _models, _vocab_sizes=None):
     _models = [join(env.output, model) for model in _models]
     _data_eval = [join(env.data_sampled, elem) for elem in os.listdir(env.data_sampled)]
-    print(_data_eval)
 
     if len(_models) == 1:
         _models = prune_vocab_size(_models[0], _vocab_sizes)  # returns list

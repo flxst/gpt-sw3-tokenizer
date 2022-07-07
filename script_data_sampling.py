@@ -2,16 +2,16 @@
 EXECUTION: python script_data_sampling.py
            --percent 10
 
-PURPOSE: for each combination of <category> & <language> (as specified in DATA_WEIGHTS.csv), the script
+PURPOSE: for each combination of <category> & <language> (as specified in SAMPLING_WEIGHTS.csv), the script
          - reads the original data file at <data_original>/<category>_<language>.jsonl
          - samples <percent>% of the data
          - writes the sampled data file at <data_sampled>/<category>_<language>_<percent>p.jsonl
 """
 import argparse
 import os
-from src.sampling import get_file_path, read_data_weights
+from src.sampling import get_file_path, read_sampling_weights
 from itertools import product
-from os.path import isfile, dirname
+from os.path import isfile, dirname, getsize
 import time
 
 
@@ -39,21 +39,23 @@ def reservoir_sampling(l, k):
 
 
 def main(args):
-    # 1. read DATA_WEIGHTS.csv
-    categories, languages, data_weights, data_weights_sampling = read_data_weights(percent=args.percent,
-                                                                                   verbose=args.verbose)
+    # 1. read SAMPLING_WEIGHTS.csv
+    categories, languages, sampling_weights, sampling_weights_sampling = read_sampling_weights(percent=args.percent,
+                                                                                               verbose=args.verbose)
 
     for category, language in product(categories, languages):
-        weight = data_weights_sampling[category][language]
-        print(f"> category = {category}, language = {language}, weight = {weight}")
+        weight = sampling_weights_sampling[category][language]
 
         if weight > 0:
             ts = time.time()
+            print(f"> category = {category}, language = {language}, weight = {weight}")
 
             # 2. make sure that all original data files exist
             file_path_original = get_file_path(category, language)
             assert isfile(file_path_original), \
                 f"ERROR! file for category = {category}, language = {language} does not exist at {file_path_original}"
+            file_size_original = getsize(file_path_original)
+            print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
 
             # 3. make sure that <data_sampled> folder exists
             file_path_sampled = get_file_path(category, language, original=False, percent=args.percent)
@@ -67,17 +69,20 @@ def main(args):
                 for line in reservoir_sampling(infile, number_of_sampled_documents):
                     outfile.write(line)
 
+            file_size_sampled = getsize(file_path_sampled)
+            print(f"{file_size_sampled/float(10**6):.1f} MB ", end="")
+
             if args.verbose:
                 print(f".. from {number_of_original_documents} original documents, "
                       f"wrote {number_of_sampled_documents} sampled documents to {file_path_sampled}")
-                print()
 
             te = time.time()
             print(f"[time = {te-ts:.1f}s]")
+            print()
 
         else:
             if args.verbose:
-                print(f".. skipped")
+                print(f"> category = {category}, language = {language}, weight = {weight} .. skipped")
                 print()
 
 

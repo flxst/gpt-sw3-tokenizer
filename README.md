@@ -43,7 +43,7 @@ categories (e.g. books, articles, ..) and languages (e.g. sv, da, ..)
 and your data files have the format `<data_original>/<category>_<language>.jsonl`
 
 To sample data from these files, do the following: 
-- Specify the categories, languages and weights in `DATA_WEIGHTS.csv`
+- Specify the categories, languages and weights in `SAMPLING_WEIGHTS.csv`
 - Choose the fraction of your samples in percent, e.g. `<percent> = 10`
 - Run `python script_data_sampling.py --percent <percent>`
 
@@ -170,6 +170,8 @@ and analyze the results.
 
 ## REAL DATA EXPERIMENTS
 
+Make sure that `env.ini` is correct!
+
 ### 0. Data Original
 
 - Have the (original) data
@@ -177,7 +179,7 @@ and analyze the results.
 
 ### 1. Data Sampled & Data Eval
 
-- Make sure the weights in `DATA_WEIGHTS.csv` are up-to-date
+- Make sure the weights in `SAMPLING_WEIGHTS.csv` are up-to-date
 
 
 - Choose your percentage (e.g. `<percent> = 10` 
