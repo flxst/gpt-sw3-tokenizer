@@ -122,7 +122,7 @@ fi
 if [ 1 -eq 1 ]
 then
   # CHANGE THIS START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  TOKENIZER_NUMBER=5
+  TOKENIZER_NUMBER=1
 
   DATASET_FILTER_DA="_da"
   DATASET_FILTER_IS="_is"
@@ -132,7 +132,7 @@ then
   DATASET_FILTER_CD="_cd"
   DATASET_FILTER_ALL="<all>"
 
-  VOCAB_SIZE=20000
+  # VOCAB_SIZE=10000
   # CHANGE THIS END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   # single language name needs to be int + char + char!
