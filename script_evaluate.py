@@ -7,6 +7,7 @@ PURPOSE: the script
          - writes results to `<OUTPUT>/evaluation/results_*.json`
 """
 
+from copy import deepcopy
 import os
 from os.path import isfile, join, isdir
 import json
@@ -114,6 +115,7 @@ def get_models(_name: str) -> List[str]:
 def prune_vocab_size(_models: str,
                      _vocab_sizes: List[int]) -> List[str]:
     """only works for library == SP"""
+    _new_models = [_models]
     vocab_size_model = _vocab_sizes[-1]
     assert str(vocab_size_model) in _models, \
         f"ERROR! vocab size = {vocab_size_model} is not in _models = {_models}"
@@ -121,32 +123,40 @@ def prune_vocab_size(_models: str,
     m = model_pb2.ModelProto()
     m.ParseFromString(open(model_file, 'rb').read())
     for _vocab_size in _vocab_sizes[:-1]:
-        m_pruned = model_pb2.ModelProto()
         pruned_model_dir = _models.replace(f"v{vocab_size_model}", f"v{_vocab_size}")
         os.makedirs(pruned_model_dir, exist_ok=False)
         pruned_model = join(pruned_model_dir, "model.model")
-        for i, _ in enumerate(m.pieces):
-            if i < _vocab_size or i >= vocab_size_model:
-                m_pruned.pieces.add()
-                m_pruned.pieces[-1].piece = m.pieces[i].piece
-                m_pruned.pieces[-1].score = m.pieces[i].score
 
-        for j in [0, 1, 2]:
+        m_pruned = deepcopy(m)
+        for i, _ in enumerate(m.pieces):
+            if _vocab_size - 23 < i < vocab_size_model - 23:  # TODO: this works only for add_whitespace_tokens == 2
+                # workaround: overwrite with extremely unlikely token
+                m_pruned.pieces[i].piece = f"a!?x$$▁!!xyz.masdf_{i}"
+
+        for j in [0, 1, 2, _vocab_size-25, _vocab_size-24]:
             assert m.pieces[j].piece == m_pruned.pieces[j].piece, \
                 f"ERROR for j = {j}, piece: {m.pieces[j].piece} != {m_pruned.pieces[j].piece}"
             assert m.pieces[j].score == m_pruned.pieces[j].score, \
                 f"ERROR for j = {j}, score: {m.pieces[j].score} != {m_pruned.pieces[j].score}"
 
+        if DEBUG:
+            for j in [0, _vocab_size - 23, _vocab_size - 22, -24, -23, -1]:
+                print(j)
+                print(m.pieces[j])
+                print(m_pruned.pieces[j])
+
         with open(pruned_model, 'wb') as f:
             f.write(m_pruned.SerializeToString())
         print(f"> wrote new model to {pruned_model}")
 
-    return [_models]
+        _new_models.append(pruned_model_dir)
+
+    return _new_models
 
 
 def main(_name, _models, _vocab_sizes=None):
     _models = [join(env.output, model) for model in _models]
-    _data_eval = [join(env.data_sampled, elem) for elem in os.listdir(env.data_sampled)]
+    _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval)]
 
     if len(_models) == 1:
         _models = prune_vocab_size(_models[0], _vocab_sizes)  # returns list
@@ -161,10 +171,10 @@ def main(_name, _models, _vocab_sizes=None):
 
     for model, data in product(_models, _data_eval):
         # bf, cc = extract_bf_cc_from_model(model)
-        # print()
-        # print(f"> model = {model}")
-        # print(f"> data = {data}")
-        # print(".", end="")
+        if DEBUG:
+            print()
+            print(f"> model = {model}")
+            print(f"> data = {data}")
         Xunk_rate, Xcloseness_to_character_level = evaluate(model, data)
         results[model][data]["unk_rate"] = Xunk_rate
         results[model][data]["closeness_to_character_level"] = Xcloseness_to_character_level
