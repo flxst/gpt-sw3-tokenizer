@@ -51,7 +51,7 @@ def main(args):
             generator = get_training_corpus_combined(dataset, batch_size)
 
         for elem in generator:
-            print(type(elem), len(elem), len(elem[0]), elem[0][:10])
+            print(type(elem), len(elem), elem[:10])
 
 
 if __name__ == "__main__":
