@@ -12,7 +12,7 @@ env = Env()
 def get_dataset_files_in_folder(_folder: str, _dataset_filter: str) -> List[str]:
     print(f"> get files in {_folder}")
     _files = [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
-    if len(_dataset_filter) and _dataset_filter != "<all>":
+    if len(_dataset_filter) and _dataset_filter != "all":
         _files = [elem for elem in _files if _dataset_filter in elem]
     assert len(_files), f"ERROR! no files found in {_folder} (that contain '{_dataset_filter}')"
     return [join(_folder, elem) for elem in _files]
@@ -24,7 +24,7 @@ class Parameters:
                  library: str,
                  tokenizer_name: str,
                  dataset_files: List[str],
-                 dataset_filter: str = "<all>",
+                 dataset_filter: str = "all",
                  unicode_normalization: str = "NFC",
                  individual_digits: bool = True,
                  add_prefix_space: bool = True,

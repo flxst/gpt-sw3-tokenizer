@@ -132,7 +132,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--tokenizer_name", type=str, default="")
     parser.add_argument("--dataset_files", nargs='+', type=str, default=[])
-    parser.add_argument("--dataset_filter", type=str, default="<all>")
+    parser.add_argument("--dataset_filter", type=str, default="all")
     parser.add_argument("--library", type=str, default="SP")
     parser.add_argument("--unicode_normalization", type=str, default="None")
     parser.add_argument("--individual_digits", type=int, default=1)
