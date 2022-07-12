@@ -4,9 +4,10 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 ## Repo Structure
 
+- `.`: contains main python and bash scripts as well as environment variables (`env.ini`)
 - `./notebooks`: contains notebooks
+- `./scripts`: contains helper and testing python scripts
 - `./src`: contains source code
-- `.`: contains python and bash scripts as well as environment variables (`env.ini`)
 
 
 
@@ -25,11 +26,11 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 ## Main Usage
 
-Training a tokenizer is often a 2 step process:
+Training a tokenizer requires the following steps:
 1. Sampling
 2. Training
 
-### Sampling
+### 1. Sampling
 
 Often times (especially in the case of very large datasets), 
 one only wants to use a certain fraction of the original data for the tokenizer training.
@@ -45,14 +46,14 @@ and your data files have the format `<data_original>/<category>_<language>.jsonl
 To sample data from these files, do the following: 
 - Specify the categories, languages and weights in `SAMPLING_WEIGHTS.csv`
 - Choose the fraction of your samples in percent, e.g. `<percent> = 10`
-- Run `python script_data_sampling.py --percent <percent>`
+- Run `python script_sampling.py --percent <percent>`
 
 The sampled files can be found at
 `<data_sampled>/<category>_<language>_<percent>p.jsonl`
 and ready to be used for training in the next step.
 
 
-### Training
+### 2. Training
 
 To train the tokenizer on data in the `<data_sampled>` folder, do the following: 
 - choose your data files, e.g. `<data_sampled>/my-data-*.jsonl` 
@@ -89,6 +90,8 @@ In addition, there are two files that (together with the data) are to be used wi
 Megatron-LM's data preprocessing tool (`tools/preprocess_data.py`)
 - `tokenizer_vocab.json` (vocabulary)
 - `tokenizer_merge.txt` (merge rules)
+
+Note: In case library == "SP" is used, the `tokenizer_merge.txt` file is missing. See "Advanced Usage" for more details.
 
 
 ## Advanced Usage
@@ -184,12 +187,12 @@ Make sure that `env.ini` is correct!
 
 
 - Choose your percentage (e.g. `<percent> = 10` 
-  and rerun `python script_data_sampling.py --percent <percent>`
+  and rerun `python script_sampling.py --percent <percent>`
 
 
 - Adjust Env such that the target directory is `<data_eval>` 
   
-  and run `python script_data_sampling.py --percent <percent>`
+  and run `python script_sampling.py --percent <percent>`
 
 ### 2. Tokenizer Training
 

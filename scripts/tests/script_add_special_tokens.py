@@ -1,6 +1,13 @@
 
 import os
 from os.path import join
+
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
 from src.helpers import add_special_tokens
 from src.env import Env
 

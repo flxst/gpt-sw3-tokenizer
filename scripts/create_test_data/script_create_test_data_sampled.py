@@ -9,6 +9,13 @@ PURPOSE: the script creates data files for testing:
 import os
 from os.path import join
 import json
+
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
 from src.test_data import TEST_CORPUS
 from src.env import Env
 

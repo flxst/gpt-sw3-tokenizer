@@ -13,11 +13,17 @@ from os.path import join, isdir, isfile
 import json
 import argparse
 
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
 
 def main(args):
 
-    input_directory = args.directory
-    output_directory = f"{input_directory}_FILTERED"
+    input_directory = join(BASE_DIR, args.directory)
+    output_directory = join(BASE_DIR, f"{input_directory}_FILTERED")
 
     assert isdir(input_directory), f"ERROR! {input_directory} not found."
 

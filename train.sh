@@ -130,7 +130,7 @@ then
   DATASET_FILTER_NO="_no"
   DATASET_FILTER_SV="_sv"
   DATASET_FILTER_CD="_cd"
-  DATASET_FILTER_ALL="<all>"
+  DATASET_FILTER_ALL="all"
 
   # VOCAB_SIZE=10000
   # CHANGE THIS END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

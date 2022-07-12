@@ -1,11 +1,27 @@
+"""
+EXECUTION: python script_change_file_names.py
+           --directory <directory>
+           [--remove_percent 50]
+           [--add_percent 50]
 
+PURPOSE: the script
+         - takes all the dataset files in <directory>
+         - for each dataset file, checks whether a document has a non-whitespace sequence of length > <threshold>
+         - if so, it filters those documents and writes the rest to <directory>_FILTERED
+"""
 import argparse
 import os
 from os.path import isfile, isdir, join
 
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
 
 def main(args):
-    directory = join(os.getcwd(), args.directory)
+    directory = join(BASE_DIR, args.directory)
     assert isdir(directory), f"ERROR! directory = {directory} does not exist"
     assert (args.remove_percent and not args.add_percent) or (not args.remove_percent and args.add_percent), \
         f"ERROR! need to EITHER use --remove_percent ({args.remove_percent}) " \

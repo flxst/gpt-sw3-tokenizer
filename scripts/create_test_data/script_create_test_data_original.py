@@ -9,8 +9,15 @@ PURPOSE: for each combination of <category> & <language> (as specified in SAMPLI
 
 import argparse
 import os
-from src.env import Env
 import json
+
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
+from src.env import Env
 from src.sampling import get_file_path, read_sampling_weights
 
 

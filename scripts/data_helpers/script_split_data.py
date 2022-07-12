@@ -11,6 +11,13 @@ PURPOSE: the script
 from os.path import join
 import json
 import argparse
+
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
 from src.env import Env
 
 

@@ -11,7 +11,16 @@ PURPOSE: the script
 import argparse
 from datasets import load_dataset, Dataset
 from typing import List
+from os.path import join
+
+from os.path import abspath, dirname
+import sys
+BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
 from src.helpers import get_training_corpus_combined
+from src.env import Env
 
 
 def get_training_corpus(_datasets: List[Dataset], batch_size: int):
@@ -21,7 +30,8 @@ def get_training_corpus(_datasets: List[Dataset], batch_size: int):
 
 
 def main(args):
-    dataset_files = args.dataset_files
+    env = Env()
+    dataset_files = [join(env.data_original, dataset_file) for dataset_file in args.dataset_files]
     batch_size = args.batch_size
 
     # 0. Load Datasets
