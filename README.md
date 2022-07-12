@@ -29,6 +29,8 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 Training a tokenizer requires the following steps:
 1. Sampling
 2. Training
+3. Evaluation
+4. Analysis
 
 ### 1. Sampling
 
@@ -93,84 +95,26 @@ Megatron-LM's data preprocessing tool (`tools/preprocess_data.py`)
 
 Note: In case library == "SP" is used, the `tokenizer_merge.txt` file is missing. See "Advanced Usage" for more details.
 
-
-## Advanced Usage
-
-The repository contains scripts & notebooks that 
-allow to experiment with different parameters 
-and analyze the results.
-
-### Data & Testing (Optional Preparations)
+### 3. Evaluation
 
 - ```
-  python script_create_test_data_sampled.py
+  python script_evaluate.py 
+      --name <name>                 # e.g. all-a1.0 
+      --vocab_sizes <vocab_sizes>   # e.g. 51200 64000
   ```
-
-  creates the following data for testing: 
-    - <data_sampled>/test.json   (contains TEST_CORPUS)
-    - <data_sampled>/code.json   (contains script_train.py as string)
-    - <data_sampled>/fibrec.json (contains fibRec function as string)
-
-- ```
-  python script_test_load_dataset.py
-  --dataset_files <dataset_files>
-  --batch_size <batch_size>
-  ```
-  - loads the data in <dataset_files> in batches of <batch_size>
-  - uses the get_training_corpus generator to read it
-  - prints information to check that everything works as expected
-
-- ```
-  python script_split_data.py  
-   --dataset_file <dataset_file>
-   --max_sentence_length <max_sentence_length>
-  ```
-  - splits the documents in <dataset_file> such that they contain <max_sentence_length> characters
-
-### Training
-
-- Train Tokenizer: 
-  - see `Main Usage`
-  - in addition to single runs, 
-  the bash script `bash train.sh` allows to systematically 
-  execute multiple runs for the purpose of experimentation.
-
-- ```
-  python script_upsampling.py
-  --dataset_files <dataset_files>
-  --stats <stats>
-  --total <total>
-  --alpha <alpha>  # upsampling parameter, 0 <= alpha <= 1
-  ```
-  - computes the upsampling factors for each dataset, using alpha parameter
-  - write upsampling factors to `data/file-upsampled.json`
-      
-  - in addition to single runs,
-  the bash script `bash upsampling.sh` allows to systematically
-  execute multiple runs for the purpose of experimentation.
-
-### Analysis
-
-- ```
-  python script_apply_tokenizer.py --id HHMMSS
-  ```
-  - loads the tokenizer with the given <id> (that needs to be present in the folder <output>/<id>_*)
-  - applies it to the data in TEST_EXAMPLES and prints the result
-  
-- ```
-  python script_evaluate.py
-  [parameters = <tokenizers>, <datasets> are hardcoded in the script]
-  ```
-  - applies each tokenizer on each dataset and computes unk_rate & closeness_to_character_level
+  - applies the tokenizer <output>/*_<name> on each dataset in <data_eval>
+  - computes unk_rate & closeness_to_character_level
   - writes results to `<output>/evaluation/results_*.json`
 
+### 4. Analysis
 
 - `notebooks/tokenizer_analysis.ipynb`
   - examine tokenized test examples (effect of parameters)
   - examine subword lengths & effect of min_frequency
   - vocab_size: creates plots
-    - vocabulary overlap 
+    - vocabulary overlap
     - unk_rate & closeness_to_char_level
+
 
 ## REAL DATA EXPERIMENTS
 
@@ -186,12 +130,12 @@ Make sure that `env.ini` is correct!
 - Make sure the weights in `SAMPLING_WEIGHTS.csv` are up-to-date
 
 
-- Choose your percentage (e.g. `<percent> = 10` 
+- Choose your percentage (e.g. `<percent> = 10`
   and rerun `python script_sampling.py --percent <percent>`
 
 
-- Adjust Env such that the target directory is `<data_eval>` 
-  
+- Adjust Env such that the target directory is `<data_eval>`
+
   and run `python script_sampling.py --percent <percent>`
 
 ### 2. Tokenizer Training
@@ -204,8 +148,8 @@ Make sure that `env.ini` is correct!
 ### 3. Evaluation
 (unk_rate & closeness_to_character_level)
 
-- For the run you want to evaluate, 
-  take its name (e.g. `<name> = 4all-a1.0`) and its vocab size (e.g. `128000`) 
+- For the run you want to evaluate,
+  take its name (e.g. `<name> = 4all-a1.0`) and its vocab size (e.g. `128000`)
   and add pruned vocab sizes you want to test (e.g. `<vocab_sizes> = 64000 96000 128000`)
 
 
@@ -219,3 +163,66 @@ Make sure that `env.ini` is correct!
 
 
 - Run notebook `./notebooks/tokenizer_analysis.ipynb`
+
+
+## Advanced Usage
+
+The repository contains additional scripts that 
+provide extended functionalities and allow for testing.
+
+### Data & Testing (Optional Preparations)
+
+- ```
+  python scripts/create_test_data/script_create_test_data_sampled.py
+  ```
+
+  creates the following data for testing: 
+    - <data_sampled>/test.json   (contains TEST_CORPUS)
+    - <data_sampled>/code.json   (contains script_train.py as string)
+    - <data_sampled>/fibrec.json (contains fibRec function as string)
+
+- ```
+  python scripts/tests/script_test_load_dataset.py
+  --dataset_files <dataset_files>
+  --batch_size <batch_size>
+  ```
+  - loads the data in <dataset_files> in batches of <batch_size>
+  - uses the get_training_corpus generator to read it
+  - prints information to check that everything works as expected
+
+- ```
+  python scripts/data_helpers/script_split_data.py  
+   --dataset_file <dataset_file>
+   --max_sentence_length <max_sentence_length>
+  ```
+  - splits the documents in <dataset_file> such that they contain <max_sentence_length> characters
+
+### Training
+
+- Train Tokenizer: 
+  - see `Main Usage`
+  - in addition to single runs, 
+  the bash script `bash train.sh` allows to systematically 
+  execute multiple runs for the purpose of experimentation.
+
+- ```
+  python scripts/upsampling/script_upsampling.py
+  --dataset_files <dataset_files>
+  --stats <stats>
+  --total <total>
+  --alpha <alpha>  # upsampling parameter, 0 <= alpha <= 1
+  ```
+  - computes the upsampling factors for each dataset, using alpha parameter
+  - write upsampling factors to `data/file-upsampled.json`
+      
+  - in addition to single runs,
+  the bash script `bash upsampling.sh` allows to systematically
+  execute multiple runs for the purpose of experimentation.
+
+### Analysis
+
+- ```
+  python scripts/application_helpers/script_apply_tokenizer.py --id HHMMSS
+  ```
+  - loads the tokenizer with the given <id> (that needs to be present in the folder <output>/<id>_*)
+  - applies it to the data in TEST_EXAMPLES and prints the result

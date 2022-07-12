@@ -11,7 +11,7 @@ ADD_CODE_TOKENS=1
 MINIMUM_FREQUENCY=0
 BYTE_FALLBACK=1
 CHARACTER_COVERAGE=0.9999
-VOCAB_SIZE=128000
+VOCAB_SIZE=64000
 TRAIN_EXTREMELY_LARGE_CORPUS=1
 ALPHA=-1
 
@@ -122,7 +122,7 @@ fi
 if [ 1 -eq 1 ]
 then
   # CHANGE THIS START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  TOKENIZER_NUMBER=1
+  TOKENIZER_NUMBER=2
 
   DATASET_FILTER_DA="_da"
   DATASET_FILTER_IS="_is"
@@ -132,7 +132,7 @@ then
   DATASET_FILTER_CD="_cd"
   DATASET_FILTER_ALL="all"
 
-  # VOCAB_SIZE=10000
+  # VOCAB_SIZE=64000
   # CHANGE THIS END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   # single language name needs to be int + char + char!
