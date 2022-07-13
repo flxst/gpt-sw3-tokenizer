@@ -18,6 +18,12 @@ OUTPUT_DIR = env.output
 def get_models_in_output_dir(subdirs: List[str]) -> Dict[str, List[str]]:
     _models = dict()
 
+    _models["."] = sorted([
+        join(".", model)
+        for model in os.listdir(OUTPUT_DIR)
+        if not model.split("/")[-1] in subdirs
+    ])
+
     for subdir in subdirs:
         _models[subdir] = sorted([
             join(subdir, model)
@@ -26,7 +32,7 @@ def get_models_in_output_dir(subdirs: List[str]) -> Dict[str, List[str]]:
 
     _models["all"] = [
         model
-        for subdir in subdirs
+        for subdir in subdirs + ["."]
         for model in _models.get(subdir)
     ]
 
