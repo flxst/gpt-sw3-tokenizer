@@ -51,14 +51,19 @@ def main(args):
             print(f"> category = {category}, language = {language}, weight = {weight}")
 
             # 2. make sure that all original data files exist
-            file_path_original = get_file_path(category, language)
+            file_path_original = get_file_path(category,
+                                               language,
+                                               kind="data_original")
             assert isfile(file_path_original), \
                 f"ERROR! file for category = {category}, language = {language} does not exist at {file_path_original}"
             file_size_original = getsize(file_path_original)
             print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
 
             # 3. make sure that <data_sampled> folder exists
-            file_path_sampled = get_file_path(category, language, original=False, percent=args.percent)
+            file_path_sampled = get_file_path(category,
+                                              language,
+                                              kind="data_eval" if args.evaluation else "data_sampled",
+                                              percent=args.percent)
             os.makedirs(dirname(file_path_sampled), exist_ok=True)
 
             # 4. sample <percent>% of the original data and write
@@ -89,6 +94,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--percent", type=int, default=10)
+    parser.add_argument("--evaluation", type=bool, default=0)
     parser.add_argument("--verbose", action='store_true')
     _args = parser.parse_args()
 

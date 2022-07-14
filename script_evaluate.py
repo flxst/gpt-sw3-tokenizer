@@ -104,9 +104,14 @@ def extract_bf_cc_from_model(_model) -> Tuple[str, str]:
     return _bf, _cc
 
 
-def get_models(_name: str) -> List[str]:
-    subdirs = [elem for elem in os.listdir(env.output) if isdir(join(env.output, elem)) and elem.endswith(_name)]
-    assert len(subdirs) > 0, f"ERROR! did not find any subdirectories that end with {_name} in env.output = {env.output}"
+def get_models(_tokenizer_name: str) -> List[str]:
+    subdirs = [
+        elem
+        for elem in os.listdir(env.output)
+        if isdir(join(env.output, elem)) and elem.endswith(_tokenizer_name)
+    ]
+    assert len(subdirs) > 0, f"ERROR! did not find any subdirectories that end " \
+                             f"with {_tokenizer_name} in env.output = {env.output}"
     assert len(subdirs) == 1, f"ERROR! found multiple subdirectories: {subdirs}"
     _models = subdirs
     return _models
@@ -154,7 +159,7 @@ def prune_vocab_size(_models: str,
     return _new_models
 
 
-def main(_name, _models, _vocab_sizes=None):
+def main(_tokenizer_name, _models, _vocab_sizes=None):
     _models = [join(env.output, model) for model in _models]
     _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval)]
 
@@ -185,7 +190,7 @@ def main(_name, _models, _vocab_sizes=None):
     print("---------------")
 
     os.makedirs(join(env.output, "evaluation"), exist_ok=True)
-    results_file = join(env.output, "evaluation", f"results_{_name}.json")
+    results_file = join(env.output, "evaluation", f"results_{_tokenizer_name}.json")
     with open(results_file, "w", encoding="utf-8") as f:
         f.write(json.dumps(results))
     print(f"> wrote results to {results_file}")
@@ -193,7 +198,7 @@ def main(_name, _models, _vocab_sizes=None):
 
 if __name__ == "__main__":
     if 0:
-        name = "bf-cc-test"
+        tokenizer_name = "bf-cc-test"
         models = [
             "194127_SP-uNone-d1-p1-w1-c1-f0-bf0-cc1.0-v10000_2",
             "194837_SP-uNone-d1-p1-w1-c1-f0-bf1-cc1.0-v10000_2",
@@ -205,7 +210,7 @@ if __name__ == "__main__":
         ]
         vocab_sizes = None
     if 0:
-        name = "bf-bc"
+        tokenizer_name = "bf-bc"
         models = [
             "123500_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v51200_3all-a1.0",
             "132109_SP-uNone-d1-p1-w1-c1-f0-bf0-cc0.9999-x1-v51200_3all-a1.0",
@@ -221,7 +226,7 @@ if __name__ == "__main__":
         ]
         vocab_sizes = None
     if 0:
-        name = "all-a1.0"
+        tokenizer_name = "all-a1.0"
         models = [
             "123500_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v51200_3all-a1.0",
             "180630_SP-uNone-d1-p1-w1-c1-f0-bf1-cc0.9999-x1-v64000_3all-a1.0",
@@ -241,14 +246,14 @@ if __name__ == "__main__":
 
     if 1:
         parser = argparse.ArgumentParser()
-        parser.add_argument("--name", type=str, required=True)
+        parser.add_argument("--tokenizer_name", type=str, required=True)
         parser.add_argument("--vocab_sizes", nargs='+', type=int, default=[])
         _args = parser.parse_args()
 
-        name = _args.name
-        models = get_models(name)
+        tokenizer_name = _args.tokenizer_name
+        models = get_models(tokenizer_name)
         vocab_sizes = _args.vocab_sizes
 
-    main(name, models, vocab_sizes)
+    main(tokenizer_name, models, vocab_sizes)
 
 

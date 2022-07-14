@@ -7,11 +7,16 @@ from src.env import Env
 env = Env()
 
 
-def get_file_path(category: str, language: str, original: bool = True, percent: int = 0) -> str:
-    if original:
+def get_file_path(category: str, language: str, kind: str, percent: int = 0) -> str:
+    assert kind in ["data_original", "data_sampled", "data_eval"], f"ERROR! kind = {kind} unknown."
+    if kind == "data_original":
         return join(env.data_original, f"{category}_{language}.jsonl")
-    else:
+    elif kind == "data_sampled":
         return join(env.data_sampled, f"{category}_{language}_{percent}p.jsonl")
+    elif kind == "data_eval":
+        return join(env.data_eval, f"{category}_{language}.jsonl")
+    else:
+        raise Exception("ERROR! should not occur.")
 
 
 def read_sampling_weights(percent: int = 100,

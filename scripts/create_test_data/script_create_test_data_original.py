@@ -34,7 +34,9 @@ def main(args):
     for category in categories:
         for language in languages:
             if sampling_weights[category][language] > 0:
-                file_path_original = get_file_path(category, language)
+                file_path_original = get_file_path(category,
+                                                   language,
+                                                   kind="data_original")
                 data = [f"Example {category}_{language} nr. {n}" for n in range(args.number_of_documents)]
                 with open(file_path_original, "w") as file:
                     for elem in data:
