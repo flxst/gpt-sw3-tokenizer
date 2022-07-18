@@ -9,10 +9,13 @@ PURPOSE: for each combination of <category> & <language> (as specified in SAMPLI
 """
 import argparse
 import os
-from src.sampling import get_file_path, read_sampling_weights
 from itertools import product
 from os.path import isfile, dirname, getsize
 import time
+
+from src.env import Env
+from src.sampling import get_file_path, read_sampling_weights
+from scripts.data_helpers.script_concatenate_data_by_language import concatenate_data_by_language
 
 
 import random
@@ -39,6 +42,8 @@ def reservoir_sampling(l, k):
 
 
 def main(args):
+    env = Env()
+
     # 1. read SAMPLING_WEIGHTS.csv
     categories, languages, sampling_weights, sampling_weights_sampling = read_sampling_weights(percent=args.percent,
                                                                                                verbose=args.verbose)
@@ -89,6 +94,12 @@ def main(args):
             if args.verbose:
                 print(f"> category = {category}, language = {language}, weight = {weight} .. skipped")
                 print()
+
+    # concatenate data by language (only if args.evaluation == 1)
+    if args.evaluation:
+        print("\n=================")
+        print(f"> concatenate data by language in {env.data_eval}")
+        concatenate_data_by_language(env.data_eval, inplace=True)
 
 
 if __name__ == "__main__":

@@ -18,20 +18,23 @@ BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
 print(f">>> BASE_DIR: {BASE_DIR}")
 sys.path.append(BASE_DIR)
 
-LANGUAGES = ["cd", "da", "en", "is", "no", "sv"]
+
+from src.helpers import LANGUAGES
 
 
-def main(args):
+def concatenate_data_by_language(directory, inplace=True):
 
-    input_directory = join(BASE_DIR, args.directory)
-    output_directory = join(BASE_DIR, f"{input_directory}_CONCATENATED_BY_LANGUAGE")
+    input_directory = join(BASE_DIR, directory)
+    output_directory = input_directory if inplace else join(BASE_DIR, f"{input_directory}_CONCATENATED_BY_LANGUAGE")
 
     assert isdir(input_directory), f"ERROR! {input_directory} not found."
 
     input_files_all = [
         join(input_directory, elem)
         for elem in os.listdir(input_directory)
-        if isfile(join(input_directory, elem)) and "_CONCATENATED_BY_LANGUAGE.jsonl" not in elem
+        if isfile(join(input_directory, elem))
+        and "_CONCATENATED_BY_LANGUAGE.jsonl" not in elem
+        and "all_" not in elem
     ]
 
     print()
@@ -45,7 +48,8 @@ def main(args):
         print(f"  {lang}: {len(input_files)} files in {input_directory}")
 
     # 2. write to output_directory
-    os.makedirs(output_directory, exist_ok=False)
+    if inplace is False:
+        os.makedirs(output_directory, exist_ok=False)
     print()
     for lang, input_files in input_files_by_language.items():
         output_file = join(output_directory, f"all_{lang}.jsonl")
@@ -63,4 +67,4 @@ if __name__ == "__main__":
     parser.add_argument("--directory", type=str, required=True)
     _args = parser.parse_args()
 
-    main(_args)
+    concatenate_data_by_language(directory=_args.directory, inplace=False)

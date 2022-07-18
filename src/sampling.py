@@ -9,14 +9,17 @@ env = Env()
 
 def get_file_path(category: str, language: str, kind: str, percent: int = 0) -> str:
     assert kind in ["data_original", "data_sampled", "data_eval"], f"ERROR! kind = {kind} unknown."
+
     if kind == "data_original":
-        return join(env.data_original, f"{category}_{language}.jsonl")
+        directory = env.data_original
     elif kind == "data_sampled":
-        return join(env.data_sampled, f"{category}_{language}_{percent}p.jsonl")
+        directory = env.data_sampled
     elif kind == "data_eval":
-        return join(env.data_eval, f"{category}_{language}.jsonl")
+        directory = env.data_eval
     else:
         raise Exception("ERROR! should not occur.")
+
+    return join(directory, f"{category}_{language}.jsonl")
 
 
 def read_sampling_weights(percent: int = 100,
