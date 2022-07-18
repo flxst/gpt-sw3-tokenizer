@@ -8,6 +8,9 @@ import shutil
 from os.path import join
 from sentencepiece import sentencepiece_model_pb2 as model_pb2
 
+LANGUAGES = ["cd", "da", "en", "is", "no", "sv"]
+
+
 UNICODE_NORMALIZATION = {
     "None": None,
     "NFC": normalizers.NFC(),

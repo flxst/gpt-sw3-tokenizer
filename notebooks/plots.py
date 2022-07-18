@@ -499,6 +499,11 @@ def read_results(_result):
     return r
 
 
+def retrieve_groups_from_results(_results):
+    datasets = list(set([k.split("/")[-1].split("_")[0] for v in _results.values() for k, _ in v.items()]))
+    return datasets
+
+
 def retrieve_bf_cc_from_results(_results):
     models = list(set(_results.keys()))
     bfs = list(set([model.split("-bf")[1].split("-cc")[0] for model in models]))
@@ -506,7 +511,7 @@ def retrieve_bf_cc_from_results(_results):
     return bfs, ccs
 
 
-def retrieve_parameters_from_results(_bf, _cc, _results, verbose: bool = False):
+def retrieve_parameters_from_results(_group, _bf, _cc, _results, verbose: bool = False):
     models = list(set(_results.keys()))
     vocabs = sorted(list(set([int(model.split("-v")[1].split("_")[0]) for model in models])))
     vocabs_model = {
@@ -519,16 +524,16 @@ def retrieve_parameters_from_results(_bf, _cc, _results, verbose: bool = False):
         ][0]
         for vocab in vocabs
     }
-    files = list(_results[models[0]].keys())
+    files = list([elem for elem in _results[models[0]].keys() if f"{_group}_" in elem])
 
     languages = [file.split("/")[-1].split(".json")[0].split("_")[1] for file in
                  files]  # WORKS ONLY FOR 'wiki_??_t1p'!!!
     languages_files = {k: v for k, v in zip(languages, files)}
 
     if verbose:
-        print(vocabs)
-        print(vocabs_model)
-        print(files)
-        print(languages)
+        print("> vocabs:", vocabs)
+        print("> vocabs_model:", vocabs_model)
+        print("> files:", files)
+        print("> languages:", languages)
 
     return vocabs, vocabs_model, files, languages, languages_files
