@@ -211,16 +211,7 @@ do the following
 The repository contains additional scripts that 
 provide extended functionalities and allow for testing.
 
-### Data & Testing (Optional Preparations)
-
-- ```
-  python scripts/create_test_data/script_create_test_data_sampled.py
-  ```
-
-  creates the following data for testing: 
-    - <data_sampled>/test.json   (contains TEST_CORPUS)
-    - <data_sampled>/code.json   (contains script_train.py as string)
-    - <data_sampled>/fibrec.json (contains fibRec function as string)
+### Testing
 
 - ```
   python scripts/tests/script_test_load_dataset.py
@@ -230,6 +221,18 @@ provide extended functionalities and allow for testing.
   - loads the data in <dataset_files> in batches of <batch_size>
   - uses the get_training_corpus generator to read it
   - prints information to check that everything works as expected
+
+
+### Data (Optional Preparations)
+
+- ```
+  python scripts/create_test_data/script_create_test_data_sampled.py
+  ```
+
+  creates the following data for testing: 
+    - <data_sampled>/test.json   (contains TEST_CORPUS)
+    - <data_sampled>/code.json   (contains script_train.py as string)
+    - <data_sampled>/fibrec.json (contains fibRec function as string)
 
 - ```
   python scripts/data_helpers/script_split_data.py  
@@ -261,3 +264,19 @@ provide extended functionalities and allow for testing.
   ```
   - loads the tokenizer with the given <id> (that needs to be present in the folder <output>/<id>_*)
   - applies it to the data in TEST_EXAMPLES and prints the result
+
+### Conversion of tokenizer from SentencePiece to HuggingFace (incomplete)
+
+- ```
+  python scripts/application_helpers/script_merge.py
+  ```
+  - loads a <tokenizer_vocab> file (hardcoded in script)
+  - writes a <tokenizer_merge> file
+  
+- ```
+  python scripts/application_helpers/script_test_conversion_from_sp_to_hf.py
+  ```
+  - loads a SP tokenizer from a <model_file> (hardcoded)
+  - loads the corresponding HF tokenizer from a <tokenizer_vocab> file and a <tokenizer_merge> file
+    (Note: the <tokenizer_merge> file can be created by script_merge.py)
+  - compares the two tokenizers (vocab & examples)

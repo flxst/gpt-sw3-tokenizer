@@ -1,3 +1,12 @@
+"""
+EXECUTION: python script_test_conversion_from_sp_to_hf.py
+
+PURPOSE: the script
+         - loads a SP tokenizer from a <model_file> (hardcoded)
+         - loads the corresponding HF tokenizer from a <tokenizer_vocab> file and a <tokenizer_merge> file
+           (Note: the <tokenizer_merge> file can be created by script_merge.py)
+         - compares the two tokenizers (vocab & examples)
+"""
 
 from os.path import join
 import sentencepiece as spm
