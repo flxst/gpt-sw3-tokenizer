@@ -27,11 +27,11 @@ TEST_EXAMPLES = [
         return n
     else:
         return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
-    """<|python|> def fibRec(n):
-    if n < 2:
-\treturn n
-    else:
-\treturn fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
+#    """<|python|> def fibRec(n):
+#    if n < 2:
+#\treturn n
+#    else:
+#\treturn fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
     # """def fibRec(n):
     # if n < 2:
     #     return n

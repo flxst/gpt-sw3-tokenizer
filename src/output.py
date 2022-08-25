@@ -5,6 +5,7 @@ from typing import List
 from os.path import getsize, join
 from datasets import Dataset
 import sentencepiece as spm
+from src.parameters import Parameters
 
 
 class Output:
@@ -31,7 +32,7 @@ class Output:
         self.model_prefix = join(self.path, "model")
         self.model_file = join(self.path, "model.model")
 
-    def export_parameters(self, parameters) -> None:
+    def export_parameters(self, parameters: Parameters) -> None:
         """ export parameters to file
 
         e.g. 'output/125842/

@@ -34,7 +34,7 @@ def get_training_corpus_combined(_dataset: Dataset, batch_size: int = 100000):
 
 def add_special_tokens(_model_path: str,
                        overwrite: bool = True,
-                       verbose: bool = False):
+                       verbose: bool = False) -> None:
     print("\n=== ADD SPECIAL TOKENS ===")
 
     _vocab_path = join(_model_path, "model.vocab")
@@ -155,7 +155,7 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
     print()
     print(f"> find merge rules for {len(vocab_filtered)} = {len(vocab)} - {idx_a} - {idx_b} + {idx_c} subwords")
 
-    def _get_index(_list, _subword):
+    def _get_index(_list: List[str], _subword: str) -> int:
         if _subword in _list:
             return _list.index(_subword)
         else:

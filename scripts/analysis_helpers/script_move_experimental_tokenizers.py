@@ -18,6 +18,8 @@ def main(args):
     files = [elem for elem in os.listdir(env.output) if isdir(join(env.output, elem))]
     files_filtered = [file for file in files if f"-v{args.vocab_size}_{args.tokenizer_number}" in file]
 
+    os.makedirs(join(env.output, "multilinguality"), exist_ok=True)
+
     for file in files_filtered:
         old_file = join(env.output, file)
         new_file = join(env.output, "multilinguality", file)

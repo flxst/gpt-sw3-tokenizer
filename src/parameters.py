@@ -9,7 +9,8 @@ from src.helpers import LIST_OF_SPECIAL_TOKENS
 env = Env()
 
 
-def get_dataset_files_in_folder(_folder: str, _dataset_filter: str) -> List[str]:
+def get_dataset_files_in_folder(_folder: str,
+                                _dataset_filter: str) -> List[str]:
     print(f"> get files in {_folder}")
     _files = [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
     if len(_dataset_filter) and _dataset_filter != "all":

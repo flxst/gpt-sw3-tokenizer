@@ -20,7 +20,8 @@ PURPOSE: the script uses <library> to train a tokenizer named <tokenizer_name> o
 import argparse
 from os.path import join
 import time
-from datasets import load_dataset
+from typing import Union
+from datasets import load_dataset, Dataset, DatasetDict, IterableDatasetDict, IterableDataset
 from tokenizers import (
     decoders,
     models,
@@ -35,9 +36,12 @@ from src.helpers import add_special_tokens, create_merge_rules
 from src.output import Output
 
 import sentencepiece as spm
+HFDataset = Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
 
 
-def train_hf(_parameters, _output, _datasets_combined):
+def train_hf(_parameters: Parameters,
+             _output: Output,
+             _datasets_combined: HFDataset) -> None:
     # 1. Define Tokenizer
     tokenizer = Tokenizer(models.BPE())
     _normalizer = get_normalizer(_parameters.unicode_normalization)
@@ -70,7 +74,9 @@ def train_hf(_parameters, _output, _datasets_combined):
     tokenizer.save(join(_output.path, "tokenizer.json"))
 
 
-def train_sp(_parameters, _output, _datasets_combined):
+def train_sp(_parameters: Parameters,
+             _output: Output,
+             _datasets_combined: HFDataset) -> None:
     spm.SentencePieceTrainer.train(
         sentence_iterator=get_training_corpus_combined(_datasets_combined, batch_size=1),
         model_prefix=_output.model_prefix,

@@ -7,7 +7,7 @@ from src.env import Env
 env = Env()
 
 
-def get_file_path(category: str, language: str, kind: str, percent: int = 0) -> str:
+def get_file_path(category: str, language: str, kind: str) -> str:
     assert kind in ["data_original", "data_sampled", "data_eval"], f"ERROR! kind = {kind} unknown."
 
     if kind == "data_original":

@@ -9,7 +9,7 @@ config = configparser.ConfigParser()
 class Env:
 
     def __init__(self,
-                 folder="."):
+                 folder: str = "."):
 
         cwd = os.getcwd()
         base_dir = abspath(join(cwd, folder))
