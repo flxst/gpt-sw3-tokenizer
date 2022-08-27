@@ -63,7 +63,7 @@ class Parameters:
         self.alpha = alpha
 
         # DERIVED
-        self.special_tokens: List[str] = ["<|endoftext|>"]
+        self.special_tokens: List[str] = []  # ["<|endoftext|>"]
 
         if self.add_whitespace_tokens == 1:
             whitespace_token = " " if self.library == "HF" else "▁"
