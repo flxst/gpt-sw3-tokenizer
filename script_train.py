@@ -81,11 +81,15 @@ def train_sp(_parameters: Parameters,
         sentence_iterator=get_training_corpus_combined(_datasets_combined, batch_size=1),
         model_prefix=_output.model_prefix,
         model_type="BPE",
-        bos_id=-1,
-        eos_id=-1,
-        # allow_whitespace_only_pieces=True,  # default: False
-        # shrinking_factor=0.95,  # default: 0.75
-        max_sentence_length=2000000,  # default: 4192, TODO
+        pad_id=0,   # previously: -1
+        unk_id=1,   # previously: 0
+        bos_id=2,   # previously: -1
+        eos_id=3,   # previously: -1
+        # pad_piece="<pad>",  # previously: not used, default: "<pad>"
+        # unk_piece="<unk>",  # previously: "<unk>",  default: "<unk>"
+        # bos_piece="<s>",    # previously: not used, default: "<s>"
+        eos_piece="<|endoftext|>",   # previously: not used, default: "</s>"
+        max_sentence_length=2000000,                                            # default: 4192
         normalization_rule_name="identity",                                     # 1. unicode normalization
         split_digits=_parameters.individual_digits,                             # 2. individual digits
         add_dummy_prefix=_parameters.add_prefix_space,                          # 3. add prefix space
@@ -95,7 +99,7 @@ def train_sp(_parameters: Parameters,
         character_coverage=_parameters.character_coverage,                      # SP extra
         train_extremely_large_corpus=_parameters.train_extremely_large_corpus,  # SP extra
         vocab_size=_parameters.vocab_size,                                      # 6. vocabulary size
-        minloglevel=1,  # default: 0 (=log everything?)
+        minloglevel=1,                                                          # default: 0 (=log everything?)
     )
 
     if _parameters.add_whitespace_tokens == 2:
