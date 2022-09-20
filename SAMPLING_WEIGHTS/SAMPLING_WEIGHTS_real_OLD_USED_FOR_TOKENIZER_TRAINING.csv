@@ -1,0 +1,15 @@
+# - used for tokenizer training and e.g. 126m, 345m, 5b runs
+# - difference to SAMPLING_WEIGHTS_real.csv:
+#   W(web_sources, en) = 0.32 instead of 0
+#   W(wiki,        en) = 0.6  instead of 1.5
+#
+category,sv,en,no,da,is,cd
+articles,0.9,0.072,0,0.9,0,0
+books_hq,1,0.4,0,0,0,0
+code,0,0,0,0,0,0.35
+conversational,1,0.4,1,1,1,0
+math,0.8,0.32,0,0,0,0
+misc,1,0.4,1,1,1,0
+web_commoncrawl,0.5,0.2,0.5,0.5,0.5,0
+web_sources,0.8,0.32,0,0.8,0,0
+wiki,1.5,0.6,1.5,1.5,1.5,0

@@ -1,0 +1,17 @@
+# - unit: tokens (=bytes/2)
+# - exact numbers taken from excel sheet "Tokens"
+# - these numbers probably use the 64k tokenizer before the "special token fix",
+#   i.e. with eos_id = 1 and no pad_id/bos_id
+#
+# - #tokens(web_sources, en) = 0 instead of 36615497
+#
+category,sv,en,no,da,is,cd
+articles,3636766254,49692354516,0,56785123,0,0
+books_hq,194753460,23992304567,0,0,0,0
+code,0,0,0,0,0,37154674582
+conversational,16487215173,21026813605,152411676,720949873,41178634,0
+math,2466347763,2659384075,0,0,0,0
+misc,4728645035,13709807645,13329054570,5715454773,2897829703,0
+web_commoncrawl,45515247133,14122646313,23454197204,28341236813,2565634303,0
+web_sources,1706402333,0,0,497164426,0,0
+wiki,265498820,3725319836,126502563,99460658,14883159,0
