@@ -57,7 +57,7 @@ def decode_hack(_decoded_elementwise):
     # return "".join(decoded_elementwise_hack)
 
 
-def display(_example_decoded_per_token, show_linebreak=False, equal_to_original=None):
+def display(_example_decoded_per_token, show_linebreak=False, equal_to_original=None, verbose=True):
     newline = "↩\n" if show_linebreak else "↩"
     example_decoded_per_token = [
         elem.replace("\n", newline).replace(" ", "-")
@@ -68,10 +68,11 @@ def display(_example_decoded_per_token, show_linebreak=False, equal_to_original=
     for i, elem in enumerate(example_decoded_per_token):
         print(colored(elem, colors[i % len(colors)]), end="")
     print()
-    if equal_to_original is None:
-        print(f"> {len(example_decoded_per_token)} tokens")
-    else:
-        print(f"> equal to original: {equal_to_original}")
+    if verbose:
+        if equal_to_original is None:
+            print(f"> {len(example_decoded_per_token)} tokens")
+        else:
+            print(f"> equal to original: {equal_to_original}")
     print()
 
 
@@ -152,13 +153,13 @@ def plot_histogram(model1, model2, xlim, ylim):
     data = [_get_data(model1)]
     if model2 is not None:
         data += [_get_data(model2)]
-    print(len(data))
 
     fig, ax = plt.subplots(1, 2, figsize=(8, 3))
 
     for i in range(len(data)):
         x = data[i]["x"]
         y = data[i]["y"]
+        print(f"x = {x}, y = {y}")
         vocab_size = data[i]["vocab_size"]
         mean = data[i]["mean"]
 
@@ -166,8 +167,9 @@ def plot_histogram(model1, model2, xlim, ylim):
         ax[i].set_xlim([0, xlim])
         ax[i].set_ylim([0, ylim])
         ax[i].plot([mean, mean], [0, ylim], color="r", label="mean")
-        ax[i].set_title(f"vocab_size = {vocab_size} | mean = {mean:.2f}")
-        ax[i].set_xlabel("subword length")
+        ax[i].text(1.1*mean, 0.9*ylim, f"mean = {mean:.2f}", color="r")
+        ax[i].set_title(f"vocabulary size = {vocab_size}")
+        ax[i].set_xlabel("token length")
         ax[i].set_ylabel("occurrences")
 
     return fig
@@ -210,13 +212,17 @@ def compare_vocab(model1,
     }, vocab_only1, vocab_only2
 
 
+def rgb_to_hex(r, g, b):
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+
 COLOR = {
-    "da": "red",
-    "sv": "orange",
-    "no": "purple",
-    "en": "gray",
-    "is": "blue",
-    "cd": "green",
+    "da": rgb_to_hex(169, 200, 240),
+    "sv": rgb_to_hex(205, 188, 250),
+    "no": rgb_to_hex(242, 163, 158),
+    "en": rgb_to_hex(244, 183, 138),
+    "is": rgb_to_hex(161, 227, 167),
+    "cd": rgb_to_hex(216, 188, 159),
     "all": "black",
     "all+": "black",
 }
@@ -470,15 +476,18 @@ def plot_timelines(steps: List[int],
             x_full = [elem for elem in x if elem > 50000]
             threshold_empty = len(x) - len(x_full)
             y_full = y[threshold_empty:]
-            _ax[nfig].plot(x, y, color=color(k), label=None, marker="s", markerfacecolor="w")
+            _ax[nfig].plot(x, y, color=color(k), label=None, marker="s")  # , markerfacecolor="w")
             _ax[nfig].plot(x_full, y_full, color=color(k), label=lang[i], marker="s")
             _ax[nfig].plot(x, [steps_2]*len(x), color="k")
             if ylabel[nfig] == "relative":
                 _ax[nfig].plot(x, [1] * len(x), color="k")
                 _ax[nfig].text(x[0], 1.03, steps_2)
-        _ax[nfig].set_xlabel("common tokenizer vocab size")
+            else:
+                _ax[nfig].plot([0, ylim[nfig]], [0, ylim[nfig]], marker=None, linestyle="--", color="gray")
+        _ax[nfig].set_xlabel("multilingual tokenizer vocabulary size")
         _ax[nfig].set_ylabel(ylabel[nfig])
         _ax[nfig].set_title(title[nfig])
+        _ax[nfig].set_xlim([0, None])
         _ax[nfig].set_ylim([0, ylim[nfig]])
         _ax[nfig].legend()
 
@@ -537,3 +546,35 @@ def retrieve_parameters_from_results(_group, _bf, _cc, _results, verbose: bool =
         print("> languages:", languages)
 
     return vocabs, vocabs_model, files, languages, languages_files
+
+
+def extract(_results_filtered, vocabs_models, vocabs, languages_files, languages):
+    unk_rate = {
+            language: [
+                _results_filtered[vocabs_models[vocab]][languages_files[language]]["unk_rate"]
+                for vocab in vocabs
+            ]
+            for language in languages
+        }
+    ctcl = {
+        language: [
+            _results_filtered[vocabs_models[vocab]][languages_files[language]]["ctcl"]
+            for vocab in vocabs
+        ]
+        for language in languages
+    }
+    fertility = {
+        language: [
+            _results_filtered[vocabs_models[vocab]][languages_files[language]]["fertility"]
+            for vocab in vocabs
+        ]
+        for language in languages
+    }
+    proportion = {
+        language: [
+            _results_filtered[vocabs_models[vocab]][languages_files[language]]["proportion"]
+            for vocab in vocabs
+        ]
+        for language in languages
+    }
+    return unk_rate, ctcl, fertility, proportion

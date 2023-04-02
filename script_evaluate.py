@@ -16,8 +16,9 @@ import argparse
 import sentencepiece as spm
 from collections import Counter
 import time
+import string
 from itertools import product
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Any
 from sentencepiece import sentencepiece_model_pb2 as model_pb2
 from src.env import Env
 
@@ -27,8 +28,20 @@ OUTPUT_DIR = env.output
 DEBUG = 0
 VERBOSE = 0
 
+REMOVE_PUNCTUATION = True
 
-def evaluate(_model_dir, _data_path):
+
+def evaluate(_model_dir, _data_path) -> Dict[str, Any]:
+    """
+    evaluate single model on single dataset
+
+    Args:
+        _model_dir:
+        _data_path:
+
+    Returns:
+        metrics: [Dict] w/ keys = unk_rate, ctcl, fertility, proportion
+    """
     assert isdir(_model_dir), f"ERROR! model_dir = {_model_dir} does not exist."
     ts = time.time()
 
@@ -36,8 +49,12 @@ def evaluate(_model_dir, _data_path):
     with open(_data_path, "r", encoding="utf-8") as file:
         _data = [json.loads(line)["text"] for line in file]
 
-    _unk_rate = None
-    _closeness_to_character_level = None
+    _metrics: Dict[str, Any] = {
+        "unk_rate": None,
+        "ctcl": None,
+        "fertility": None,
+        "proportion": None,
+    }
 
     # 1. tokenize data
     if isfile(join(_model_dir, "tokenizer.json")):
@@ -55,14 +72,50 @@ def evaluate(_model_dir, _data_path):
         number_of_unk = 0
         sentence_length_in_subwords = 0
         sentence_length_in_characters = 0
-        for example in _data:
+        subwords_b = 0  # beginning of word, i.e. starting with _
+        subwords_i = 0  # interior of word, i.e. not starting with _
+        subwords_b_proportion = 0
+        subwords_i_proportion = 0
+        for i, example in enumerate(_data):
+            # if i == 0:
+            #     print()
+            #     print(example[:50])
+            if REMOVE_PUNCTUATION:
+                example = example.translate(str.maketrans('', '', string.punctuation))
+            # if i == 0:
+            #     print(example[:50])
+
+            # general
+            encoding = sp.encode(example, out_type=int)
+            encoding_str = sp.encode(example, out_type=str)
+            sentence_length_in_subwords += len(encoding)  # for unk, ctcl
+
+            # unk
+            counter = Counter(encoding)
+            number_of_unk += counter[1]  # 1 = <unk>
+
+            # ctcl
             sentence_length_in_characters += len(example)
 
-            encoding = sp.encode(example, out_type=int)
-            sentence_length_in_subwords += len(encoding)
+            # fertility
+            encoding_mask = [1 if elem.startswith("▁") else 0 for elem in encoding_str]
+            subwords_b += sum(encoding_mask)
+            subwords_i += len(encoding_mask) - sum(encoding_mask)
 
-            counter = Counter(encoding)
-            number_of_unk += counter[0]
+            # proportion
+            encoding_mask_proportion = list()
+            for j in range(len(encoding_mask)):
+                current_elem = encoding_mask[j]
+                previous_elem = encoding_mask[j-1]
+                if j == 0:
+                    encoding_mask_proportion.append(current_elem)
+                elif current_elem == 1:
+                    encoding_mask_proportion.append(current_elem)
+                elif current_elem == 0 and previous_elem == 1:
+                    encoding_mask_proportion.append(current_elem)
+
+            subwords_b_proportion += sum(encoding_mask_proportion)
+            subwords_i_proportion += len(encoding_mask_proportion) - sum(encoding_mask_proportion)
 
             # example_encoded = sp.encode(example, out_type=str)
             # assert len(example_encoded) == len(encoding)
@@ -74,15 +127,31 @@ def evaluate(_model_dir, _data_path):
                 # print(example_encoded[:10])
                 break
 
-        try:
-            _unk_rate = number_of_unk/float(sentence_length_in_subwords)
-        except ZeroDivisionError:
-            _unk_rate = -1
+        assert subwords_b + subwords_i == sentence_length_in_subwords, \
+            f"ERROR! subwords_b + subwords_i = {subwords_b} + {subwords_i} " \
+            f"is not equal to sentence_length_in_subwords = {sentence_length_in_subwords}"
+        assert subwords_b == subwords_b_proportion, \
+            f"ERROR! subwords_b = {subwords_b} is not equal to subwords_b_proportion = {subwords_b_proportion}"
 
         try:
-            _closeness_to_character_level = float(sentence_length_in_subwords)/sentence_length_in_characters
+            _metrics["unk_rate"] = number_of_unk/float(sentence_length_in_subwords)
         except ZeroDivisionError:
-            _closeness_to_character_level = -1
+            _metrics["unk_rate"] = -1
+
+        try:
+            _metrics["ctcl"] = float(sentence_length_in_subwords)/sentence_length_in_characters
+        except ZeroDivisionError:
+            _metrics["ctcl"] = -1
+
+        try:
+            _metrics["fertility"] = (float(subwords_b) + float(subwords_i)) / float(subwords_b)
+        except ZeroDivisionError:
+            _metrics["fertility"] = -1
+
+        try:
+            _metrics["proportion"] = float(subwords_i_proportion) / float(subwords_b_proportion)
+        except ZeroDivisionError:
+            _metrics["proportion"] = -1
 
         if VERBOSE:
             print()
@@ -92,10 +161,11 @@ def evaluate(_model_dir, _data_path):
             print(f"> sentence_length_in_subwords = {sentence_length_in_subwords}")
             print(f"> sentence_length_in_characters = {sentence_length_in_characters}")
             print()
-            print(f"=> unk rate = {_unk_rate:.3f}")
-            print(f"=> closeness to character level = {_closeness_to_character_level:.3f}")
+            print(f"=> unk rate = {_metrics['unk_rate']:.3f}")
+            print(f"=> closeness to character level = {_metrics['ctcl']:.3f}")
+            print(f"=> fertility = {_metrics['fertility']:.3f}")
 
-    return _unk_rate, _closeness_to_character_level
+    return _metrics
 
 
 def extract_bf_cc_from_model(_model) -> Tuple[str, str]:
@@ -180,9 +250,7 @@ def main(_tokenizer_name, _models, _vocab_sizes=None):
             print()
             print(f"> model = {model}")
             print(f"> data = {data}")
-        Xunk_rate, Xcloseness_to_character_level = evaluate(model, data)
-        results[model][data]["unk_rate"] = Xunk_rate
-        results[model][data]["closeness_to_character_level"] = Xcloseness_to_character_level
+        results[model][data] = evaluate(model, data)
 
     print()
     print("--- results ---")

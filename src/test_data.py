@@ -21,6 +21,16 @@ TEST_CORPUS = [
 ]
 
 TEST_EXAMPLES = [
+    """<|python|> def fibRec(n):
+    if n < 2:
+        return n
+    else:
+        return fibRec(n-1) + fibRec(n-2)""",
+    'Det var en fuktig, grå sommardag i slutet av juni.',
+    'It was a humid, grey summer day at the end of June.',
+
+    ######################################
+
     # "Let's test this tokenizer.",
     """<|python|> def fibRec(n):
     if n < 2:
