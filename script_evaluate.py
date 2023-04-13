@@ -21,6 +21,7 @@ from itertools import product
 from typing import Tuple, List, Dict, Any
 from sentencepiece import sentencepiece_model_pb2 as model_pb2
 from src.env import Env
+from src.analysis import _analyze_vocab, extract_vocab
 
 env = Env()
 DATA_DIR = env.data_sampled
@@ -188,15 +189,24 @@ def get_models(_tokenizer_name: str) -> List[str]:
 
 
 def prune_vocab_size(_models: str,
-                     _vocab_sizes: List[int]) -> List[str]:
+                     _vocab_sizes: List[int],
+                     _last_regular_token_index: int) -> List[str]:
     """only works for library == SP"""
     _new_models = [_models]
+
+    # initial model
     vocab_size_model = _vocab_sizes[-1]
     assert str(vocab_size_model) in _models, \
         f"ERROR! vocab size = {vocab_size_model} is not in _models = {_models}"
     model_file = join(_models, "model.model")
     m = model_pb2.ModelProto()
     m.ParseFromString(open(model_file, 'rb').read())
+
+    indices = _analyze_vocab(env, _models)
+    print()
+    print(f"> last regular token index: {indices['merges'][-1]}")
+
+    # pruned models
     for _vocab_size in _vocab_sizes[:-1]:
         pruned_model_dir = _models.replace(f"v{vocab_size_model}", f"v{_vocab_size}")
         os.makedirs(pruned_model_dir, exist_ok=False)
@@ -204,11 +214,11 @@ def prune_vocab_size(_models: str,
 
         m_pruned = deepcopy(m)
         for i, _ in enumerate(m.pieces):
-            if _vocab_size - 23 < i < vocab_size_model - 23:  # TODO: this works only for add_whitespace_tokens == 2
+            if _last_regular_token_index - (vocab_size_model - _vocab_size) < i <= _last_regular_token_index:
                 # workaround: overwrite with extremely unlikely token
                 m_pruned.pieces[i].piece = f"a!?x$$▁!!xyz.masdf_{i}"
 
-        for j in [0, 1, 2, _vocab_size-25, _vocab_size-24]:
+        for j in [0, 1, 2, vocab_size_model-23, vocab_size_model-22]:
             assert m.pieces[j].piece == m_pruned.pieces[j].piece, \
                 f"ERROR for j = {j}, piece: {m.pieces[j].piece} != {m_pruned.pieces[j].piece}"
             assert m.pieces[j].score == m_pruned.pieces[j].score, \
@@ -233,8 +243,16 @@ def main(_tokenizer_name, _models, _vocab_sizes=None):
     _models = [join(env.output, model) for model in _models]
     _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval)]
 
+    # prune vocabulary
     if len(_models) == 1:
-        _models = prune_vocab_size(_models[0], _vocab_sizes)  # returns list
+        last_regular_token_index = _analyze_vocab(env, _models[0])["merges"][-1]  # get index of last regular token
+        _models = prune_vocab_size(_models[0], _vocab_sizes, last_regular_token_index)  # returns list
+
+    # extract vocabulary files
+    print("extract vocab")
+    for _model in _models[1:]:
+        _model_path = join(_model, "model.model")
+        extract_vocab(_model_path)
 
     results = {
         model: {

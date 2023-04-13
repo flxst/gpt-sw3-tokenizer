@@ -159,7 +159,7 @@ def plot_histogram(model1, model2, xlim, ylim):
     for i in range(len(data)):
         x = data[i]["x"]
         y = data[i]["y"]
-        print(f"x = {x}, y = {y}")
+        # print(f"x = {x}, y = {y}")
         vocab_size = data[i]["vocab_size"]
         mean = data[i]["mean"]
 
