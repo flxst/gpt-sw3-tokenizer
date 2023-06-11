@@ -21,7 +21,7 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 - Specify the following folders in `./env.ini`:
   - `<data_original>`: contains original text data
-  - `<data_sampled>`: contains sampled text data for training
+  - `<data_train>`: contains sampled text data for training
   - `<data_eval>`: contains sampled text data for evaluation
   - `<output>`: contains trained tokenizer (incl. vocabulary, merge rules, parameters)
 
@@ -40,7 +40,7 @@ one only wants to use a certain fraction of the original data for the tokenizer 
 
 Note:
 - #1: If you want to skip this step, just point the 
-`<data_sampled>` to the `<data_original>` folder 
+`<data_train>` to the `<data_original>` folder 
 in `env.ini` and proceed with the training.
 
 
@@ -56,11 +56,11 @@ To sample data from the original files in `<data_original>`, do the following:
   ```
   python script_sampling.py 
       --percent <percent>   # e.g. 10
-      [--evaluation 0]      # 0 = <data_sampled>, 1 = <data_eval>
+      [--evaluation 0]      # 0 = <data_train>, 1 = <data_eval>
   ```
 
 The sampled files are called `<category>_<language>_<percent>p.jsonl` and can be found at
-- `<data_sampled>` if `--evaluation 0` is used
+- `<data_train>` if `--evaluation 0` is used
 - `<data_eval>` if `--evaluation 1` is used
 
 - and ready to be used for training & evaluation in the next steps.
@@ -68,9 +68,9 @@ The sampled files are called `<category>_<language>_<percent>p.jsonl` and can be
 
 ### 2. Training
 
-To train the tokenizer on data in the `<data_sampled>` folder, do the following: 
+To train the tokenizer on data in the `<data_train>` folder, do the following: 
 - choose a name for the resulting tokenizer, e.g. `<tokenizer_name> = tokenizer1`
-- choose your data files in `<data_sampled>`, e.g. 
+- choose your data files in `<data_train>`, e.g. 
   - `<dataset_files> = all` (which uses all files) or 
   - `<dataset_files> = data-1.jsonl data-2.jsonl` 
     (which uses two specific files) 
@@ -80,7 +80,7 @@ To train the tokenizer on data in the `<data_sampled>` folder, do the following:
   ```
   python script_train.py 
       --tokenizer_name <tokenizer_name>      # e.g. tokenizer1
-      --dataset_files <dataset_files>        # e.g. "all" = all files in <data_sampled>
+      --dataset_files <dataset_files>        # e.g. "all" = all files in <data_train>
       [--dataset_filter all]                 # e.g. "all" = no filter
       [--library SP]                         # SP = SentencePiece, HF = HuggingFace
       [--unicode_normalization None]         # None, NFC, NFKC
@@ -232,9 +232,9 @@ provide extended functionalities and allow for testing.
   ```
 
   creates the following data for testing: 
-    - <data_sampled>/test.json   (contains TEST_CORPUS)
-    - <data_sampled>/code.json   (contains script_train.py as string)
-    - <data_sampled>/fibrec.json (contains fibRec function as string)
+    - `<data_train>/test.json`   (contains TEST_CORPUS)
+    - `<data_train>/code.json`   (contains script_train.py as string)
+    - `<data_train>/fibrec.json` (contains fibRec function as string)
 
 - ```
   python scripts/data_helpers/script_split_data.py  

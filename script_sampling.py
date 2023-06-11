@@ -5,7 +5,7 @@ EXECUTION: python script_data_sampling.py
 PURPOSE: for each combination of <category> & <language> (as specified in SAMPLING_WEIGHTS.csv), the script
          - reads the original data file at <data_original>/<category>_<language>.jsonl
          - samples <percent>% of the data
-         - writes the sampled data file at <data_sampled>/<category>_<language>_<percent>p.jsonl
+         - writes the sampled data file at <data_train>/<category>_<language>_<percent>p.jsonl
 """
 import argparse
 import os
@@ -64,10 +64,10 @@ def main(args):
             file_size_original = getsize(file_path_original)
             print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
 
-            # 3. make sure that <data_sampled> folder exists
+            # 3. make sure that <data_train> folder exists
             file_path_sampled = get_file_path(category,
                                               language,
-                                              kind="data_eval" if args.evaluation else "data_sampled",
+                                              kind="data_eval" if args.evaluation else "data_train",
                                               percent=args.percent)
             os.makedirs(dirname(file_path_sampled), exist_ok=True)
 

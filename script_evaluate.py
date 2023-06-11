@@ -24,7 +24,7 @@ from src.env import Env
 from src.analysis import _analyze_vocab, extract_vocab
 
 env = Env()
-DATA_DIR = env.data_sampled
+DATA_DIR = env.data_train
 OUTPUT_DIR = env.output
 DEBUG = 0
 VERBOSE = 0

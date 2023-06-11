@@ -8,12 +8,12 @@ env = Env()
 
 
 def get_file_path(category: str, language: str, kind: str) -> str:
-    assert kind in ["data_original", "data_sampled", "data_eval"], f"ERROR! kind = {kind} unknown."
+    assert kind in ["data_original", "data_train", "data_eval"], f"ERROR! kind = {kind} unknown."
 
     if kind == "data_original":
         directory = env.data_original
-    elif kind == "data_sampled":
-        directory = env.data_sampled
+    elif kind == "data_train":
+        directory = env.data_train
     elif kind == "data_eval":
         directory = env.data_eval
     else:

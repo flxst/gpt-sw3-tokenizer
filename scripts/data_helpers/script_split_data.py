@@ -25,7 +25,7 @@ def main(_args):
     env = Env()
 
     max_sentence_length = _args.max_sentence_length
-    original_path = join(env.data_sampled, _args.dataset_file)
+    original_path = join(env.data_train, _args.dataset_file)
     new_path = original_path.replace(".jsonl", f"_max{max_sentence_length}.jsonl")
 
     print("\n=== ORIGINAL DATA ===")

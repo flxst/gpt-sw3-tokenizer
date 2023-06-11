@@ -45,9 +45,9 @@ class Parameters:
             "ERROR need to specify --dataset_files <str>"
         self.library = library
         if dataset_files == ["all"]:
-            self.dataset_files = get_dataset_files_in_folder(env.data_sampled, dataset_filter)
+            self.dataset_files = get_dataset_files_in_folder(env.data_train, dataset_filter)
         else:
-            self.dataset_files = [join(env.data_sampled, dataset_file) for dataset_file in dataset_files]
+            self.dataset_files = [join(env.data_train, dataset_file) for dataset_file in dataset_files]
         self.tokenizer_name = tokenizer_name
         self.unicode_normalization = unicode_normalization
         self.individual_digits = bool(individual_digits)
