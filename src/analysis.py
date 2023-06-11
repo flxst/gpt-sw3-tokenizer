@@ -5,8 +5,9 @@ import re
 from typing import Dict, List
 # from sentencepiece import sentencepiece_model_pb2 as model
 import sentencepiece as spm
+from src.env import Env
 
-DEBUG = 0
+env = Env()
 
 
 def _analyze_vocab(_env, _model) -> Dict[str, List[int]]:
@@ -84,7 +85,7 @@ def extract_vocab(_model):
     sp.Load(_model)
     vocabs = {sp.IdToPiece(_id): _id for _id in range(sp.GetPieceSize())}
 
-    if DEBUG:
+    if env.debug:
         print("\n===")
         print(f"vocabulary size = {len(vocabs)}")
         print()

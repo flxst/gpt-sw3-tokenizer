@@ -126,7 +126,7 @@ This
 - computes evaluation metrics (unk rate, ctcl, fertility, proportion of continued words, token frequencies)
 - writes results to 
   - `<output>/evaluation/results_<tokenizer_name>.json`
-  - `<output>/evaluation/token_frequencies_<tokenizer_name>_<dataset_eval>.json`
+  - `<output>/evaluation/token_frequencies_<tokenizer_name>.json`
 
 ### 4. Analysis
 

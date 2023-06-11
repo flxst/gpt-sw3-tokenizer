@@ -38,6 +38,9 @@ class Env:
             self.data_eval = config['main']['data_eval']
             self.output = config['main']['output']
 
+        self.debug = bool(int(config['other']['debug']))
+        self.verbose = bool(int(config['other']['verbose']))
+
 
 if __name__ == "__main__":
     env = Env()
