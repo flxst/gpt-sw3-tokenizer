@@ -122,23 +122,25 @@ To evaluate the tokenizer on data in the `<data_eval>` folder, do the following:
   ```
 
 This
-- applies the tokenizer `<output>/*_<tokenizer_name>` on each dataset in `<data_eval>`
-- computes unk_rate & closeness_to_character_level
-- writes results to `<output>/evaluation/results_<tokenizer_name>.json`
+- applies the tokenizer `<output>/*_<tokenizer_name>` on each dataset `<dataset_eval>` in `<data_eval>`
+- computes evaluation metrics (unk rate, ctcl, fertility, proportion of continued words, token frequencies)
+- writes results to 
+  - `<output>/evaluation/results_<tokenizer_name>.json`
+  - `<output>/evaluation/token_frequencies_<tokenizer_name>_<dataset_eval>.json`
 
 ### 4. Analysis
 
-To analyze the trained tokenizers (and inspect the evaluation), do the following: 
+To analyze the trained tokenizers (and inspect the evaluation metrics), do the following: 
 - run the following notebook:
 
   ```
   notebooks/tokenizer_analysis.ipynb
   ```
 
-This allows to 
-- examine tokenized test examples (effect of parameters)
-- examine subword lengths & effect of min_frequency
-- evaluation results (unk_rate & closeness_to_char_level)
+This allows to examine
+- tokenized test examples (effect of parameters)
+- subword lengths & effect of min_frequency
+- evaluation metrics
 
 
 ## B. Experiments (Vocabulary & Languages)
