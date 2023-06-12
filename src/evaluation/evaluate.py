@@ -111,7 +111,7 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
             print(encoding[:10])
             print(counter[0])
             # print(example_encoded[:10])
-            print("STOP.")
+            print("STOP (env.debug = True).")
             break
 
         assert subwords_b + subwords_i == sentence_length_in_subwords, \

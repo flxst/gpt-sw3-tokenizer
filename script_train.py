@@ -1,16 +1,20 @@
 """
 EXECUTION: python script_train.py
-           --tokenizer_name
-           --dataset_files
-           --dataset_filter
-           --library
-           --add_prefix_space
-           --individual_digits
-           --unicode_normalization
-           --add_whitespace_tokens
-           --minimum_frequency
-           --vocab_size
-           --alpha
+           --tokenizer_name <tokenizer_name>      # e.g. tokenizer1
+           --dataset_files <dataset_files>        # e.g. "all" = all files in <data_train>
+           [--dataset_filter all]                 # e.g. "all" = no filter
+           [--library SP]                         # SP = SentencePiece, HF = HuggingFace
+           [--unicode_normalization None]         # None, NFC, NFKC
+           [--individual_digits 1]                # 0, 1
+           [--add_prefix_space 1]                 # 0, 1
+           [--add_whitespace_tokens 2]            # 0, 1 (added at top of vocab), 2 (added at bottom of vocab)
+           [--add_code_tokens 1]                  # 0, 1 (added at top of vocab)
+           [--minimum_frequency 0]                # int >= 0
+           [--byte_fallback 1]                    # 0, 1
+           [--character_coverage 0.9999]          # float, useful if byte_fallback = 1
+           [--vocab_size 64000]                   # int, divisible by 128
+           [--alpha -1]                           # upsampling parameter, -1 or 0 <= alpha < 1
+           [--train_extremely_large_corpus 1]     # 0, 1
 
 PURPOSE: the script uses <library> to train a tokenizer named <tokenizer_name> on the <dataset_files>
          using the rest of the arguments as parameters.

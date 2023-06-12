@@ -1,6 +1,7 @@
 """
 EXECUTION: python script_data_sampling.py
-           --percent 10
+           --percent <percent>  # e.g. 10
+           [--evaluation 0]     # 0 = <data_train>, 1 = <data_eval>
 
 PURPOSE: for each combination of <category> & <language> (as specified in SAMPLING_WEIGHTS.csv), the script
          - reads the original data file at <data_original>/<category>_<language>.jsonl
@@ -46,7 +47,7 @@ def main(args):
 
     # 1. read SAMPLING_WEIGHTS.csv
     categories, languages, sampling_weights, sampling_weights_sampling = read_sampling_weights(percent=args.percent,
-                                                                                               verbose=args.verbose)
+                                                                                               verbose=env.verbose)
 
     for category, language in product(categories, languages):
         weight = sampling_weights_sampling[category][language]
@@ -82,7 +83,7 @@ def main(args):
             file_size_sampled = getsize(file_path_sampled)
             print(f"{file_size_sampled/float(10**6):.1f} MB ", end="")
 
-            if args.verbose:
+            if env.verbose:
                 print(f".. from {number_of_original_documents} original documents, "
                       f"wrote {number_of_sampled_documents} sampled documents to {file_path_sampled}")
 
@@ -91,7 +92,7 @@ def main(args):
             print()
 
         else:
-            if args.verbose:
+            if env.verbose:
                 print(f"> category = {category}, language = {language}, weight = {weight} .. skipped")
                 print()
 
@@ -106,7 +107,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--percent", type=int, default=10)
     parser.add_argument("--evaluation", type=bool, default=0)
-    parser.add_argument("--verbose", action='store_true')
     _args = parser.parse_args()
 
     main(_args)

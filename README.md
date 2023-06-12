@@ -6,7 +6,7 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
 
 - `.`: contains main python and bash scripts as well as environment variables (`env.ini`)
 - `./notebooks`: contains notebooks
-- `./scripts`: contains helper and testing python scripts
+- `./scripts`: contains helper and test python scripts
 - `./src`: contains source code
 
 
@@ -25,7 +25,7 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
   - `<data_eval>`: contains sampled text data for evaluation
   - `<output>`: contains trained tokenizer (incl. vocabulary, merge rules, parameters)
 
-## A. Main Usage
+## Usage
 
 Training a tokenizer requires the following steps:
 1. Sampling
@@ -117,8 +117,9 @@ To evaluate the tokenizer on data in the `<data_eval>` folder, do the following:
 
   ```
   python script_evaluate.py 
-      --tokenizer_name <tokenizer_name>  # e.g. tokenizer1 
-      --vocab_sizes <vocab_sizes>        # e.g. 64000
+      --tokenizer_name <tokenizer_name>         # e.g. tokenizer1 
+      --vocab_size <vocab_size>                 # e.g. 64000
+      [--vocab_size_pruned <vocab_size_pruned>] # e.g. 40000 51200
   ```
 
 This
@@ -128,10 +129,12 @@ This
   - `<output>/evaluation/results_<tokenizer_name>.json`
   - `<output>/evaluation/token_frequencies_<tokenizer_name>.json`
 
+**Advanced Usage:** If `vocab_size_pruned` is specified, variants of the tokenizer with pruned vocabularies are evaluated in addition.
+
+
 ### 4. Analysis
 
-To analyze the trained tokenizers (and inspect the evaluation metrics), do the following: 
-- run the following notebook:
+To analyze the trained tokenizers (and inspect the evaluation metrics), run the following notebook:
 
   ```
   notebooks/tokenizer_analysis.ipynb
@@ -152,7 +155,7 @@ For experiments with different
 only a few things need to be adjusted with respect to "Main Usage"
 
 ### 1. Sampling
-exactly like "Main Usage"
+see "Usage"
 
 ### 2. Tokenizer Training
 
@@ -164,19 +167,7 @@ exactly like "Main Usage"
 - Run `bash train.sh`
 
 ### 3. Evaluation
-
-- For the multi-language tokenizer you want to evaluate, take 
-  - its name (e.g. `<tokenizer_name> = 4all-a1.0`) and 
-  - its (maximum) vocab size (e.g. `<vocab_size> = 128000`) and 
-  - add pruned vocab sizes you want to test (e.g. `<vocab_sizes> = 64000 96000 128000`)
-
-
-- Run 
-  ```
-  python script_evaluate.py 
-      --tokenizer_name <tokenizer_name>  # e.g. 4all-a1.0 
-      --vocab_sizes <vocab_sizes>        # e.g. 64000 96000 128000
-  ```
+see "Usage"
 
 ### 4. Analysis
 
