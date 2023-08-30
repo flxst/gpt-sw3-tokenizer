@@ -3,6 +3,7 @@ EXECUTION: python script_evaluate.py
            --tokenizer_name <tokenizer_name>          # e.g. example
            --vocab_size <vocab_size>                  # e.g. 64000
            [--vocab_size_pruned <vocab_size_pruned>]  # e.g. 40000 51200
+           [--monolingual]                            # if used, monolingual models are evaluated
 
 PURPOSE: the script
      - creates tokenizers with pruned vocabularies if multiple vocab_sizes are specified
@@ -20,6 +21,7 @@ import argparse
 from itertools import product
 from typing import List, Optional
 from src.env import Env
+from src.helpers import get_languages
 from src.analysis import _analyze_vocab, extract_vocab
 from src.evaluation.helpers import get_tokenizer, instantiate_nested_dict, write_json
 from src.evaluation.evaluate import evaluate
@@ -82,10 +84,17 @@ if __name__ == "__main__":
     parser.add_argument("--tokenizer_name", type=str, required=True)
     parser.add_argument("--vocab_size", type=int, required=True)
     parser.add_argument("--vocab_size_pruned", nargs='+', type=int, default=[])
+    parser.add_argument("--monolingual", action="store_true")
     _args = parser.parse_args()
 
     tokenizer_name = _args.tokenizer_name
     vocab_size = _args.vocab_size
     vocab_size_pruned = _args.vocab_size_pruned
 
-    main(tokenizer_name, vocab_size, vocab_size_pruned)
+    monolingual = _args.__dict__.pop("monolingual")
+    if monolingual is False:
+        main(tokenizer_name, vocab_size, vocab_size_pruned)
+    else:
+        for language in get_languages("eval"):
+            tokenizer_name += f"_{language}"
+            main(tokenizer_name, vocab_size, vocab_size_pruned)

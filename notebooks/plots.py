@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from collections import Counter
 import os
 from os.path import join, isfile, isdir
 import json
@@ -7,7 +8,8 @@ from termcolor import colored
 from transformers import PreTrainedTokenizerFast
 import sentencepiece as spm
 from src.env import Env
-env = Env("..")
+from os.path import dirname
+env = Env(dirname(".."))
 
 OUTPUT_DIR = env.output
 
@@ -15,26 +17,11 @@ OUTPUT_DIR = env.output
 ###########################################################################################
 # 1. MODELS ###############################################################################
 ###########################################################################################
-def get_models_in_output_dir(subdirs: List[str]) -> Dict[str, List[str]]:
-    _models = dict()
-
-    _models["."] = sorted([
-        join(".", model)
-        for model in os.listdir(OUTPUT_DIR)
-        if not model.split("/")[-1] in subdirs
+def get_models_in_output_dir() -> List[str]:
+    _models: List[str] = sorted([
+        _model for _model in os.listdir(OUTPUT_DIR)
+        if not (_model.endswith("evaluation") or _model.endswith(".txt"))
     ])
-
-    for subdir in subdirs:
-        _models[subdir] = sorted([
-            join(subdir, model)
-            for model in os.listdir(join(OUTPUT_DIR, subdir))
-        ])
-
-    _models["all"] = [
-        model
-        for subdir in subdirs + ["."]
-        for model in _models.get(subdir)
-    ]
 
     return _models
 
@@ -283,33 +270,12 @@ def plot_overview(_models, verbose=False):
 ###########################################################################################
 # 3. VOCAB SIZE & MULTILINGUALITY #########################################################
 ###########################################################################################
-def get_models_multilinguality(_models: List[str], verbose: bool = False) -> List[str]:
-    _models_multilinguality = [model for model in _models if model.startswith("multilinguality") > 0]
-    if len(_models_multilinguality):
-        _core = list(set(["_".join(model.split("_")[1:-1])
-                          for model in _models_multilinguality
-                          if model.endswith("da")]
-                         ))[0]
-        core = _core  #.split("-v")[0]
-        # vocab = _core.split("-v")[-1]
-        # print(vocab)
-        _models_multilinguality = [model for model in _models_multilinguality if core in model]
-        _models_multilinguality.sort(key=lambda x: x.split("_")[-1])
-        _models_multilinguality = {model.split("_")[-1][1:]: model for model in _models_multilinguality}
-
-        if verbose:
-            print(core)
-            print(_models_multilinguality)
-
-    return _models_multilinguality
-
-
-def split_models_multilinguality(_models_multilinguality: Dict[str, str]) -> Dict[str, Any]:
+def _split_models_multilinguality(_models_multilinguality: Dict[str, str], _core: str) -> Dict[str, Any]:
     _ml = dict()
     if len(_models_multilinguality):
         _ml["lang_complete"] = list(_models_multilinguality.keys())
-        _ml["lang_all"] = [l for l in _ml["lang_complete"] if "all" in l]
-        _ml["lang_pure"] = [l for l in _ml["lang_complete"] if not "all" in l]
+        _ml["lang_all"] = [l for l in _ml["lang_complete"] if l == "all"]
+        _ml["lang_pure"] = [l for l in _ml["lang_complete"] if l != "all"]
 
         _ml["models_complete"] = _models_multilinguality
         _ml["models_all"] = {k: _models_multilinguality[k] for k in _ml["lang_all"]}
@@ -320,6 +286,40 @@ def split_models_multilinguality(_models_multilinguality: Dict[str, str]) -> Dic
             for k in ["lang_complete", "lang_all", "lang_pure", "models_complete", "models_all", "models_pure"]
         }
     return _ml
+
+
+def _extract_language(_model: str, _core: str) -> str:
+    if _model.endswith(_core):
+        _language = "all"
+    else:
+        _language = _model.split(_core)[-1].split("_")[-1]
+    return _language
+
+
+def get_models_multilinguality(_models: List[str], verbose: bool = False) -> Dict[str, Any]:
+    if len(_models):
+        cores = list()
+        for model in _models:
+            res = model.split("-v")[-1]
+            res = "v" + "_".join(res.split("_", 2)[:2])
+            if res in model:
+                cores.append(res)
+        counts = dict(Counter(cores))
+    else:
+        counts = {}
+
+    cores = [k for k, v in counts.items() if v > 1]
+    assert len(cores) == 1, f"ERROR! found {len(cores)} cores: {cores} - should be exactly one."
+    core = cores[0]
+
+    _models_multilinguality_list = [model for model in _models if core in model]
+    _models_multilinguality = {_extract_language(model, core): model for model in _models_multilinguality_list}
+    if verbose:
+        print("counts:", counts)
+        print("core:", core)
+        print("models_multilinguality", _models_multilinguality)
+
+    return _split_models_multilinguality(_models_multilinguality, core)
 
 
 def get_intersection(_models_multilinguality: Dict[str, str],
@@ -333,10 +333,10 @@ def get_intersection(_models_multilinguality: Dict[str, str],
     return v["intersection"]
 
 
-def get_intersections(_models_multilinguality: Dict[str, str],
-                      _ml: Dict[str, Dict],
+def get_intersections(_ml: Dict[str, Dict],
                       _vocabs_1: List[int],
                       _vocabs_2: List[int]) -> Dict[str, Dict]:
+    _models_multilinguality = _ml["models_complete"]
     _timelines = dict()
     if len(_models_multilinguality):
         intersections = {
@@ -497,7 +497,11 @@ def plot_timelines(steps: List[int],
 ###########################################################################################
 def get_list_of_results():
     evaluation_dir = join(OUTPUT_DIR, "evaluation")
-    results = [elem.split("results_")[-1].split(".json")[0] for elem in sorted(os.listdir(evaluation_dir))]
+    results = [
+        elem.split("results_")[-1].split(".json")[0]
+        for elem in sorted(os.listdir(evaluation_dir))
+        if elem.split("/")[-1].startswith("results_")
+    ]
     return results
 
 
@@ -513,23 +517,14 @@ def retrieve_groups_from_results(_results):
     return datasets
 
 
-def retrieve_bf_cc_from_results(_results):
-    models = list(set(_results.keys()))
-    bfs = list(set([model.split("-bf")[1].split("-cc")[0] for model in models]))
-    ccs = list(set([model.split("-cc")[1].split("-x")[0] for model in models]))
-    return bfs, ccs
-
-
-def retrieve_parameters_from_results(_group, _bf, _cc, _results, verbose: bool = False):
+def retrieve_parameters_from_results(_group, _results, verbose: bool = False):
     models = list(set(_results.keys()))
     vocabs = sorted(list(set([int(model.split("-v")[1].split("_")[0]) for model in models])))
     vocabs_model = {
         vocab: [
             model
             for model in models
-            if f"-bf{_bf}" in model
-               and f"-cc{_cc}" in model
-               and f"-v{vocab}_" in model
+            if f"-v{vocab}_" in model
         ][0]
         for vocab in vocabs
     }
@@ -556,25 +551,56 @@ def extract(_results_filtered, vocabs_models, vocabs, languages_files, languages
             ]
             for language in languages
         }
-    ctcl = {
-        language: [
-            _results_filtered[vocabs_models[vocab]][languages_files[language]]["ctcl"]
-            for vocab in vocabs
-        ]
-        for language in languages
-    }
-    fertility = {
-        language: [
-            _results_filtered[vocabs_models[vocab]][languages_files[language]]["fertility"]
-            for vocab in vocabs
-        ]
-        for language in languages
-    }
-    proportion = {
-        language: [
-            _results_filtered[vocabs_models[vocab]][languages_files[language]]["proportion"]
-            for vocab in vocabs
-        ]
-        for language in languages
-    }
+
+    try:
+        ctcl = {
+            language: [
+                _results_filtered[vocabs_models[vocab]][languages_files[language]]["ctcl"]
+                for vocab in vocabs
+            ]
+            for language in languages
+        }
+    except KeyError:  # compatibility with paper v1 data
+        ctcl = {
+            language: [
+                _results_filtered[vocabs_models[vocab]][languages_files[language]]["closeness_to_character_level"]
+                for vocab in vocabs
+            ]
+            for language in languages
+        }
+
+    try:
+        fertility = {
+            language: [
+                _results_filtered[vocabs_models[vocab]][languages_files[language]]["fertility"]
+                for vocab in vocabs
+            ]
+            for language in languages
+        }
+    except KeyError:  # compatibility with paper v1 data
+        fertility = {
+            language: [
+                0
+                for _ in vocabs
+            ]
+            for language in languages
+        }
+
+    try:
+        proportion = {
+            language: [
+                _results_filtered[vocabs_models[vocab]][languages_files[language]]["proportion"]
+                for vocab in vocabs
+            ]
+            for language in languages
+        }
+    except KeyError:  # compatibility with paper v1 data
+        proportion = {
+            language: [
+                0
+                for _ in vocabs
+            ]
+            for language in languages
+        }
+
     return unk_rate, ctcl, fertility, proportion

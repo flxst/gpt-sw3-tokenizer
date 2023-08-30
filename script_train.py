@@ -3,6 +3,7 @@ EXECUTION: python script_train.py
            --tokenizer_name <tokenizer_name>      # e.g. tokenizer1
            --dataset_files <dataset_files>        # e.g. "all" = all files in <data_train>
            [--dataset_filter all]                 # e.g. "all" = no filter
+           [--monolingual]                        # if used, monolingual models are trained
            [--library SP]                         # SP = SentencePiece, HF = HuggingFace
            [--unicode_normalization None]         # None, NFC, NFKC
            [--individual_digits 1]                # 0, 1
@@ -35,7 +36,7 @@ from tokenizers import (
     Tokenizer,
 )
 from src.parameters import Parameters
-from src.helpers import get_normalizer, get_training_corpus_combined
+from src.helpers import get_normalizer, get_training_corpus_combined, get_languages
 from src.helpers import add_special_tokens, create_merge_rules
 from src.output import Output
 
@@ -147,6 +148,7 @@ if __name__ == "__main__":
     parser.add_argument("--tokenizer_name", type=str, default="")
     parser.add_argument("--dataset_files", nargs='+', type=str, default=[])
     parser.add_argument("--dataset_filter", type=str, default="all")
+    parser.add_argument("--monolingual", action="store_true")
     parser.add_argument("--library", type=str, default="SP")
     parser.add_argument("--unicode_normalization", type=str, default="None")
     parser.add_argument("--individual_digits", type=int, default=1)
@@ -161,4 +163,11 @@ if __name__ == "__main__":
     parser.add_argument("--train_extremely_large_corpus", type=int, default=1)
     _args = parser.parse_args()
 
-    main(_args)
+    monolingual = _args.__dict__.pop("monolingual")
+    if monolingual is False:
+        main(_args)
+    else:
+        for language in get_languages("train"):
+            _args.tokenizer_name += f"_{language}"
+            _args.dataset_filter = f"_{language}"
+            main(_args)

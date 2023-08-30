@@ -1,6 +1,8 @@
 from tokenizers import normalizers
 from datasets import Dataset
 import os
+from os.path import dirname
+from src.env import Env
 import json
 from typing import List
 import time
@@ -251,3 +253,12 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
     print(f"\n>>> time = {te-ts:.1f}s")
 
     return _merge_rules
+
+
+def get_languages(stage: str) -> List[str]:
+    assert stage in ["train", "eval"], f"ERROR! stage = {stage} should be train or eval."
+
+    env = Env(dirname(".."))
+    directory = env.data_train if stage == "train" else env.data_eval
+    languages = list(set([elem.split("_")[-1].split(".jsonl")[0] for elem in os.listdir(directory)]))
+    return languages

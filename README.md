@@ -1,15 +1,23 @@
 # gpt-sw3-tokenizer
 
-Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
+Train, evaluate and analyze BPE tokenizers.
 
-## Repo Structure
+**Features:**
+- data sampling 
+- data weighting of subsets with different categories and languages
+- training with SentencePiece or HuggingFace
+- customizable tokenizer features (vocabulary size, handling of whitespace and numbers, ..)
+- detailed evaluation and analysis (e.g. computation of common tokenizer metrics, example tokenization, vocabulary and performance comparison across languages, effect of the vocabulary size, ..)
 
-- `.`: contains main python and bash scripts as well as environment variables (`env.ini`)
+This repository was used to train a multilingual, BPE-based SentencePiece tokenizer for the [GPT-SW3](https://arxiv.org/abs/2305.12987) model family on the Nordic Pile dataset.
+See [this paper](https://arxiv.org/abs/2304.14780) for more details.
+
+## Repository Structure
+
+- `.`: contains main python and bash scripts as well as settings (`env.ini` and `SAMPLING_WEIGHTS.csv`)
 - `./notebooks`: contains notebooks
 - `./scripts`: contains helper and test python scripts
 - `./src`: contains source code
-
-
 
 ## Setup
 
@@ -25,6 +33,24 @@ Tokenizer for the GPT-SW3 project (multilingual, Nordic Pile)
   - `<data_eval>`: contains sampled text data for evaluation
   - `<output>`: contains trained tokenizer (incl. vocabulary, merge rules, parameters)
 
+
+- Data format
+
+    - The files contained in the folder `<data_original>` must adhere to the following naming convention:
+      ```
+      <category>_<language>.jsonl
+      ```
+      Data split into multiple categories (e.g. books, articles, ..) and/or languages (e.g. sv, da, ..)
+      like this can be weighted in a customized way (as described below).
+
+    - Each row in a file needs to be formatted like this:
+
+      ```
+      {"text": "..."} 
+      ```
+      Fields other than `"text"` may be present but will be ignored. 
+
+
 ## Usage
 
 Training a tokenizer requires the following steps:
@@ -35,20 +61,16 @@ Training a tokenizer requires the following steps:
 
 ### 1. Sampling
 
-Often times (especially in the case of very large datasets), 
+*Note: If you want to skip this step, just point the
+`<data_train>` to the `<data_original>` folder
+in `env.ini` and proceed with the training.*
+
+Often times, especially in the case of very large datasets, 
 one only wants to use a certain fraction of the original data for the tokenizer training (and evaluation).
+In addition, the data is to be weighted for tokenizer (and model) training, see 
+e.g. [GPT-3](https://arxiv.org/abs/2005.14165) or [GPT-SW3](https://arxiv.org/abs/2305.12987).
 
-Note:
-- #1: If you want to skip this step, just point the 
-`<data_train>` to the `<data_original>` folder 
-in `env.ini` and proceed with the training.
-
-
-- #2: Sampling is only implemented for the case where you have
-categories (e.g. books, articles, ..) and languages (e.g. sv, da, ..)
-and your data files have the format `<data_original>/<category>_<language>.jsonl`
-
-To sample data from the original files in `<data_original>`, do the following: 
+To sample (and weight) data from the original files in `<data_original>`, do the following: 
 - Specify the categories, languages and weights in `SAMPLING_WEIGHTS.csv`
 - Choose the fraction of your samples in percent, e.g. `<percent> = 10`
 - Run the following script:
@@ -59,11 +81,11 @@ To sample data from the original files in `<data_original>`, do the following:
       [--evaluation 0]      # 0 = <data_train>, 1 = <data_eval>
   ```
 
-The sampled files are called `<category>_<language>_<percent>p.jsonl` and can be found at
+The sampled (and weighted) data files are called `<category>_<language>_<percent>p.jsonl` and can be found in the folder
 - `<data_train>` if `--evaluation 0` is used
 - `<data_eval>` if `--evaluation 1` is used
 
-- and ready to be used for training & evaluation in the next steps.
+In the next steps, they are used for training and evaluation, respectively.
 
 
 ### 2. Training
@@ -82,6 +104,7 @@ To train the tokenizer on data in the `<data_train>` folder, do the following:
       --tokenizer_name <tokenizer_name>      # e.g. tokenizer1
       --dataset_files <dataset_files>        # e.g. "all" = all files in <data_train>
       [--dataset_filter all]                 # e.g. "all" = no filter
+      [--monolingual]                        # if used, monolingual models are trained
       [--library SP]                         # SP = SentencePiece, HF = HuggingFace
       [--unicode_normalization None]         # None, NFC, NFKC
       [--individual_digits 1]                # 0, 1
@@ -101,12 +124,13 @@ In particular, the model is named
 - `model.model` (if library == "SP")
 - `tokenizer.json` (if library == "HF")
 
-In addition, there are two files that (together with the data) are to be used with 
-Megatron-LM's data preprocessing tool (`tools/preprocess_data.py`)
-- `tokenizer_vocab.json` (vocabulary)
-- `tokenizer_merge.txt` (merge rules)
+In addition, there are two files which contain the vocabulary and the merge rules, respectively. 
+- `tokenizer_vocab.json`
+- `tokenizer_merge.txt` (only if library == "HF")
 
-Note: In case library == "SP" is used, the `tokenizer_merge.txt` file is missing. See "Advanced Usage" for more details.
+**Advanced Usage:**
+- To train (multiple) monolingual tokenizers, use `--monolingual`
+
 
 ### 3. Evaluation
 
@@ -120,6 +144,7 @@ To evaluate the tokenizer on data in the `<data_eval>` folder, do the following:
       --tokenizer_name <tokenizer_name>         # e.g. tokenizer1 
       --vocab_size <vocab_size>                 # e.g. 64000
       [--vocab_size_pruned <vocab_size_pruned>] # e.g. 40000 51200
+      [--monolingual]                           # if used, monolingual models are evaluated
   ```
 
 This
@@ -129,8 +154,9 @@ This
   - `<output>/evaluation/results_<tokenizer_name>.json`
   - `<output>/evaluation/token_frequencies_<tokenizer_name>.json`
 
-**Advanced Usage:** If `vocab_size_pruned` is specified, variants of the tokenizer with pruned vocabularies are evaluated in addition.
-
+**Advanced Usage:** 
+- If `vocab_size_pruned` is specified, variants of the tokenizer with pruned vocabularies are evaluated in addition.
+- To evaluate (multiple) monolingual tokenizers, use `--monolingual`
 
 ### 4. Analysis
 
@@ -140,136 +166,8 @@ To analyze the trained tokenizers (and inspect the evaluation metrics), run the 
   notebooks/tokenizer_analysis.ipynb
   ```
 
-This allows to examine
-- tokenized test examples (effect of parameters)
-- subword lengths & effect of min_frequency
+This allows to examine e.g.
+- tokenized examples
 - evaluation metrics
-
-
-## B. Experiments (Vocabulary & Languages)
-
-For experiments with different 
-- vocabulary sizes and
-- multiple languages
-
-only a few things need to be adjusted with respect to "Main Usage"
-
-### 1. Sampling
-see "Usage"
-
-### 2. Tokenizer Training
-
-- In `train.sh`, specify the
-  - tokenizer names (6 single-language and 1 multi-language dataset)
-  - their training datasets (6 single-language and 1 multi-language dataset)
-  - their (maximum) vocab size `<vocab_size>` (e.g. `<vocab_size> = 128000`)
-
-- Run `bash train.sh`
-
-### 3. Evaluation
-see "Usage"
-
-### 4. Analysis
-
-To analyze the multi-language tokenizer (evaluation, pruned versions) and compare it with the single-language tokenizers (vocabulary overlap), 
-do the following
-
-- Preparation:
-  - Take the `<tokenizer_number>` that `<tokenizer_name>` starts with, e.g. `<tokenizer_number> = 1` (specified in `train.sh`)
-  - Take the (maximum) `<vocab_size>` (used in 2./3.)
-  - Run
-    ```
-    python scripts/analysis_helpers/script_move_experimental_tokenizers.py 
-        --tokenizer_number <tokenizer_number>  # e.g. 4
-        --vocab_size <vocab_size>              # e.g. 128000
-    ```
-    
-  - This moves the tokenizer folders `<output>/*v<vocab_size>_<tokenizer_number><language>*` to `<output>/multilinguality`
-
-    (not the ones with pruned vocab sizes created in 3.)
-
-
-- Run the following notebook:
-
-  ```
-  notebooks/tokenizer_analysis.ipynb
-  ```
-
-  - exactly like "Main Usage"
-  - notebook analyses vocabulary overlap in addition
-
-
-## C. Advanced Usage
-
-The repository contains additional scripts that 
-provide extended functionalities and allow for testing.
-
-### Testing
-
-- ```
-  python scripts/tests/script_test_load_dataset.py
-  --dataset_files <dataset_files>
-  --batch_size <batch_size>
-  ```
-  - loads the data in <dataset_files> in batches of <batch_size>
-  - uses the get_training_corpus generator to read it
-  - prints information to check that everything works as expected
-
-
-### Data (Optional Preparations)
-
-- ```
-  python scripts/create_test_data/script_create_test_data_sampled.py
-  ```
-
-  creates the following data for testing: 
-    - `<data_train>/test.json`   (contains TEST_CORPUS)
-    - `<data_train>/code.json`   (contains script_train.py as string)
-    - `<data_train>/fibrec.json` (contains fibRec function as string)
-
-- ```
-  python scripts/data_helpers/script_split_data.py  
-   --dataset_file <dataset_file>
-   --max_sentence_length <max_sentence_length>
-  ```
-  - splits the documents in <dataset_file> such that they contain <max_sentence_length> characters
-
-### Upsampling
-
-- ```
-  python scripts/upsampling/script_upsampling.py
-  --dataset_files <dataset_files>
-  --stats <stats>
-  --total <total>
-  --alpha <alpha>  # upsampling parameter, 0 <= alpha <= 1
-  ```
-  - computes the upsampling factors for each dataset, using alpha parameter
-  - write upsampling factors to `data/file-upsampled.json`
-      
-  - in addition to single runs,
-  the bash script `bash upsampling.sh` allows to systematically
-  execute multiple runs for the purpose of experimentation.
-
-### Analysis
-
-- ```
-  python scripts/application_helpers/script_apply_tokenizer.py --id HHMMSS
-  ```
-  - loads the tokenizer with the given <id> (that needs to be present in the folder <output>/<id>_*)
-  - applies it to the data in TEST_EXAMPLES and prints the result
-
-### Conversion of tokenizer from SentencePiece to HuggingFace (incomplete)
-
-- ```
-  python scripts/application_helpers/script_merge.py
-  ```
-  - loads a <tokenizer_vocab> file (hardcoded in script)
-  - writes a <tokenizer_merge> file
-  
-- ```
-  python scripts/application_helpers/script_test_conversion_from_sp_to_hf.py
-  ```
-  - loads a SP tokenizer from a <model_file> (hardcoded)
-  - loads the corresponding HF tokenizer from a <tokenizer_vocab> file and a <tokenizer_merge> file
-    (Note: the <tokenizer_merge> file can be created by script_merge.py)
-  - compares the two tokenizers (vocab & examples)
+- vocabulary and performance comparison across languages
+- effect of the vocabulary size

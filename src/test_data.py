@@ -61,4 +61,9 @@ TEST_EXAMPLES = [
     "Exempel med siffror: 1234.5",
     # "Exempel med whitespace: ett två  tre   fyra    .",
     # "\ndef main(args):\n    parameters = Parameters()\n    for i in range(5):\n        print(i)",
+    """<|endoftext|><s>
+    User:
+    Hvem er du?
+    <s>
+    Bot:"""
 ]
