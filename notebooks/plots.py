@@ -8,9 +8,14 @@ from termcolor import colored
 from transformers import PreTrainedTokenizerFast
 import sentencepiece as spm
 from src.env import Env
-from os.path import dirname
-env = Env(dirname(".."))
+from os.path import dirname, abspath
+import sys
 
+BASE_DIR = abspath(dirname(dirname(abspath(__file__))))
+print(f">>> BASE_DIR: {BASE_DIR}")
+sys.path.append(BASE_DIR)
+
+env = Env("..")
 OUTPUT_DIR = env.output
 
 
@@ -282,7 +287,7 @@ def _split_models_multilinguality(_models_multilinguality: Dict[str, str], _core
         _ml["models_pure"] = {k: _models_multilinguality[k] for k in _ml["lang_pure"]}
     else:
         _ml = {
-            k: []
+            k: [] if k.startswith("lang") else {}
             for k in ["lang_complete", "lang_all", "lang_pure", "models_complete", "models_all", "models_pure"]
         }
     return _ml
@@ -309,15 +314,19 @@ def get_models_multilinguality(_models: List[str], verbose: bool = False) -> Dic
         counts = {}
 
     cores = [k for k, v in counts.items() if v > 1]
-    assert len(cores) == 1, f"ERROR! found {len(cores)} cores: {cores} - should be exactly one."
-    core = cores[0]
+    assert len(cores) <= 1, f"ERROR! found {len(cores)} cores: {cores} - should be 0 or 1."
+    if len(cores) == 1:
+        core = cores[0]
 
-    _models_multilinguality_list = [model for model in _models if core in model]
-    _models_multilinguality = {_extract_language(model, core): model for model in _models_multilinguality_list}
-    if verbose:
-        print("counts:", counts)
-        print("core:", core)
-        print("models_multilinguality", _models_multilinguality)
+        _models_multilinguality_list = [model for model in _models if core in model]
+        _models_multilinguality = {_extract_language(model, core): model for model in _models_multilinguality_list}
+        if verbose:
+            print("counts:", counts)
+            print("core:", core)
+            print("models_multilinguality", _models_multilinguality)
+    else:
+        _models_multilinguality = {}
+        core = ""
 
     return _split_models_multilinguality(_models_multilinguality, core)
 

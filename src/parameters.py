@@ -1,3 +1,4 @@
+import json
 import os
 from typing import List
 from os.path import join, isfile
@@ -78,8 +79,10 @@ class Parameters:
         if self.add_code_tokens == 1:
             self.special_tokens += CODE_TOKENS
 
+        self.timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())[2:]
+
         suffix = f"_{self.tokenizer_name}-a{self.alpha}" if self.alpha != -1 else f"_{self.tokenizer_name}"
-        self.output_dir = join(env.output, time.strftime("%H%M%S", time.localtime())) + self.get_id() + suffix
+        self.output_dir = join(env.output, self.timestamp) + self.get_id() + suffix
 
     def show(self) -> None:
         """ print parameters """
@@ -102,16 +105,4 @@ class Parameters:
         print()
 
     def get_id(self) -> str:
-
-        return "_" + \
-            f"{self.library}-" + \
-            f"u{self.unicode_normalization}-" + \
-            f"d{int(self.individual_digits)}-" + \
-            f"p{int(self.add_prefix_space)}-" + \
-            f"w{self.add_whitespace_tokens}-" + \
-            f"c{self.add_code_tokens}-" + \
-            f"f{self.minimum_frequency}-" + \
-            f"bf{int(self.byte_fallback)}-" + \
-            f"cc{self.character_coverage}-" + \
-            f"x{int(self.train_extremely_large_corpus)}-" + \
-            f"v{self.vocab_size_external}"
+        return f"-v{self.vocab_size_external}"
