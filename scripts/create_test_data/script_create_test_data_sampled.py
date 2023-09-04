@@ -2,9 +2,9 @@
 EXECUTION: python script_create_test_data.py
 
 PURPOSE: the script creates data files for testing:
-         - <data_train>/test.json   (contains TEST_CORPUS)
-         - <data_train>/code.json   (contains script_train.py as string)
-         - <data_train>/fibrec.json (contains fibRec function as string)
+         - <data_train>/test.json
+         - <data_train>/code.json
+         - <data_train>/fibrec.json
 """
 import os
 from os.path import join
@@ -50,7 +50,6 @@ def main():
 
     with open("script_train.py", "r") as f:
         code = f.read().replace("\\n", "\n")
-    print(code)
 
     code_data_file = join(env.data_train, "code.jsonl")
     _dict = {"text": code}

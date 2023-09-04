@@ -19,9 +19,6 @@ print(f">>> BASE_DIR: {BASE_DIR}")
 sys.path.append(BASE_DIR)
 
 
-from src.helpers import LANGUAGES
-
-
 def concatenate_data_by_language(directory, inplace=True):
 
     input_directory = join(BASE_DIR, directory)
@@ -40,9 +37,14 @@ def concatenate_data_by_language(directory, inplace=True):
     print()
     print(f"> found {len(input_files_all)} files")
 
+    languages = list(set([
+        input_file.split("_")[-1].split(".")[0]
+        for input_file in input_files_all
+    ]))
+
     input_files_by_language = {
         lang: [input_file for input_file in input_files_all if f"_{lang}" in input_file.split("/")[-1]]
-        for lang in LANGUAGES
+        for lang in languages
     }
     for lang, input_files in input_files_by_language.items():
         print(f"  {lang}: {len(input_files)} files in {input_directory}")

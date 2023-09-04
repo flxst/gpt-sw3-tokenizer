@@ -1,10 +1,12 @@
 """
-EXECUTION: python script_merge.py
+EXECUTION: python script_create_merge_file_sp.py
+           --tokenizer_directory <tokenizer_directory>
 
 PURPOSE: the script
-         - loads the <tokenizer_vocab> file
-         - writes the <tokenizer_merge> file
+         - loads the tokenizer from <output>/<tokenizer_directory>/model.model
+         - writes a merge file to <output>/<tokenizer_directory>/tokenizer_merge.txt
 """
+import argparse
 from os.path import join
 
 from os.path import abspath, dirname
@@ -60,16 +62,10 @@ class SentencePieceExtractor:
         return merges
 
 
-if __name__ == "__main__":
+def main(_args):
     env = Env()
-    # model_name = "104214_HF-uNone-d1-p1-w1-c1-f0-bf0-cc0-x0-v10000_2"
-    # model_name = "151609_HF-uNone-d1-p1-w1-c1-f0-bf0-cc0-x0-v10000_2"
-    # model_name = "151628_HF-uNone-d1-p1-w0-c1-f0-bf0-cc0-x0-v10000_2"
-    # model_name = "163843_HF-uNone-d1-p1-w0-c1-f0-bf0-cc0-x0-v20000_4da"
-
-    model_name = "180051_SP-uNone-d1-p1-w2-c1-f0-bf1-cc0.9999-x1-v64000_tokenizer2"
-    # model_name = "145830_HF-uNone-d1-p1-w1-c1-f0-bf0-cc0-x0-v64000_t3"
-    # model_name = "151819_HF-uNone-d1-p1-w1-c1-f0-bf0-cc0-x0-v2000_t3"
+    # model_name = "180051_SP-uNone-d1-p1-w2-c1-f0-bf1-cc0.9999-x1-v64000_tokenizer2"
+    model_name = _args.tokenizer_directory
 
     ############
     # approach 1
@@ -101,3 +97,12 @@ if __name__ == "__main__":
         for merge in merges:
             f.write(f"{merge[0]} {merge[1]}\n")
     print(f"> wrote {len(merges)} merges to {merge_file}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tokenizer_directory", type=str, required=True)
+    _args = parser.parse_args()
+
+    main(_args)
+

@@ -1,6 +1,6 @@
 """
 EXECUTION: python script_test_data_original.py
-           --number_of_documents 20
+           [--number_of_documents 20]
 
 PURPOSE: for each combination of <category> & <language> (as specified in SAMPLING_WEIGHTS.csv), the script
          - creates <number_of_documents> fake original documents for testing

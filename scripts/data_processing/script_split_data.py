@@ -4,7 +4,7 @@ EXECUTION: python script_split_data.py
            --max_sentence_length 10000
 
 PURPOSE: the script
-         - loads the data in <dataset_file>
+         - loads the data in <data_train>/<dataset_file>
          - splits the documents such that they contain <max_sentence_length> characters
          - writes the split data to new file *_max<max_sentence_length>.json
 """
@@ -47,7 +47,7 @@ def main(_args):
 
     with open(new_path, "w", encoding="utf-8") as file:
         for elem in _data_new:
-            file.write(json.dumps({"text": elem}))
+            file.write(json.dumps({"text": elem}) + "\n")
 
 
 if __name__ == "__main__":

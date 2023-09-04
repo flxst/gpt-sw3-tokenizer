@@ -1,11 +1,10 @@
 """
 EXECUTION: python script_test_load_dataset.py
-           [--dataset_files wiki_is.jsonl wiki_da.jsonl
-            --batch_size 100000]
+            [--dataset_files wiki_is.jsonl wiki_da.jsonl]
+            [--batch_size 100000]
 
 PURPOSE: the script
-         - loads the data in <dataset_files> in batches of <batch_size>
-         - uses the get_training_corpus generator to read it
+         - loads the data in <data_original>/<dataset_files> in batches of <batch_size>
          - prints information to check that everything works as expected
 """
 import argparse
@@ -29,20 +28,28 @@ def get_training_corpus(_datasets: List[Dataset], batch_size: int):
             yield str(dataset['train'][i: i + batch_size]["text"])
 
 
+def print_dataset_info(_identifier: str, _generator):
+    for elem in _generator:
+        print(f"{_identifier}: type = {type(elem)}, len = {len(elem)}, first 10 chars = '{elem[:10]}'")
+
+
 def main(args):
     env = Env()
     dataset_files = [join(env.data_original, dataset_file) for dataset_file in args.dataset_files]
     batch_size = args.batch_size
 
     # 0. Load Datasets
-    datasets = [
-        load_dataset('json',
-                     data_files={'train': data_file},
-                     # field=["text", "id"],
-                     # features=features,
-                     )
-        for data_file in dataset_files
-    ]
+    try:
+        datasets = [
+            load_dataset('json',
+                         data_files={'train': data_file},
+                         # field=["text", "id"],
+                         # features=features,
+                         )
+            for data_file in dataset_files
+        ]
+    except FileNotFoundError:
+        raise Exception(f"ERROR! dataset files = {dataset_files} not found")
 
     datasets_combined = load_dataset('json',
                                      data_files={'train': dataset_files},
@@ -56,12 +63,11 @@ def main(args):
             for j in range(len(dataset)):
                 print(f"> length dataset {j}: {len(dataset[j]['train'])}")
             generator = get_training_corpus(dataset, batch_size)
+            print_dataset_info(f"single:", generator)
         else:
-            print(f"> length dataset: {len(dataset['train'])}")
+            print(f"> length dataset combined: {len(dataset['train'])}")
             generator = get_training_corpus_combined(dataset, batch_size)
-
-        for elem in generator:
-            print(type(elem), len(elem), elem[:10])
+            print_dataset_info("combined", generator)
 
 
 if __name__ == "__main__":

@@ -1,13 +1,15 @@
 """
-EXECUTION: python script_test_conversion_from_sp_to_hf.py
+EXECUTION: python script_compare_sp_and_hf.py
+           --tokenizer_directory <tokenizer_directory>
 
 PURPOSE: the script
-         - loads a SP tokenizer from a <model_file> (hardcoded)
-         - loads the corresponding HF tokenizer from a <tokenizer_vocab> file and a <tokenizer_merge> file
-           (Note: the <tokenizer_merge> file can be created by script_merge.py)
+         - loads the SP tokenizer from <output>/<tokenizer_directory>/model.model
+         - loads the corresponding HF tokenizer from <output>/<tokenizer_directory>/tokenizer_vocab.json and [..]/tokenizer_merge.txt
+           (Note: the latter can be created by script_create_merge_file_sp.py)
          - compares the two tokenizers (vocab & examples)
 """
 
+import argparse
 from os.path import join
 import sentencepiece as spm
 from tokenizers.implementations.sentencepiece_bpe import SentencePieceBPETokenizer
@@ -37,8 +39,9 @@ def print_sp_vs_hf_for_i(_sp, _hf, _i):
     print(f"  repr(hf.decode([{_i}])) = {repr(_hf.decode([_i]))}")
 
 
-def main():
-    model_name = "180051_SP-uNone-d1-p1-w2-c1-f0-bf1-cc0.9999-x1-v64000_tokenizer2"
+def main(_args):
+    # model_name = "180051_SP-uNone-d1-p1-w2-c1-f0-bf1-cc0.9999-x1-v64000_tokenizer2"
+    model_name = _args.tokenizer_directory
 
     env = Env(".")
     model_file = join(env.output, model_name, "model.model")
@@ -131,4 +134,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tokenizer_directory", type=str, required=True)
+    _args = parser.parse_args()
+
+    main(_args)

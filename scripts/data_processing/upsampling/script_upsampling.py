@@ -1,9 +1,9 @@
 """
 EXECUTION: python script_upsampling.py
            --data_files file-is.json file-sv.json
-           --stats_file file-stats.json
-           --total_file file-total.json
            --alpha 0.8
+           [--stats_file file-stats.json]
+           [--total_file file-total.json]
 
 - upsample data in _data_files using alpha parameter
 - write upsampling factors to "file-upsampled.json"
@@ -224,9 +224,9 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_files", nargs='+', type=str, default=["test.json"])
+    parser.add_argument("--alpha", type=float, default=1.0)
     parser.add_argument("--stats", type=str, default="stats.json")
     parser.add_argument("--total", type=str, default="total.json")
-    parser.add_argument("--alpha", type=float, default=1.0)
     _args = parser.parse_args()
 
     main(_args)

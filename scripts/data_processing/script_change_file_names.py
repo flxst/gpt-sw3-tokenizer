@@ -5,9 +5,7 @@ EXECUTION: python script_change_file_names.py
            [--add_percent 50]
 
 PURPOSE: the script
-         - takes all the dataset files in <directory>
-         - for each dataset file, checks whether a document has a non-whitespace sequence of length > <threshold>
-         - if so, it filters those documents and writes the rest to <directory>_FILTERED
+         - removes or adds the suffix '_{percent}p' for all the dataset files in <directory>
 """
 import argparse
 import os

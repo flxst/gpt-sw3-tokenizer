@@ -12,6 +12,7 @@ Train, evaluate and analyze BPE tokenizers.
 This repository was used to train a multilingual, BPE-based SentencePiece tokenizer for the [GPT-SW3](https://arxiv.org/abs/2305.12987) model family on the Nordic Pile dataset.
 See [this paper](https://arxiv.org/abs/2304.14780) for more details.
 
+----
 ## Repository Structure
 
 - `.`: contains main python and bash scripts as well as settings (`env.ini` and `SAMPLING_WEIGHTS.csv`)
@@ -51,6 +52,7 @@ See [this paper](https://arxiv.org/abs/2304.14780) for more details.
       Fields other than `"text"` may be present but will be ignored. 
 
 
+----
 ## Usage
 
 Training a tokenizer requires the following steps:
