@@ -30,6 +30,13 @@ def get_tokenizer(_tokenizer_name: str) -> str:
     return _tokenizer_name_complete
 
 
+def get_vocab_size(_tokenizer_name_complete: str) -> str:
+    try:
+        return _tokenizer_name_complete.split("-v")[-1].split("_")[0]
+    except Exception:
+        raise Exception(f"ERROR! could not retrive vocabulary size from tokenizer name = {_tokenizer_name_complete}")
+
+
 def instantiate_nested_dict(list1: List[str], list2: List[str]) -> Dict[str, Dict[str, Dict]]:
     return {
         elem1: {

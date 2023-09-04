@@ -144,7 +144,7 @@ To evaluate the tokenizer on data in the `<data_eval>` folder, do the following:
   ```
   python script_evaluate.py 
       --tokenizer_name <tokenizer_name>         # e.g. tokenizer1 
-      --vocab_size <vocab_size>                 # e.g. 64000
+      [--vocab_size <vocab_size>]               # e.g. 64000
       [--vocab_size_pruned <vocab_size_pruned>] # e.g. 40000 51200
       [--monolingual]                           # if used, monolingual models are evaluated
   ```

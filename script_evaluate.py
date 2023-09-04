@@ -23,15 +23,17 @@ from typing import List, Optional
 from src.env import Env
 from src.helpers import get_languages
 from src.analysis import _analyze_vocab, extract_vocab
-from src.evaluation.helpers import get_tokenizer, instantiate_nested_dict, write_json
+from src.evaluation.helpers import get_tokenizer, instantiate_nested_dict, write_json, get_vocab_size
 from src.evaluation.evaluate import evaluate
 from src.evaluation.prune_vocab_size import prune_vocab_size
 
 env = Env()
 
 
-def main(_tokenizer_name: str, _vocab_size: int, _vocab_size_pruned: Optional[List[int]] = None):
+def main(_tokenizer_name: str, _vocab_size: Optional[int] = None, _vocab_size_pruned: Optional[List[int]] = None):
     _tokenizer = get_tokenizer(_tokenizer_name)
+    if _vocab_size is None:
+        _vocab_size = get_vocab_size(_tokenizer)
     _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval)]
 
     # _vocab_sizes = _vocab_size_pruned + [_vocab_size]
@@ -82,7 +84,7 @@ def main(_tokenizer_name: str, _vocab_size: int, _vocab_size_pruned: Optional[Li
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--tokenizer_name", type=str, required=True)
-    parser.add_argument("--vocab_size", type=int, required=True)
+    parser.add_argument("--vocab_size", type=int, default=None)
     parser.add_argument("--vocab_size_pruned", nargs='+', type=int, default=[])
     parser.add_argument("--monolingual", action="store_true")
     _args = parser.parse_args()
