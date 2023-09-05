@@ -37,16 +37,6 @@ TEST_EXAMPLES = [
         return n
     else:
         return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
-#    """<|python|> def fibRec(n):
-#    if n < 2:
-#\treturn n
-#    else:
-#\treturn fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
-    # """def fibRec(n):
-    # if n < 2:
-    #     return n
-    # else:
-    #     return fibRec(n-1) + fibRec(n-2)<|endoftext|>ett""",
     '[sv] Det var en fuktig, grå sommardag i slutet av juni.',
     '[no/bo] Det var en fuktig, grå sommerdag i slutten av juni.',
     '[no/ny] Det var ein fuktig, grå sommardag/sumardag i slutten av juni.',

@@ -22,7 +22,7 @@ print(f">>> BASE_DIR: {BASE_DIR}")
 sys.path.append(BASE_DIR)
 
 from src.env import Env
-from src.test_data import TEST_EXAMPLES
+from src.hardcoded.test_data import TEST_EXAMPLES
 import json
 
 

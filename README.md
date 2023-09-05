@@ -121,14 +121,13 @@ To train the tokenizer on data in the `<data_train>` folder, do the following:
       [--train_extremely_large_corpus 1]     # 0, 1
   ```
 
-The trained tokenizer can be found e.g. in the folder `<output>/*_tokenizer1`. 
-In particular, the model is named
-- `model.model` (if library == "SP")
-- `tokenizer.json` (if library == "HF")
-
-In addition, there are two files which contain the vocabulary and the merge rules, respectively. 
-- `tokenizer_vocab.json`
-- `tokenizer_merge.txt` (only if library == "HF")
+The trained tokenizer is saved at `<output>/YYmmdd_HHMMSS-v<vocab_size>_<tokenizer_name>`
+and contains the following files:
+- Tokenizer: `model.model` & `model.vocab` (if library == "SP") or tokenizer.json (if library == "HF")
+- Training parameters: `parameters.txt`
+- Files for Megatron-LM: `tokenizer_vocab.json` & `tokenizer_merge.txt`
+- Tokenizer Statistics: `tokenizer_subword_lengths.json`
+- Dataset Statistics: `overview.json`
 
 **Advanced Usage:**
 - To train (multiple) monolingual tokenizers, use `--monolingual`

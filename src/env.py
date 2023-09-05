@@ -1,6 +1,6 @@
 
 import os
-from os.path import join, abspath
+from os.path import join, abspath, isfile
 import configparser
 
 config = configparser.ConfigParser()
@@ -14,6 +14,8 @@ class Env:
         cwd = os.getcwd()
         base_dir = abspath(join(cwd, folder))
         env_file = join(base_dir, "env.ini")
+        assert isfile(env_file), f"ERROR! could not find file = {env_file}"
+
         config.read(env_file)
 
         if config['main']['data_original'].startswith("/"):

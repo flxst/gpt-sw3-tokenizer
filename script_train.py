@@ -20,7 +20,13 @@ EXECUTION: python script_train.py
 PURPOSE: the script uses <library> to train a tokenizer named <tokenizer_name> on the <dataset_files>
          using the rest of the arguments as parameters.
 
-         the trained tokenizer is saved at <OUTPUT>/HHMMSS_[parameters]_<tokenizer_name>
+         the trained tokenizer is saved at <output>/YYmmdd_HHMMSS-v<vocab_size>_<tokenizer_name>
+         and contains the following files:
+         - Tokenizer: model.model & model.vocab (if library == "SP") or tokenizer.json (if library == "HF")
+         - Training parameters: parameters.txt
+         - Files for Megatron-LM: tokenizer_vocab.json & tokenizer_merge.txt
+         - Tokenizer Statistics: tokenizer_subword_lengths.json
+         - Dataset Statistics: overview.json
 """
 import argparse
 from os.path import join
@@ -47,6 +53,16 @@ HFDataset = Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
 def train_hf(_parameters: Parameters,
              _output: Output,
              _datasets_combined: HFDataset) -> None:
+    """
+    train a HF tokenizer and produces the following output files in the tokenizer directory:
+    - tokenizer.json
+
+    Args:
+        _parameters: for training
+        _output: for model_prefix
+        _datasets_combined: data to train on
+    """
+
     # 1. Define Tokenizer
     tokenizer = Tokenizer(models.BPE())
     _normalizer = get_normalizer(_parameters.unicode_normalization)
@@ -82,6 +98,16 @@ def train_hf(_parameters: Parameters,
 def train_sp(_parameters: Parameters,
              _output: Output,
              _datasets_combined: HFDataset) -> None:
+    """
+    train a SP tokenizer and produces the following output files in the tokenizer directory:
+    - model.model
+    - model.vocab
+
+    Args:
+        _parameters: for training
+        _output: for model_prefix
+        _datasets_combined: data to train on
+    """
     spm.SentencePieceTrainer.train(
         sentence_iterator=get_training_corpus_combined(_datasets_combined, batch_size=1),
         model_prefix=_output.model_prefix,
@@ -119,7 +145,7 @@ def main(args):
     parameters.show()
 
     output = Output(parameters.output_dir, parameters.library)
-    output.export_parameters(parameters)
+    output.export_parameters(parameters)  # output: parameters.txt
 
     # 0. Load Datasets
     # if args.alpha != 1.0:
@@ -127,20 +153,25 @@ def main(args):
     #     data_files += upsampled_data_file
     datasets_combined = load_dataset('json', data_files={'train': parameters.dataset_files})
 
+    # 1. Train Tokenizer
     if parameters.library == "HF":
-        train_hf(parameters, output, datasets_combined)
+        train_hf(parameters, output, datasets_combined)  # output: tokenizer.json
     elif parameters.library == "SP":
-        train_sp(parameters, output, datasets_combined)
+        train_sp(parameters, output, datasets_combined)  # output: model.model & model.vocab
     else:
         raise Exception(f"library = {parameters.library} unknown, should be HF or SP")
 
-    # 5. Output
-    output.export_tokenizer_for_megatron_lm()
-    output.analyze_vocabulary()
-    output.overview(datasets_combined, parameters.dataset_files, _time=f"{time.time() - ts:.2f}s")
+    # 2. Output
+    output.export_tokenizer_for_megatron_lm()  # output: tokenizer_vocab.json (+ tokenizer_merge.txt if library == HF)
+    output.analyze_vocabulary()                # output: tokenizer_subword_lengths.json
+    output.overview(                           # output: overview.json
+        datasets_combined,
+        parameters.dataset_files,
+        _time=f"{time.time() - ts:.2f}s"
+    )
 
     # if parameters.library == "SP":
-    #     create_merge_rules(output.vocab_file, output.merge_file)
+    #     create_merge_rules(output.vocab_file, output.merge_file)  # output: tokenizer_merge.txt if library == SP
 
 
 if __name__ == "__main__":

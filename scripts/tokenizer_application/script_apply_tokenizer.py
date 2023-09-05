@@ -21,7 +21,7 @@ BASE_DIR = abspath(dirname(dirname(dirname(abspath(__file__)))))
 print(f">>> BASE_DIR: {BASE_DIR}")
 sys.path.append(BASE_DIR)
 
-from src.test_data import TEST_EXAMPLES
+from src.hardcoded.test_data import TEST_EXAMPLES
 from src.env import Env
 
 NOT_AVAILABLE_STR = "---"

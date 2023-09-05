@@ -20,7 +20,7 @@ OUTPUT_DIR = env.output
 
 
 ###########################################################################################
-# 1. MODELS ###############################################################################
+# 0. MODELS ###############################################################################
 ###########################################################################################
 def get_models_in_output_dir() -> List[str]:
     _models: List[str] = sorted([
@@ -252,7 +252,6 @@ def _get_lang_dataset_size_time(_models, verbose=False):
 
 
 def plot_overview(_models, verbose=False):
-
     lang, dataset_size, time = _get_lang_dataset_size_time(_models)
     if verbose:
         print(lang, dataset_size, time)

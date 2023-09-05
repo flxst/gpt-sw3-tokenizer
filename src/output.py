@@ -9,6 +9,9 @@ from src.parameters import Parameters
 
 
 class Output:
+    """
+    class which handles output from tokenizer training
+    """
 
     def __init__(self,
                  path: str,
@@ -47,8 +50,8 @@ class Output:
         """ export tokenizer vocabulary and merge rules for use with Megatron-LM
 
             e.g. path = 'output/125842/
-                 => export files = 'output/125842/tokenizer_merge.txt'
-                                   'output/125842/tokenizer_vocab.json'
+                 => export files = 'output/125842/tokenizer_vocab.json'
+                                   'output/125842/tokenizer_merge.txt'  (only if self.library == 'HF')
         """
 
         if self.library == "HF":
@@ -81,7 +84,7 @@ class Output:
         """ analyze vocabulary w.r.t. vocabulary size & subword token length
 
             e.g. 'output/125842/
-                  => vocab file = 'output/125842/tokenizer_vocab.json'
+                  => vocab file = 'output/125842/tokenizer_subword_lengths.json'
         """
 
         # a. get subword lengths = dict w/ keys = subword length, value = occurrences in vocabulary

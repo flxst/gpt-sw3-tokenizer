@@ -4,7 +4,6 @@ CODE_TOKENS = [
     # "<|go|>",
     # "<|typescript|>",
     # "<|java|>",
-
     "<|javascript|>",
     "<|python|>",
     "<|sql|>",

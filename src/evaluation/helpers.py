@@ -51,4 +51,3 @@ def write_json(_dict: Dict, file_path: str) -> None:
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(json.dumps(_dict))
     print(f"> wrote json file {file_path}")
-

@@ -1,27 +1,18 @@
-import json
 import os
 from typing import List
 from os.path import join, isfile
 import time
-from src.code_tokens import CODE_TOKENS
+from src.hardcoded.code_tokens import CODE_TOKENS
 from src.env import Env
 from src.helpers import LIST_OF_SPECIAL_TOKENS
 
 env = Env()
 
 
-def get_dataset_files_in_folder(_folder: str,
-                                _dataset_filter: str) -> List[str]:
-    print(f"> get files in {_folder}")
-    _files = [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
-    if len(_dataset_filter) and _dataset_filter != "all":
-        _files = [elem for elem in _files if _dataset_filter in elem]
-    assert len(_files), f"ERROR! no files found in {_folder} (that contain '{_dataset_filter}')"
-    return [join(_folder, elem) for elem in _files]
-
-
 class Parameters:
-    
+    """
+    class that contains all parameters for tokenizer training
+    """
     def __init__(self,
                  library: str,
                  tokenizer_name: str,
@@ -105,4 +96,28 @@ class Parameters:
         print()
 
     def get_id(self) -> str:
+        """
+        Returns:
+            id string, e.g. '-v64000'
+        """
         return f"-v{self.vocab_size_external}"
+
+
+def get_dataset_files_in_folder(_folder: str,
+                                _dataset_filter: str) -> List[str]:
+    """
+    get all dataset files in folder _folder that contain _dataset_filter as substring
+
+    Args:
+        _folder: e.g. 'data_train'
+        _dataset_filter: 'file'
+
+    Returns:
+        files_in_folder: e.g. ['file1.jsonl', 'file2.jsonl']
+    """
+    print(f"> get files in {_folder}")
+    _files = [elem for elem in os.listdir(_folder) if isfile(join(_folder, elem)) and elem.endswith(".jsonl")]
+    if len(_dataset_filter) and _dataset_filter != "all":
+        _files = [elem for elem in _files if _dataset_filter in elem]
+    assert len(_files), f"ERROR! no files found in {_folder} (that contain '{_dataset_filter}')"
+    return [join(_folder, elem) for elem in _files]
