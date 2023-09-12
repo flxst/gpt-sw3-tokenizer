@@ -15,31 +15,8 @@ from os.path import isfile, dirname, getsize
 import time
 
 from src.env import Env
-from src.sampling import get_file_path, read_sampling_weights
-from scripts.data_helpers.script_concatenate_data_by_language import concatenate_data_by_language
-
-
-import random
-
-
-def reservoir_sampling(l, k):
-    """
-    taken from
-    https://stackoverflow.com/questions/40144869/python-read-random-lines-from-a-very-big-file-and-append-to-another-file
-    """
-    it = iter(l)
-    try:
-        result = [next(it) for _ in range(k)]  # use xrange if on python 2.x
-    except StopIteration:
-        raise ValueError("Sample larger than population")
-
-    for i, item in enumerate(it, start=k):
-        s = random.randint(0, i)
-        if s < k:
-            result[s] = item
-
-    # random.shuffle(result)  # additional cost without effect
-    return result
+from src.sampling import get_file_path, read_sampling_weights, reservoir_sampling
+from scripts.data_processing.script_concatenate_data_by_language import concatenate_data_by_language
 
 
 def main(args):
@@ -68,8 +45,7 @@ def main(args):
             # 3. make sure that <data_train> folder exists
             file_path_sampled = get_file_path(category,
                                               language,
-                                              kind="data_eval" if args.evaluation else "data_train",
-                                              percent=args.percent)
+                                              kind="data_eval" if args.evaluation else "data_train")
             os.makedirs(dirname(file_path_sampled), exist_ok=True)
 
             # 4. sample <percent>% of the original data and write
@@ -81,7 +57,7 @@ def main(args):
                     outfile.write(line)
 
             file_size_sampled = getsize(file_path_sampled)
-            print(f"{file_size_sampled/float(10**6):.1f} MB ", end="")
+            print(f"{file_size_sampled/float(10**6):.1f} MB (ratio = {file_size_sampled/file_size_original:.2f})", end="")
 
             if env.verbose:
                 print(f".. from {number_of_original_documents} original documents, "

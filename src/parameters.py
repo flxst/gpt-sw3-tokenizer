@@ -1,8 +1,8 @@
 import os
+import csv
 from typing import List
 from os.path import join, isfile
 import time
-from src.hardcoded.code_tokens import CODE_TOKENS
 from src.env import Env
 from src.helpers import LIST_OF_SPECIAL_TOKENS
 
@@ -68,7 +68,7 @@ class Parameters:
             self.vocab_size -= len(LIST_OF_SPECIAL_TOKENS)
 
         if self.add_code_tokens == 1:
-            self.special_tokens += CODE_TOKENS
+            self.special_tokens += get_code_tokens()
 
         self.timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())[2:]
 
@@ -121,3 +121,10 @@ def get_dataset_files_in_folder(_folder: str,
         _files = [elem for elem in _files if _dataset_filter in elem]
     assert len(_files), f"ERROR! no files found in {_folder} (that contain '{_dataset_filter}')"
     return [join(_folder, elem) for elem in _files]
+
+
+def get_code_tokens() -> List[str]:
+    with open('CODE_TOKENS.csv', newline='') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',')
+        code_tokens = [row for row in csvreader][0]
+    return code_tokens

@@ -7,8 +7,6 @@ from typing import Dict, List
 import sentencepiece as spm
 from src.env import Env
 
-env = Env()
-
 
 def _analyze_vocab(_env, _model) -> Dict[str, List[int]]:
     vocab_file = join(_model, "tokenizer_vocab.json")
@@ -85,6 +83,7 @@ def extract_vocab(_model):
     sp.Load(_model)
     vocabs = {sp.IdToPiece(_id): _id for _id in range(sp.GetPieceSize())}
 
+    env = Env()
     if env.debug:
         print("\n===")
         print(f"vocabulary size = {len(vocabs)}")

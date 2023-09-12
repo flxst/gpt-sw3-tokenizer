@@ -1,0 +1,3 @@
+mkdocs-click
+mkdocs-material
+mkdocstrings[python]

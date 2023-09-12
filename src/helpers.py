@@ -10,8 +10,6 @@ import shutil
 from os.path import join
 from sentencepiece import sentencepiece_model_pb2 as model_pb2
 
-LANGUAGES = ["sv", "en", "no", "da", "is", "cd"]
-
 
 UNICODE_NORMALIZATION = {
     "None": None,

@@ -1,0 +1,45 @@
+site_name: gpt-sw3-tokenizer
+theme:
+  name: material
+  palette:
+    primary: blue
+  features:
+    - navigation.tabs
+    - toc.integrate
+  favicon: fontawesome/solid/scissors
+  icon:
+    logo: fontawesome/solid/scissors
+copyright: Copyright &copy; 2023- Felix Stollenwerk
+plugins:
+  - mkdocstrings
+  - search
+# repo_url: https://github.com/flxst/gpt-sw3-tokenizer
+markdown_extensions:
+  - attr_list
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - mkdocs-click
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
+
+extra_css:
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
+
+nav:
+    - Start: 'index.md'
+    - Preparation: 'preparation.md'
+    - Sampling: 'sampling.md'
+    - Training: 'training.md'
+    - Evaluation: 'evaluation.md'
+    - Analysis: 'analysis.md'
+

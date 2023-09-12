@@ -1,5 +1,6 @@
 
 import csv
+import random
 from typing import Tuple, List, Dict
 from os.path import join
 from src.env import Env
@@ -54,3 +55,25 @@ def read_sampling_weights(percent: int = 100,
         print(f"  sampling_weights_final: {sampling_weights_final}")
 
     return categories, languages, sampling_weights, sampling_weights_final
+
+
+def reservoir_sampling(l, k):
+    """
+    taken from
+    https://stackoverflow.com/questions/40144869/python-read-random-lines-from-a-very-big-file-and-append-to-another-file
+    """
+    it = iter(l)
+    try:
+        result = [next(it) for _ in range(k)]  # use xrange if on python 2.x
+    except StopIteration:
+        raise ValueError("Sample larger than population")
+
+    for i, item in enumerate(it, start=k):
+        s = random.randint(0, i)
+        if s < k:
+            result[s] = item
+
+    # random.shuffle(result)  # additional cost without effect
+    return result
+
+
