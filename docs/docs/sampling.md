@@ -43,7 +43,7 @@ To sample (and weight) data from the original files in `<data_original>`, take t
     - `--evaluation` can be used to sample data for evaluation instead of training
 
 Note that for each combination $x = cl$ of a category $c$ and language $l$, the fraction of sampled documents is given by the product of the
-individual weight $W_{cl}$ read from `SAMPLING_WEIGHTS.csv` and the global factor $p$ specified via `--percent`:
+individual weight $W_x$ read from `SAMPLING_WEIGHTS.csv` and the global factor $p$ specified via `--percent`:
 
 $$
 \left(\frac{{\text{number of sampled documents}}}{{\text{number of original documents}}}\right)_x = W_x \cdot p 
@@ -52,9 +52,11 @@ $$
 ---
 ## Results
 
-The sampled (and weighted) data files are called `<category>_<language>_<percent>p.jsonl` and can be found in the folder
+The sampled (and weighted) data files are called `<category>_<language>.jsonl` (just like their original counterparts, see [preparation](preparation.md#data-format)) and can be found in the folder
 
 - `<data_train>` if `--evaluation 0` is used
 - `<data_eval>` if `--evaluation 1` is used
+
+In addition, the folder contains a log file `SAMPLING.log` which contains information about the sampling process.
 
 In the next steps, the data are used for [training](training.md) and [evaluation](evaluation.md), respectively.

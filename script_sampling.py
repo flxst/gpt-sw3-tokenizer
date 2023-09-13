@@ -16,22 +16,26 @@ import time
 
 from src.env import Env
 from src.sampling import get_file_path, read_sampling_weights, reservoir_sampling
+from src.logger import Logger
 from scripts.data_processing.script_concatenate_data_by_language import concatenate_data_by_language
 
 
 def main(args):
     env = Env()
+    logger_folder = env.data_eval if args.evaluation else env.data_train
+    logger = Logger(logger_folder)
 
     # 1. read SAMPLING_WEIGHTS.csv
     categories, languages, sampling_weights, sampling_weights_sampling = read_sampling_weights(percent=args.percent,
                                                                                                verbose=env.verbose)
+    logger.initialize(percent=args.percent, weights=sampling_weights)
 
     for category, language in product(categories, languages):
         weight = sampling_weights_sampling[category][language]
 
         if weight > 0:
             ts = time.time()
-            print(f"> category = {category}, language = {language}, weight = {weight}")
+            logger.log_print(f"> category = {category}, language = {language}, weight = {weight}")
 
             # 2. make sure that all original data files exist
             file_path_original = get_file_path(category,
@@ -40,7 +44,7 @@ def main(args):
             assert isfile(file_path_original), \
                 f"ERROR! file for category = {category}, language = {language} does not exist at {file_path_original}"
             file_size_original = getsize(file_path_original)
-            print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
+            logger.log_print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
 
             # 3. make sure that <data_train> folder exists
             file_path_sampled = get_file_path(category,
@@ -57,25 +61,25 @@ def main(args):
                     outfile.write(line)
 
             file_size_sampled = getsize(file_path_sampled)
-            print(f"{file_size_sampled/float(10**6):.1f} MB (ratio = {file_size_sampled/file_size_original:.2f})", end="")
+            logger.log_print(f"{file_size_sampled/float(10**6):.1f} MB (ratio = {file_size_sampled/file_size_original:.2f})", end="")
 
             if env.verbose:
-                print(f".. from {number_of_original_documents} original documents, "
-                      f"wrote {number_of_sampled_documents} sampled documents to {file_path_sampled}")
+                logger.log_print(f".. from {number_of_original_documents} original documents, "
+                                 f"wrote {number_of_sampled_documents} sampled documents to {file_path_sampled}")
 
             te = time.time()
-            print(f"[time = {te-ts:.1f}s]")
-            print()
+            logger.log_print(f" [time = {te-ts:.1f}s]")
+            logger.log_print()
 
         else:
             if env.verbose:
-                print(f"> category = {category}, language = {language}, weight = {weight} .. skipped")
-                print()
+                logger.log_print(f"> category = {category}, language = {language}, weight = {weight} .. skipped")
+                logger.log_print()
 
     # concatenate data by language (only if args.evaluation == 1)
     if args.evaluation:
-        print("\n=================")
-        print(f"> concatenate data by language in {env.data_eval}")
+        logger.log_print("\n=================")
+        logger.log_print(f"> concatenate data by language in {env.data_eval}")
         concatenate_data_by_language(env.data_eval, inplace=True)
 
 

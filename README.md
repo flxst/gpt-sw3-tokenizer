@@ -22,19 +22,19 @@ pip install -r requirements.txt
 This repository provides easy-to-use tools to sample (weighted) data and subsequently train, evaluate and analyze a tokenizer.
 
 <div align="center">
-<img alt="sampling" src="docs/docs/images/filter-solid-margin.png" height="50">&nbsp;
+<img alt="sampling" src="docs/docs/images/filter-solid-margin.png" height="53">&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
-<img alt="training" src="docs/docs/images/brain-solid-margin.png" height="50">&nbsp;
+<img alt="training" src="docs/docs/images/brain-solid-margin.png" height="53">&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
-<img alt="evaluation" src="docs/docs/images/ruler-solid-margin.png" height="50">&nbsp;
+<img alt="evaluation" src="docs/docs/images/ruler-solid-margin.png" height="53">&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
-<img alt="analysis" src="docs/docs/images/magnifying-glass-solid-margin.png" height="50">&nbsp;
+<img alt="analysis" src="docs/docs/images/magnifying-glass-solid-margin.png" height="53">&nbsp;
 </div>
 <div align="center">
 <a href="sampling">Sampling</a>
@@ -50,6 +50,7 @@ This repository provides easy-to-use tools to sample (weighted) data and subsequ
 &nbsp;
 &nbsp;
 <a href="analysis">Analysis</a>
+&nbsp;
 </div>
 
 ## Features
