@@ -59,6 +59,7 @@ This repository provides easy-to-use tools to sample (weighted) data and subsequ
 
 :fontawesome-solid-filter: [Sampling](sampling.md)
 
+- customizable amount of sampled data for training and evaluation
 - weighting of different categories and languages
 
 :fontawesome-solid-brain: [Training](training.md)
@@ -81,10 +82,10 @@ This repository provides easy-to-use tools to sample (weighted) data and subsequ
 
 ``` tex
 @misc{gpt-sw3-tokenizer,
-	  title = {Training and Evaluation of a Multilingual Tokenizer for {GPT}-{SW3}},
-	  url = {http://arxiv.org/abs/2304.14780},
-	  author = {Stollenwerk, Felix},
-	  year = {2023},
+  title = {Training and Evaluation of a Multilingual Tokenizer for {GPT}-{SW3}},
+  url = {http://arxiv.org/abs/2304.14780},
+  author = {Stollenwerk, Felix},
+  year = {2023},
 }
 ```
 
