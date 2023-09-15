@@ -3,6 +3,7 @@ EXECUTION: python script_train.py
            --tokenizer_name <tokenizer_name>      # e.g. tokenizer1
            --dataset_files <dataset_files>        # e.g. "all" = all files in <data_train>
            [--dataset_filter all]                 # e.g. "all" = no filter
+           [--vocab_size 64000]                   # int, divisible by 128 (only SP)
            [--monolingual]                        # if used, monolingual models are trained
            [--library SP]                         # SP = SentencePiece, HF = HuggingFace
            [--unicode_normalization None]         # None, NFC, NFKC
@@ -10,11 +11,12 @@ EXECUTION: python script_train.py
            [--add_prefix_space 1]                 # 0, 1
            [--add_whitespace_tokens 2]            # 0, 1 (added at top of vocab), 2 (added at bottom of vocab)
            [--add_code_tokens 1]                  # 0, 1 (added at top of vocab)
+           [--add_newline_token 0]                # 0, 1 (added at top of vocab)
            [--minimum_frequency 0]                # int >= 0
-           [--byte_fallback 1]                    # 0, 1
-           [--character_coverage 0.9999]          # float, useful if byte_fallback = 1
-           [--vocab_size 64000]                   # int, divisible by 128
-           [--train_extremely_large_corpus 1]     # 0, 1
+           [--initial_alphabet 0]                 # 0, 1 (only HF)
+           [--byte_fallback 1]                    # 0, 1 (only SP)
+           [--character_coverage 0.9999]          # float, useful if byte_fallback = 1 (only SP)
+           [--train_extremely_large_corpus 1]     # 0, 1 (only SP)
 
 PURPOSE: the script uses <library> to train a tokenizer named <tokenizer_name> on the <dataset_files>
          using the rest of the arguments as parameters.
@@ -80,6 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("--tokenizer_name", type=str, default="")
     parser.add_argument("--dataset_files", nargs='+', type=str, default=[])
     parser.add_argument("--dataset_filter", type=str, default="all")
+    parser.add_argument("--vocab_size", type=int, default=64000)
     parser.add_argument("--monolingual", action="store_true")
     parser.add_argument("--library", type=str, default="SP")
     parser.add_argument("--unicode_normalization", type=str, default="None")
@@ -87,10 +90,11 @@ if __name__ == "__main__":
     parser.add_argument("--add_prefix_space", type=int, default=1)
     parser.add_argument("--add_whitespace_tokens", type=int, default=2)
     parser.add_argument("--add_code_tokens", type=int, default=1)
+    parser.add_argument("--add_newline_token", type=int, default=0)
     parser.add_argument("--minimum_frequency", type=int, default=0)
+    parser.add_argument("--initial_alphabet", type=int, default=0)
     parser.add_argument("--byte_fallback", type=int, default=1)
     parser.add_argument("--character_coverage", type=float, default=0.9999)
-    parser.add_argument("--vocab_size", type=int, default=64000)
     parser.add_argument("--alpha", type=float, default=-1)
     parser.add_argument("--train_extremely_large_corpus", type=int, default=1)
     _args = parser.parse_args()

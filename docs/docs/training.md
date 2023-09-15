@@ -11,6 +11,7 @@ To train a tokenizer on data in the `<data_train>` folder, run `script_train.py`
       --tokenizer_name <tokenizer_name>      # e.g. tokenizer1
       --dataset_files <dataset_files>        # e.g. "all" = all files in <data_train>
       [--dataset_filter all]                 # e.g. "all" = no filter
+      [--vocab_size 64000]                   # int, divisible by 128
       [--monolingual]                        # if used, monolingual models are trained
       [--library SP]                         # SP = SentencePiece, HF = HuggingFace
       [--unicode_normalization None]         # None, NFC, NFKC
@@ -18,11 +19,12 @@ To train a tokenizer on data in the `<data_train>` folder, run `script_train.py`
       [--add_prefix_space 1]                 # 0, 1
       [--add_whitespace_tokens 2]            # 0, 1 (added at top of vocab), 2 (added at bottom of vocab)
       [--add_code_tokens 1]                  # 0, 1 (added at top of vocab)
+      [--add_newline_token 0]                # 0, 1 (added at top of vocab)
       [--minimum_frequency 0]                # int >= 0
-      [--byte_fallback 1]                    # 0, 1
-      [--character_coverage 0.9999]          # float, useful if byte_fallback = 1
-      [--vocab_size 64000]                   # int, divisible by 128
-      [--train_extremely_large_corpus 1]     # 0, 1
+      [--initial_alphabet 0]                 # 0, 1 (only HF)
+      [--byte_fallback 1]                    # 0, 1 (only SP)
+      [--character_coverage 0.9999]          # float, useful if byte_fallback = 1 (only SP)
+      [--train_extremely_large_corpus 1]     # 0, 1 (only SP)
     ```
 
 **Arguments:**
@@ -37,20 +39,28 @@ To train a tokenizer on data in the `<data_train>` folder, run `script_train.py`
 **Optional Arguments:**
 
 - `--dataset_filter` is an alternative to `--dataset_files` (which needs to be set to `all`). Any files that contain the specified substring will be included
+- `--vocab_size` specifies the desired vocabulary size
 - `--monolingual` trains (multiple) monolingual tokenizers instead of a single multilingual one
 - `--library` specifies the library to use (`SP` = SentencePiece or `HF` = HuggingFace)
 - `--unicode_normalization` specifies the unicode normalization that the data is preprocessed with
 - `--individual_digits` splits digits into separate tokens using whitespace
+- `--add_prefix_space` adds dummy whitespace to beginning of first token of text
 - `--add_whitespace_tokens` adds 23 consecutive whitespace tokens to the tokenizer's vocabulary
 - `--add_code_tokens` adds special code tokens to the tokenizer's vocabulary. These are specified in `CODE_TOKENS.csv`
+- `--add_newline_token` adds special `"\n"` token to the tokenizer's vocabulary
 - `--minimum_frequency` specifies the minimum frequency required for a token to be added to the vocabulary
-   Note that this most likely results in a vocabulary size smaller than the vocabulary size specified beforehand
-- `--vocab_size` specifies the desired vocabulary size
+  Note that this most likely results in a vocabulary size smaller than the vocabulary size specified beforehand
+  
+<br>
+**Optional Arguments only available for HuggingFace:**
+
+- `--initial_alphabet` adds 256 single characters to the tokenizer's vocabulary
+
+We refer to the [HuggingFace documentation](https://huggingface.co/docs/tokenizers/api/trainers) for further details.
 
 <br>
 **Optional Arguments only available for SentencePiece:**
 
-- `--add_prefix_space`
 - `--byte_fallback`
 - `--character_coverage`
 - `--train_extremely_large_corpus`

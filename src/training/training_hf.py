@@ -43,7 +43,7 @@ def train_hf(_parameters: Parameters,
         vocab_size=_parameters.vocab_size,
         special_tokens=_parameters.special_tokens,
         min_frequency=_parameters.minimum_frequency,
-        initial_alphabet=pre_tokenizers.ByteLevel.alphabet(),
+        initial_alphabet=pre_tokenizers.ByteLevel.alphabet() if _parameters.initial_alphabet else [],
         # https://github.com/huggingface/tokenizers/issues/813#issuecomment-937847770
     )
     tokenizer.train_from_iterator(
@@ -57,5 +57,3 @@ def train_hf(_parameters: Parameters,
 
     # 4. Save
     tokenizer.save(join(_output.path, "tokenizer.json"))
-
-

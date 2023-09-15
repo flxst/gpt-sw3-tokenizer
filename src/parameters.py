@@ -23,7 +23,9 @@ class Parameters:
                  add_prefix_space: bool = True,
                  add_whitespace_tokens: int = 2,
                  add_code_tokens: int = 1,
+                 add_newline_token: int = 0,
                  minimum_frequency: int = 0,
+                 initial_alphabet: int = 1,
                  byte_fallback: bool = True,
                  character_coverage: float = 1.0,
                  train_extremely_large_corpus: bool = True,
@@ -46,7 +48,9 @@ class Parameters:
         self.add_prefix_space = bool(add_prefix_space)
         self.add_whitespace_tokens = add_whitespace_tokens
         self.add_code_tokens = add_code_tokens
+        self.add_newline_token = add_newline_token
         self.minimum_frequency = minimum_frequency
+        self.initial_alphabet = initial_alphabet
         self.byte_fallback = bool(byte_fallback) if self.library == "SP" else 0
         self.character_coverage = character_coverage if self.library == "SP" else 0
         self.train_extremely_large_corpus = bool(train_extremely_large_corpus) if self.library == "SP" else 0
@@ -65,10 +69,14 @@ class Parameters:
             ]
             self.special_tokens += whitespace_tokens
         elif self.add_whitespace_tokens == 2:  # only self.library == "SP"
+            assert self.library == "SP", f"ERROR! --add_whitespace_tokens 2 is only available for --library SP"
             self.vocab_size -= len(LIST_OF_SPECIAL_TOKENS)
 
         if self.add_code_tokens == 1:
             self.special_tokens += get_code_tokens()
+
+        if self.add_newline_token:
+            self.special_tokens += "\n"
 
         self.timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())[2:]
 
@@ -84,7 +92,9 @@ class Parameters:
         print(f"> add_prefix_space = {self.add_prefix_space}")
         print(f"> add_whitespace_tokens = {self.add_whitespace_tokens}")
         print(f"> add_code_tokens = {self.add_code_tokens}")
+        print(f"> add_newline_token = {self.add_newline_token}")
         print(f"> minimum_frequency = {self.minimum_frequency}")
+        print(f"> initial_alphabet = {self.initial_alphabet}")
         print(f"> byte_fallback = {self.byte_fallback}")
         print(f"> character_coverage = {self.character_coverage}")
         print(f"> train_extremely_large_corpus = {self.train_extremely_large_corpus}")
