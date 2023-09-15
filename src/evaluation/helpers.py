@@ -1,14 +1,14 @@
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import os
 import json
-from os.path import join, isdir
+from os.path import join, isdir, isfile
 from src.env import Env
 
 env = Env()
 
 
-def get_tokenizer(_tokenizer_name: str) -> str:
+def get_tokenizer(_tokenizer_name: str) -> Tuple[str, str]:
     """
     get full tokenizer path that corresponds to _tokenizer_name
 
@@ -17,6 +17,7 @@ def get_tokenizer(_tokenizer_name: str) -> str:
 
     Returns:
         tokenizer: e.g. <output>/151508_SP-uNone-d0-p0-w0-c0-f0-bf0-cc1.0-x1-v1000_SP_test
+        tokenizer_library: 'SP' or 'HF'
     """
     subdirs = [
         elem
@@ -27,12 +28,20 @@ def get_tokenizer(_tokenizer_name: str) -> str:
                              f"with {_tokenizer_name} in env.output = {env.output}"
     assert len(subdirs) == 1, f"ERROR! found multiple subdirectories: {subdirs}"
     _tokenizer_name_complete = join(env.output, subdirs[0])
-    return _tokenizer_name_complete
+
+    if isfile(join(_tokenizer_name_complete, "model.model")):
+        _tokenizer_library = "SP"
+    elif isfile(join(_tokenizer_name_complete, "tokenizer.json")):
+        _tokenizer_library = "HF"
+    else:
+        raise Exception(f"ERROR! could not determine library for tokenizer = {_tokenizer_name_complete}")
+
+    return _tokenizer_name_complete, _tokenizer_library
 
 
-def get_vocab_size(_tokenizer_name_complete: str) -> str:
+def get_vocab_size(_tokenizer_name_complete: str) -> int:
     try:
-        return _tokenizer_name_complete.split("-v")[-1].split("_")[0]
+        return int(_tokenizer_name_complete.split("-v")[-1].split("_")[0])
     except Exception:
         raise Exception(f"ERROR! could not retrive vocabulary size from tokenizer name = {_tokenizer_name_complete}")
 

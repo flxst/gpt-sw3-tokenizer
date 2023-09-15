@@ -2,8 +2,8 @@
 EXECUTION: python script_evaluate.py
            --tokenizer_name <tokenizer_name>          # e.g. example
            --vocab_size <vocab_size>                  # e.g. 64000
-           [--vocab_size_pruned <vocab_size_pruned>]  # e.g. 40000 51200
            [--monolingual]                            # if used, monolingual models are evaluated
+           [--vocab_size_pruned <vocab_size_pruned>]  # e.g. 40000 51200
 
 PURPOSE: the script
      - creates tokenizers with pruned vocabularies if multiple vocab_sizes are specified
@@ -31,7 +31,10 @@ env = Env()
 
 
 def main(_tokenizer_name: str, _vocab_size: Optional[int] = None, _vocab_size_pruned: Optional[List[int]] = None):
-    _tokenizer = get_tokenizer(_tokenizer_name)
+    _tokenizer, _tokenizer_library = get_tokenizer(_tokenizer_name)
+    if _tokenizer_library == "HF" and _vocab_size_pruned is not None:
+        raise Exception(f"ERROR! vocabulary pruning not implemented for library = HF")
+
     if _vocab_size is None:
         _vocab_size = get_vocab_size(_tokenizer)
     _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval)]
@@ -48,7 +51,7 @@ def main(_tokenizer_name: str, _vocab_size: Optional[int] = None, _vocab_size_pr
 
     # prune vocabulary -> tokenizers
     last_regular_token_index = _analyze_vocab(env, _tokenizer)["merges"][-1]  # get index of last regular token
-    tokenizers = prune_vocab_size(_tokenizer, _vocab_sizes, last_regular_token_index)  # returns list
+    tokenizers = prune_vocab_size(_tokenizer, _vocab_sizes, last_regular_token_index)  # returns list  # TODO: only implemented for SP
 
     # extract vocabulary files for pruned tokenizers
     print(f"> extract vocab for {len(tokenizers)-1} pruned tokenizers")
@@ -85,8 +88,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--tokenizer_name", type=str, required=True)
     parser.add_argument("--vocab_size", type=int, default=None)
-    parser.add_argument("--vocab_size_pruned", nargs='+', type=int, default=[])
     parser.add_argument("--monolingual", action="store_true")
+    parser.add_argument("--vocab_size_pruned", nargs='+', type=int, default=[])
     _args = parser.parse_args()
 
     tokenizer_name = _args.tokenizer_name

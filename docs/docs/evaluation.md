@@ -9,8 +9,8 @@ To evaluate the tokenizer on data in the `<data_eval>` folder, run `script_evalu
     python script_evaluate.py 
       --tokenizer_name <tokenizer_name>         # e.g. tokenizer1 
       [--vocab_size <vocab_size>]               # e.g. 64000
-      [--vocab_size_pruned <vocab_size_pruned>] # e.g. 40000 51200
       [--monolingual]                           # if used, monolingual models are evaluated
+      [--vocab_size_pruned <vocab_size_pruned>] # e.g. 40000 51200 (only SP)
     ```
 
 **Arguments:**
@@ -22,8 +22,12 @@ To evaluate the tokenizer on data in the `<data_eval>` folder, run `script_evalu
 
 - `--vocab_size` specifies the vocabulary size of the tokenizer 
    (useful if there are several tokenizers with the same `tokenizer_name` but different vocabulary sizes)
-- `--vocab_size_pruned` evaluates the tokenizer with different, pruned vocabulary sizes 
 - `--monolingual` evaluates (multiple) monolingual tokenizers (trained with the same flag)
+  
+<br>
+**Optional Arguments only available for SentencePiece:**
+
+- `--vocab_size_pruned` evaluates the tokenizer with different, pruned vocabulary sizes 
 
 <br>
 The script
