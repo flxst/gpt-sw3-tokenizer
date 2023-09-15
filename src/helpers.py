@@ -258,5 +258,6 @@ def get_languages(stage: str) -> List[str]:
 
     env = Env(dirname(".."))
     directory = env.data_train if stage == "train" else env.data_eval
-    languages = list(set([elem.split("_")[-1].split(".jsonl")[0] for elem in os.listdir(directory)]))
+    files = [file for file in os.listdir(directory) if file.endswith(".jsonl")]
+    languages = list(set([file.split("_")[-1].split(".jsonl")[0] for file in files]))
     return languages
