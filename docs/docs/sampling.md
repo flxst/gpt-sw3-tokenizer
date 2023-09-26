@@ -46,7 +46,7 @@ Note that for each combination $x = cl$ of a category $c$ and language $l$, the 
 individual weight $W_x$ read from `SAMPLING_WEIGHTS.csv` and the global factor $p$ specified via `--percent`:
 
 $$
-\left(\frac{{\text{number of sampled documents}}}{{\text{number of original documents}}}\right)_x = W_x \cdot p 
+\left(\frac{{\text{size of sampled data}}}{{\text{size of original data}}}\right)_x \approx \left(\frac{{\text{number of sampled documents}}}{{\text{number of original documents}}}\right)_x = W_x \cdot p 
 $$
 
 ---

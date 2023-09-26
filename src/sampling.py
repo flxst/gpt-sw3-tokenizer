@@ -75,5 +75,3 @@ def reservoir_sampling(l, k):
 
     # random.shuffle(result)  # additional cost without effect
     return result
-
-
