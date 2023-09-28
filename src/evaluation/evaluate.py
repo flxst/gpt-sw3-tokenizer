@@ -5,6 +5,7 @@ from collections import Counter
 import time
 import string
 import json
+from typing import Dict
 
 from src.env import Env
 from src.evaluation.evaluation_metrics import EvaluationMetrics
@@ -52,7 +53,7 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
     subwords_i = 0  # interior of word, i.e. not starting with "_" (SP) or "Ġ" (HF)
     subwords_b_proportion = 0
     subwords_i_proportion = 0
-    token_frequencies = dict()
+    token_frequencies: Dict[int, int] = dict()
 
     for i, example in enumerate(_data):
         if REMOVE_PUNCTUATION:

@@ -28,7 +28,7 @@ def main(args):
     # 1. read SAMPLING_WEIGHTS.csv
     categories, languages, sampling_weights, sampling_weights_sampling = read_sampling_weights(percent=args.percent,
                                                                                                verbose=env.verbose)
-    logger.initialize(percent=args.percent, weights=sampling_weights)
+    logger.initialize(percent=args.percent, sampling_weights=sampling_weights)
 
     for category, language in product(categories, languages):
         weight = sampling_weights_sampling[category][language]

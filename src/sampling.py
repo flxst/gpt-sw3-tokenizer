@@ -1,4 +1,6 @@
+"""Module that contains functions for sampling"""
 import csv
+import sys
 import random
 from typing import Tuple, List, Dict
 from os.path import join
@@ -8,6 +10,17 @@ env = Env()
 
 
 def get_file_path(category: str, language: str, kind: str) -> str:
+    """
+    get file path for data of kind 'kind', category 'category' and language 'language'
+
+    Args:
+        category: e.g. 'books'
+        language: e.g. 'en'
+        kind: e.g. 'data_original'
+
+    Returns:
+        file_path: e.g. '<data_original>/books_en.jsonl
+    """
     assert kind in [
         "data_original",
         "data_train",
@@ -21,7 +34,7 @@ def get_file_path(category: str, language: str, kind: str) -> str:
     elif kind == "data_eval":
         directory = env.data_eval
     else:
-        raise Exception("ERROR! should not occur.")
+        sys.exit("ERROR! should not occur.")
 
     return join(directory, f"{category}_{language}.jsonl")
 
@@ -31,13 +44,26 @@ def read_sampling_weights(
 ) -> Tuple[
     List[str], List[str], Dict[str, Dict[str, float]], Dict[str, Dict[str, float]]
 ]:
-    categories = list()
-    languages = list()
-    sampling_weights = dict()
-    with open("SAMPLING_WEIGHTS.csv", "r") as csv_file:
+    """
+    read sampling weights from SAMPLING_WEIGHTS.csv and weight them globally with 'percent'
+
+    Args:
+        percent: e.g. 50
+        verbose: e.g. False
+
+    Returns:
+        categories: e.g. 'books', 'articles'
+        languages: e.g. 'en'
+        sampling_weights: e.g. {'books': {'en': 0.5}, 'articles': {'en': 1.0}}
+        sampling_weights_final: e.g. {'books': {'en': 0.25}, 'articles': {'en': 0.5}}
+    """
+    categories = []
+    languages = []
+    sampling_weights = {}
+    with open("SAMPLING_WEIGHTS.csv", "r", encoding="utf-8") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
-        for r, row in enumerate(csv_reader):
-            if r == 0:
+        for j, row in enumerate(csv_reader):
+            if j == 0:
                 languages = row[1:]
             else:
                 categories.append(row[0])
@@ -52,7 +78,7 @@ def read_sampling_weights(
     }
 
     if verbose:
-        print(f"\n> read sampling weights from SAMPLING_WEIGHTS.csv")
+        print("\n> read sampling weights from SAMPLING_WEIGHTS.csv")
         print(f"  categories: {categories}")
         print(f"  languages: {languages}")
         print(f"  sampling_weights: {sampling_weights}")
@@ -61,21 +87,23 @@ def read_sampling_weights(
     return categories, languages, sampling_weights, sampling_weights_final
 
 
-def reservoir_sampling(l, k):
+def reservoir_sampling(infile, number_of_sampled_documents: int):
     """
     taken from
     https://stackoverflow.com/questions/40144869/python-read-random-lines-from-a-very-big-file-and-append-to-another-file
     """
-    it = iter(l)
+    iteration = iter(infile)
     try:
-        result = [next(it) for _ in range(k)]  # use xrange if on python 2.x
-    except StopIteration:
-        raise ValueError("Sample larger than population")
+        result = [
+            next(iteration) for _ in range(number_of_sampled_documents)
+        ]  # use xrange if on python 2.x
+    except StopIteration as exc:
+        raise ValueError("Sample larger than population") from exc
 
-    for i, item in enumerate(it, start=k):
-        s = random.randint(0, i)
-        if s < k:
-            result[s] = item
+    for i, item in enumerate(iteration, start=number_of_sampled_documents):
+        random_int = random.randint(0, i)
+        if random_int < number_of_sampled_documents:
+            result[random_int] = item
 
     # random.shuffle(result)  # additional cost without effect
     return result

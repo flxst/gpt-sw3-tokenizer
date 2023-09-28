@@ -1,3 +1,4 @@
+"""Module that contains functions for the analysis of a tokenizer's vocabulary"""
 from os.path import join, isfile
 import json
 import re
@@ -8,20 +9,34 @@ import sentencepiece as spm
 from src.env import Env
 
 
-def _analyze_vocab(_env, _model) -> Dict[str, List[int]]:
+def _analyze_vocab(_env: Env, _model: str) -> Dict[str, List[int]]:
+    """
+    analyze vocabulary of tokenizer '_model'
+
+    Args:
+        _env: environment
+        _model: e.g. <output>/151508_SP-uNone-d0-p0-w0-c0-f0-bf0-cc1.0-x1-v1000_SP_test
+
+    Returns:
+        indices: e.g. {
+            'special': [0, 1, 2, 3],
+            '<|*|>': [4, 5, 6, 7],
+            [..]
+        }
+    """
     vocab_file = join(_model, "tokenizer_vocab.json")
     vocab_file_full = join(_env.output, vocab_file)
     assert isfile(
         vocab_file_full
     ), f"ERROR! vocab_file = {vocab_file_full} does not exist."
-    with open(vocab_file_full, "r") as f:
-        vocab_dict = json.load(f)
+    with open(vocab_file_full, "r", encoding="utf-8") as file:
+        vocab_dict = json.load(file)
     print(f"> read vocabulary of size = {len(vocab_dict)} \n  from {vocab_file}")
 
     vocab = list(vocab_dict.keys())
 
-    indices = {
-        key: list()
+    indices: Dict[str, List[int]] = {
+        key: []
         for key in [
             "special",
             "<|*|>",
@@ -37,14 +52,14 @@ def _analyze_vocab(_env, _model) -> Dict[str, List[int]]:
     _pad = [i for i, item in enumerate(vocab) if re.search("<pad>", item)]
     _unk = [i for i, item in enumerate(vocab) if re.search("<unk>", item)]
     _s = [i for i, item in enumerate(vocab) if re.search("<s>", item)]
-    _eos = [i for i, item in enumerate(vocab) if re.search("<\|endoftext\|>", item)]
+    _eos = [i for i, item in enumerate(vocab) if re.search(r"<\|endoftext\|>", item)]
     indices["special"] = _pad + _unk + _s + _eos
 
     # 2. <|*|> tokens
     indices["<|*|>"] = [
         i
         for i, item in enumerate(vocab)
-        if re.search("<\|.+\|>", item) and item != "<|endoftext|>"
+        if re.search(r"<\|.+\|>", item) and item != "<|endoftext|>"
     ]
 
     # 3. <0x*> byte fallback tokens
@@ -54,7 +69,7 @@ def _analyze_vocab(_env, _model) -> Dict[str, List[int]]:
     indices["pruned"] = [
         i
         for i, item in enumerate(vocab)
-        if re.search("a\!\?x\$\$\▁\!\!xyz\.masdf", item)
+        if re.search(r"a\!\?x\$\$\▁\!\!xyz\.masdf", item)
     ]
 
     # 5. single character tokens
@@ -66,51 +81,59 @@ def _analyze_vocab(_env, _model) -> Dict[str, List[int]]:
     ]
 
     # 4. merges
-    all_indices = list()
+    all_indices = []
     for key in indices.keys():
         all_indices.extend(indices[key])
     indices["merges"] = [i for i in range(len(vocab)) if i not in all_indices]
 
-    extracted_indices = sum([len(v) for v in indices.values()])
+    extracted_indices = sum(len(v) for v in indices.values())
     assert extracted_indices == len(
         vocab
     ), f"ERROR! extracted {extracted_indices} from {len(vocab)} indices"
 
     def stringify(_list):
         if len(_list) == 0:
-            return f"---"
-        elif len(_list) == 1:
+            return "---"
+        if len(_list) == 1:
             return f"{_list[0]} (#={len(_list)})"
-        elif len(_list) == _list[-1] - _list[0] + 1:
+        if len(_list) == _list[-1] - _list[0] + 1:
             return f"{_list[0]}-{_list[-1]} (#={len(_list)})"
-        else:
-            return "ERROR!!"
+        return "ERROR!!"
 
     indices_str = {key: stringify(indices[key]) for key in indices.keys()}
 
     print()
     print("=== overview vocabulary ===")
-    for k, v in indices_str.items():
-        print(f"{k}: {v}")
+    for key, value in indices_str.items():
+        print(f"{key}: {value}")
 
     return indices
 
 
-def extract_vocab(_model):
-    sp = spm.SentencePieceProcessor()
-    sp.Load(_model)
-    vocabs = {sp.IdToPiece(_id): _id for _id in range(sp.GetPieceSize())}
+def extract_vocab(_model: str) -> None:
+    """
+    extract vocabulary from tokenizer
+
+    Args:
+        _model: path to tokenizer, e.g. [..]/model.model
+
+    Output:
+        [..]/tokenizer_vocab.json
+    """
+    spp = spm.SentencePieceProcessor()
+    spp.Load(_model)
+    vocabs = {spp.IdToPiece(_id): _id for _id in range(spp.GetPieceSize())}
 
     env = Env()
     if env.debug:
         print("\n===")
         print(f"vocabulary size = {len(vocabs)}")
         print()
-        print(f"examples:")
+        print("examples:")
         for _id in range(5):
-            print(sp.IdToPiece(_id), vocabs[sp.IdToPiece(_id)])
+            print(spp.IdToPiece(_id), vocabs[spp.IdToPiece(_id)])
         for _id in range(len(vocabs) - 5, len(vocabs)):
-            print(sp.IdToPiece(_id), vocabs[sp.IdToPiece(_id)])
+            print(spp.IdToPiece(_id), vocabs[spp.IdToPiece(_id)])
         print()
 
     # m = model.ModelProto()
@@ -120,9 +143,9 @@ def extract_vocab(_model):
     vocab_file = _model.replace("model.model", "tokenizer_vocab.json")
     if isfile(vocab_file):
         print(f"> vocabulary file {vocab_file} already exists.")
-        print(f"SKIPPED.")
+        print("SKIPPED.")
     else:
         print(f"> write vocabulary to {vocab_file}")
-        with open(vocab_file, "w") as f:
-            json.dump(vocabs, f)
-        print(f"DONE.")
+        with open(vocab_file, "w", encoding="utf-8") as file:
+            json.dump(vocabs, file)
+        print("DONE.")

@@ -1,3 +1,4 @@
+"""Module that contains the Parameters class that contains all parameters for tokenizer training"""
 import os
 import csv
 from typing import List
@@ -10,9 +11,7 @@ env = Env()
 
 
 class Parameters:
-    """
-    class that contains all parameters for tokenizer training
-    """
+    """Class that contains all parameters for tokenizer training"""
 
     def __init__(
         self,
@@ -42,7 +41,7 @@ class Parameters:
         assert len(dataset_files), "ERROR need to specify --dataset_files <str>"
         self.library = library
         if dataset_files == ["all"]:
-            self.dataset_files = get_dataset_files_in_folder(
+            self.dataset_files = _get_dataset_files_in_folder(
                 env.data_train, dataset_filter
             )
         else:
@@ -80,11 +79,11 @@ class Parameters:
         elif self.add_whitespace_tokens == 2:  # only self.library == "SP"
             assert (
                 self.library == "SP"
-            ), f"ERROR! --add_whitespace_tokens 2 is only available for --library SP"
+            ), "ERROR! --add_whitespace_tokens 2 is only available for --library SP"
             self.vocab_size -= len(LIST_OF_SPECIAL_TOKENS)
 
         if self.add_code_tokens == 1:
-            self.special_tokens += get_code_tokens()
+            self.special_tokens += _get_code_tokens()
 
         if self.add_newline_token:
             self.special_tokens += "\n"
@@ -128,7 +127,7 @@ class Parameters:
         return f"-v{self.vocab_size_external}"
 
 
-def get_dataset_files_in_folder(_folder: str, _dataset_filter: str) -> List[str]:
+def _get_dataset_files_in_folder(_folder: str, _dataset_filter: str) -> List[str]:
     """
     get all dataset files in folder _folder that contain _dataset_filter as substring
 
@@ -153,8 +152,8 @@ def get_dataset_files_in_folder(_folder: str, _dataset_filter: str) -> List[str]
     return [join(_folder, elem) for elem in _files]
 
 
-def get_code_tokens() -> List[str]:
-    with open("CODE_TOKENS.csv", newline="") as csvfile:
+def _get_code_tokens() -> List[str]:
+    with open("CODE_TOKENS.csv", newline="", encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",")
-        code_tokens = [row for row in csvreader][0]
+        code_tokens = list(csvreader)[0]
     return code_tokens

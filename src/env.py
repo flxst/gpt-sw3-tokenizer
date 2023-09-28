@@ -1,3 +1,4 @@
+"""Module that contains the Env class to represent the environment"""
 import os
 from os.path import join, abspath, isfile
 import configparser
@@ -6,7 +7,13 @@ config = configparser.ConfigParser()
 
 
 class Env:
+    """Class used to represent the environment (data folders)"""
+
     def __init__(self, folder: str = "."):
+        """
+        Args:
+            folder: the folder relative to the working directory where the environment file env.ini can be found
+        """
         cwd = os.getcwd()
         base_dir = abspath(join(cwd, folder))
         env_file = join(base_dir, "env.ini")
@@ -18,13 +25,13 @@ class Env:
             for field in ["data_train", "data_eval", "output"]:
                 assert config["main"][field].startswith(
                     "/"
-                ), f"ERROR! mixture of absolute and relative paths encountered in Env"
+                ), "ERROR! mixture of absolute and relative paths encountered in Env"
             relative_paths = False
         else:
             for field in ["data_train", "data_eval", "output"]:
                 assert not config["main"][field].startswith(
                     "/"
-                ), f"ERROR! mixture of absolute and relative paths encountered in Env"
+                ), "ERROR! mixture of absolute and relative paths encountered in Env"
             relative_paths = True
 
         if relative_paths:
