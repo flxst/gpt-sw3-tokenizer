@@ -18,9 +18,7 @@ UNICODE_NORMALIZATION = {
     "NFKD": normalizers.NFKD(),
 }
 
-LIST_OF_SPECIAL_TOKENS = [
-    "▁" * i for i in range(2, 25)
-]
+LIST_OF_SPECIAL_TOKENS = ["▁" * i for i in range(2, 25)]
 
 
 def get_normalizer(_unicode_normalization: str):
@@ -28,13 +26,13 @@ def get_normalizer(_unicode_normalization: str):
 
 
 def get_training_corpus_combined(_dataset: Dataset, batch_size: int = 100000):
-    for i in range(0, len(_dataset['train']), batch_size):
-        yield str(_dataset['train'][i: i + batch_size]["text"])
+    for i in range(0, len(_dataset["train"]), batch_size):
+        yield str(_dataset["train"][i : i + batch_size]["text"])
 
 
-def add_special_tokens(_model_path: str,
-                       overwrite: bool = True,
-                       verbose: bool = False) -> None:
+def add_special_tokens(
+    _model_path: str, overwrite: bool = True, verbose: bool = False
+) -> None:
     print("\n=== ADD SPECIAL TOKENS ===")
 
     _vocab_path = join(_model_path, "model.vocab")
@@ -49,7 +47,7 @@ def add_special_tokens(_model_path: str,
     if verbose:
         print("\n--- 1. read model ---")
     m = model_pb2.ModelProto()
-    m.ParseFromString(open(join(_model_path, 'model.model'), 'rb').read())
+    m.ParseFromString(open(join(_model_path, "model.model"), "rb").read())
     lowest_score = m.pieces[-1].score
     if verbose:
         print(f"> lowest_score = {lowest_score}")
@@ -78,13 +76,15 @@ def add_special_tokens(_model_path: str,
         m.pieces[-1].piece = special_token
         m.pieces[-1].score = lowest_score - 1
     if verbose:
-        print(f"> added {len(LIST_OF_SPECIAL_TOKENS)} pieces with score = {lowest_score - 1}")
+        print(
+            f"> added {len(LIST_OF_SPECIAL_TOKENS)} pieces with score = {lowest_score - 1}"
+        )
 
     # A4. write new model
     if verbose:
         print("\n--- 4. write new model ---")
     os.makedirs(_new_model_path, exist_ok=True)
-    with open(join(_new_model_path, 'model.model'), 'wb') as f:
+    with open(join(_new_model_path, "model.model"), "wb") as f:
         f.write(m.SerializeToString())
     if verbose:
         print(f"> wrote new model to {join(_new_model_path, 'model.model')}")
@@ -98,8 +98,9 @@ def add_special_tokens(_model_path: str,
             f.write(f"{special_token}\t{int(lowest_score-1)}\n")
 
 
-def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False) -> List[str]:
-
+def create_merge_rules(
+    _vocab_file: str, _merge_file: str, verbose: bool = False
+) -> List[str]:
     print("\n=== CREATE MERGE RULES ===")
 
     # 1. read vocabulary file
@@ -111,31 +112,43 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
 
     # 2a. find index of first "real" subword (i.e. no special token, byte fallback, 1-char-token)
     for i, subword in enumerate(vocab):
-        if subword.startswith("<") and subword.endswith(">"):  # byte fallback (or special token)
+        if subword.startswith("<") and subword.endswith(
+            ">"
+        ):  # byte fallback (or special token)
             continue
-        elif list(set(subword)) == ["▁"] or list(set(subword)) == [" "]:  # special whitespace token
+        elif list(set(subword)) == ["▁"] or list(set(subword)) == [
+            " "
+        ]:  # special whitespace token
             continue
         elif len(subword) == 1:  # one character
             continue
         else:
             idx_a = i
             break
-    print(f"> the first {idx_a} subwords are special tokens, byte fallback tokens or 1-char-tokens")
+    print(
+        f"> the first {idx_a} subwords are special tokens, byte fallback tokens or 1-char-tokens"
+    )
 
     # 2b. find index of first non-one-character, non-whitespace subword (starting from the end)
     for i, subword in enumerate(reversed(vocab)):
         if len(subword) == 1:  # one-character subword
             continue
-        elif list(set(subword)) == ["▁"] or list(set(subword)) == [" "]:  # special whitespace token
+        elif list(set(subword)) == ["▁"] or list(set(subword)) == [
+            " "
+        ]:  # special whitespace token
             continue
         else:
             idx_b = i
             break
-    print(f"> the last  {idx_b} subwords are special whitespace tokens or 1-char-tokens")
+    print(
+        f"> the last  {idx_b} subwords are special whitespace tokens or 1-char-tokens"
+    )
 
     # 2c. find index of first non-whitespace subword (starting from the end)
     for i, subword in enumerate(reversed(vocab)):
-        if list(set(subword)) == ["▁"] or list(set(subword)) == [" "]:  # special whitespace token
+        if list(set(subword)) == ["▁"] or list(set(subword)) == [
+            " "
+        ]:  # special whitespace token
             continue
         else:
             idx_c = i
@@ -148,12 +161,15 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
     vocab_whitespace = vocab[-idx_c:] if idx_c > 0 else []
     vocab_filtered = vocab[:-idx_b][idx_a:] if idx_b > 0 else vocab[idx_a:]
     vocab_filtered += vocab_whitespace
-    assert len(vocab_filtered) == len(vocab) - idx_a - idx_b + idx_c, \
-        f"ERROR! len(vocab_filtered) = {len(vocab_filtered)}, " \
+    assert len(vocab_filtered) == len(vocab) - idx_a - idx_b + idx_c, (
+        f"ERROR! len(vocab_filtered) = {len(vocab_filtered)}, "
         f"len(vocab) = {len(vocab)}, idx_a = {idx_a}, idx_b = {idx_b}, idx_c = {idx_c}"
+    )
 
     print()
-    print(f"> find merge rules for {len(vocab_filtered)} = {len(vocab)} - {idx_a} - {idx_b} + {idx_c} subwords")
+    print(
+        f"> find merge rules for {len(vocab_filtered)} = {len(vocab)} - {idx_a} - {idx_b} + {idx_c} subwords"
+    )
 
     def _get_index(_list: List[str], _subword: str) -> int:
         if _subword in _list:
@@ -167,7 +183,9 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
             print(f"... i = {i}")
 
         if len(subword) == 1:
-            print(f"ERROR! found subword with len == 1: i={i}, subword = {subword}, repr(subword) = {repr(subword)}")
+            print(
+                f"ERROR! found subword with len == 1: i={i}, subword = {subword}, repr(subword) = {repr(subword)}"
+            )
             exit()
         elif len(subword) == 2:
             subword_1 = subword[:1]
@@ -182,7 +200,7 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
                 print(f"i, subword = {i}, {subword}")
             for idx_start in range(0, len(subword)):
                 for idx_end in range(idx_start + 1, len(subword) + 1):
-                    chunk = subword[idx_start: idx_end]
+                    chunk = subword[idx_start:idx_end]
                     _idx = _get_index(vocab_filtered[:i], chunk)
                     if _idx > -1:
                         _previous_vocab[_idx] = chunk  # _previous_vocab[_idx]
@@ -209,17 +227,18 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
                             for w in range(1, len(v)):
                                 subword_1 = v[:w]
                                 subword_2 = v[w:]
-                                if _list[j] == subword_1 and _list[j+1] == subword_2:
-                                    _list[j] = "".join(_list[j: j+2])
-                                    del _list[j+1]
+                                if _list[j] == subword_1 and _list[j + 1] == subword_2:
+                                    _list[j] = "".join(_list[j : j + 2])
+                                    del _list[j + 1]
                                     adj += 1
                                     break
                         if len(_list) == 2:
                             break
                     llist_after = len(_list)
-                    assert llist_after < llist_before, \
-                        f"ERROR! length of list did not decrase! " \
+                    assert llist_after < llist_before, (
+                        f"ERROR! length of list did not decrase! "
                         f"llist_before = {llist_before}, llist_after = {llist_after}, list = {_list}"
+                    )
                     if len(_list) == 2:
                         break
 
@@ -234,8 +253,9 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
 
     if 1:
         print(f"> found {len(_merge_rules)} merge rules, {error_counter} errors")
-        assert len(_merge_rules) == len(vocab_filtered), \
-            f"ERROR! len(merge_rules) = {len(_merge_rules)} != len(vocab_filtered) = {len(vocab_filtered)}"
+        assert len(_merge_rules) == len(
+            vocab_filtered
+        ), f"ERROR! len(merge_rules) = {len(_merge_rules)} != len(vocab_filtered) = {len(vocab_filtered)}"
     if 0:
         for a, b in zip(merge_rule, vocab_filtered):
             print(f"{a} --> {b}")
@@ -254,7 +274,10 @@ def create_merge_rules(_vocab_file: str, _merge_file: str, verbose: bool = False
 
 
 def get_languages(stage: str) -> List[str]:
-    assert stage in ["train", "eval"], f"ERROR! stage = {stage} should be train or eval."
+    assert stage in [
+        "train",
+        "eval",
+    ], f"ERROR! stage = {stage} should be train or eval."
 
     env = Env(dirname(".."))
     directory = env.data_train if stage == "train" else env.data_eval

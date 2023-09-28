@@ -14,9 +14,9 @@ from src.output import Output
 from src.training.training import HFDataset
 
 
-def train_hf(_parameters: Parameters,
-             _output: Output,
-             _datasets_combined: HFDataset) -> None:
+def train_hf(
+    _parameters: Parameters, _output: Output, _datasets_combined: HFDataset
+) -> None:
     """
     train a HF tokenizer and produces the following output files in the tokenizer directory:
     - tokenizer.json
@@ -33,7 +33,9 @@ def train_hf(_parameters: Parameters,
     if _normalizer is not None:
         tokenizer.normalizer = _normalizer
 
-    pre_tokenizer_features = [pre_tokenizers.ByteLevel(add_prefix_space=_parameters.add_prefix_space)]
+    pre_tokenizer_features = [
+        pre_tokenizers.ByteLevel(add_prefix_space=_parameters.add_prefix_space)
+    ]
     if _parameters.individual_digits:
         pre_tokenizer_features += [pre_tokenizers.Digits(individual_digits=True)]
     tokenizer.pre_tokenizer = pre_tokenizers.Sequence(pre_tokenizer_features)
@@ -43,12 +45,13 @@ def train_hf(_parameters: Parameters,
         vocab_size=_parameters.vocab_size,
         special_tokens=_parameters.special_tokens,
         min_frequency=_parameters.minimum_frequency,
-        initial_alphabet=pre_tokenizers.ByteLevel.alphabet() if _parameters.initial_alphabet else [],
+        initial_alphabet=pre_tokenizers.ByteLevel.alphabet()
+        if _parameters.initial_alphabet
+        else [],
         # https://github.com/huggingface/tokenizers/issues/813#issuecomment-937847770
     )
     tokenizer.train_from_iterator(
-        get_training_corpus_combined(_datasets_combined),
-        trainer=trainer
+        get_training_corpus_combined(_datasets_combined), trainer=trainer
     )
 
     # 3. Post-Processing

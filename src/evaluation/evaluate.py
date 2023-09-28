@@ -1,4 +1,3 @@
-
 from os.path import isfile, join, isdir
 from transformers import PreTrainedTokenizerFast
 import sentencepiece as spm
@@ -56,9 +55,8 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
     token_frequencies = dict()
 
     for i, example in enumerate(_data):
-
         if REMOVE_PUNCTUATION:
-            example = example.translate(str.maketrans('', '', string.punctuation))
+            example = example.translate(str.maketrans("", "", string.punctuation))
 
         # general
         if library == "SP":
@@ -79,7 +77,9 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
 
         # fertility
         new_word_character = "▁" if library == "SP" else "Ġ"
-        encoding_mask = [1 if elem.startswith(new_word_character) else 0 for elem in encoding_str]
+        encoding_mask = [
+            1 if elem.startswith(new_word_character) else 0 for elem in encoding_str
+        ]
         subwords_b += sum(encoding_mask)
         subwords_i += len(encoding_mask) - sum(encoding_mask)
 
@@ -87,7 +87,7 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
         encoding_mask_proportion = list()
         for j in range(len(encoding_mask)):
             current_elem = encoding_mask[j]
-            previous_elem = encoding_mask[j-1]
+            previous_elem = encoding_mask[j - 1]
             if j == 0:
                 encoding_mask_proportion.append(current_elem)
             elif current_elem == 1:
@@ -96,7 +96,9 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
                 encoding_mask_proportion.append(current_elem)
 
         subwords_b_proportion += sum(encoding_mask_proportion)
-        subwords_i_proportion += len(encoding_mask_proportion) - sum(encoding_mask_proportion)
+        subwords_i_proportion += len(encoding_mask_proportion) - sum(
+            encoding_mask_proportion
+        )
 
         # token frequencies
         for k, v in dict(counter).items():
@@ -114,22 +116,36 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
             print("STOP (env.debug = True).")
             break
 
-        assert subwords_b + subwords_i == sentence_length_in_subwords, \
-            f"ERROR! subwords_b + subwords_i = {subwords_b} + {subwords_i} " \
+        assert subwords_b + subwords_i == sentence_length_in_subwords, (
+            f"ERROR! subwords_b + subwords_i = {subwords_b} + {subwords_i} "
             f"is not equal to sentence_length_in_subwords = {sentence_length_in_subwords}"
-        assert subwords_b == subwords_b_proportion, \
-            f"ERROR! subwords_b = {subwords_b} is not equal to subwords_b_proportion = {subwords_b_proportion}"
+        )
+        assert (
+            subwords_b == subwords_b_proportion
+        ), f"ERROR! subwords_b = {subwords_b} is not equal to subwords_b_proportion = {subwords_b_proportion}"
 
-        evaluation_metrics.set("unk_rate",
-                               {"nominator": number_of_unk, "denominator": sentence_length_in_subwords})
-        evaluation_metrics.set("ctcl",
-                               {"nominator": sentence_length_in_subwords, "denominator": sentence_length_in_characters})
-        evaluation_metrics.set("fertility",
-                               {"nominator": subwords_b + subwords_i, "denominator": subwords_b})
-        evaluation_metrics.set("proportion",
-                               {"nominator": subwords_i_proportion, "denominator": subwords_b_proportion})
-        evaluation_metrics.set("token_frequencies",
-                               {"value": dict(sorted(token_frequencies.items()))})
+        evaluation_metrics.set(
+            "unk_rate",
+            {"nominator": number_of_unk, "denominator": sentence_length_in_subwords},
+        )
+        evaluation_metrics.set(
+            "ctcl",
+            {
+                "nominator": sentence_length_in_subwords,
+                "denominator": sentence_length_in_characters,
+            },
+        )
+        evaluation_metrics.set(
+            "fertility",
+            {"nominator": subwords_b + subwords_i, "denominator": subwords_b},
+        )
+        evaluation_metrics.set(
+            "proportion",
+            {"nominator": subwords_i_proportion, "denominator": subwords_b_proportion},
+        )
+        evaluation_metrics.set(
+            "token_frequencies", {"value": dict(sorted(token_frequencies.items()))}
+        )
 
         if env.verbose:
             print()

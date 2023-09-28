@@ -1,4 +1,3 @@
-
 import csv
 import random
 from typing import Tuple, List, Dict
@@ -9,7 +8,11 @@ env = Env()
 
 
 def get_file_path(category: str, language: str, kind: str) -> str:
-    assert kind in ["data_original", "data_train", "data_eval"], f"ERROR! kind = {kind} unknown."
+    assert kind in [
+        "data_original",
+        "data_train",
+        "data_eval",
+    ], f"ERROR! kind = {kind} unknown."
 
     if kind == "data_original":
         directory = env.data_original
@@ -23,11 +26,11 @@ def get_file_path(category: str, language: str, kind: str) -> str:
     return join(directory, f"{category}_{language}.jsonl")
 
 
-def read_sampling_weights(percent: int = 100,
-                          verbose: bool = False) -> Tuple[List[str],
-                                                          List[str],
-                                                          Dict[str, Dict[str, float]],
-                                                          Dict[str, Dict[str, float]]]:
+def read_sampling_weights(
+    percent: int = 100, verbose: bool = False
+) -> Tuple[
+    List[str], List[str], Dict[str, Dict[str, float]], Dict[str, Dict[str, float]]
+]:
     categories = list()
     languages = list()
     sampling_weights = dict()
@@ -38,12 +41,13 @@ def read_sampling_weights(percent: int = 100,
                 languages = row[1:]
             else:
                 categories.append(row[0])
-                sampling_weights[row[0]] = {languages[i-1]: float(row[i]) for i in range(1, len(languages)+1)}
+                sampling_weights[row[0]] = {
+                    languages[i - 1]: float(row[i])
+                    for i in range(1, len(languages) + 1)
+                }
 
     sampling_weights_final = {
-        _category: {
-            _language: v2*percent/100 for _language, v2 in v1.items()
-        }
+        _category: {_language: v2 * percent / 100 for _language, v2 in v1.items()}
         for _category, v1 in sampling_weights.items()
     }
 

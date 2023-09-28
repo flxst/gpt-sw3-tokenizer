@@ -13,9 +13,7 @@ class Output:
     class which handles output from tokenizer training
     """
 
-    def __init__(self,
-                 path: str,
-                 library: str):
+    def __init__(self, path: str, library: str):
         """
         Args:
             path: e.g. '<OUTPUT>/125842_[..]
@@ -36,7 +34,7 @@ class Output:
         self.model_file = join(self.path, "model.model")
 
     def export_parameters(self, parameters: Parameters) -> None:
-        """ export parameters to file
+        """export parameters to file
 
         e.g. 'output/125842/
               => parameters file = 'output/125842/parameters.txt'
@@ -47,11 +45,11 @@ class Output:
                     f.write(f"{k} = {v}\n")
 
     def export_tokenizer_for_megatron_lm(self) -> None:
-        """ export tokenizer vocabulary and merge rules for use with Megatron-LM
+        """export tokenizer vocabulary and merge rules for use with Megatron-LM
 
-            e.g. path = 'output/125842/
-                 => export files = 'output/125842/tokenizer_vocab.json'
-                                   'output/125842/tokenizer_merge.txt'  (only if self.library == 'HF')
+        e.g. path = 'output/125842/
+             => export files = 'output/125842/tokenizer_vocab.json'
+                               'output/125842/tokenizer_merge.txt'  (only if self.library == 'HF')
         """
 
         if self.library == "HF":
@@ -81,10 +79,10 @@ class Output:
             print(f"> wrote merges file '{self.merge_file}': #merges = {len(merges)}")
 
     def analyze_vocabulary(self) -> None:
-        """ analyze vocabulary w.r.t. vocabulary size & subword token length
+        """analyze vocabulary w.r.t. vocabulary size & subword token length
 
-            e.g. 'output/125842/
-                  => vocab file = 'output/125842/tokenizer_subword_lengths.json'
+        e.g. 'output/125842/
+              => vocab file = 'output/125842/tokenizer_subword_lengths.json'
         """
 
         # a. get subword lengths = dict w/ keys = subword length, value = occurrences in vocabulary
@@ -93,8 +91,12 @@ class Output:
         subwords = list(vocab.keys())
         subword_lengths_list = [len(elem) for elem in subwords]
         subword_lengths = dict(Counter(subword_lengths_list))
-        assert sum(subword_lengths.values()) == len(vocab), f"ERROR! {sum(subword_lengths.values())} != {len(vocab)}"
-        subword_lengths["mean"] = sum([k*v for k, v in subword_lengths.items()])/float(len(vocab))
+        assert sum(subword_lengths.values()) == len(
+            vocab
+        ), f"ERROR! {sum(subword_lengths.values())} != {len(vocab)}"
+        subword_lengths["mean"] = sum(
+            [k * v for k, v in subword_lengths.items()]
+        ) / float(len(vocab))
         subword_lengths["vocab_size"] = len(vocab)
 
         # b. export subword lengths
@@ -102,11 +104,10 @@ class Output:
             f.write(json.dumps(subword_lengths))
         print(f"> wrote subword length file '{self.subword_lengths_file}'")
 
-    def overview(self,
-                 _dataset_combined: Dataset,
-                 _dataset_files: List[str],
-                 _time: str) -> None:
-        """ overview:
+    def overview(
+        self, _dataset_combined: Dataset, _dataset_files: List[str], _time: str
+    ) -> None:
+        """overview:
             - analyze datasets
             - time
 
@@ -127,7 +128,10 @@ class Output:
             "documents": len(_dataset_combined["train"]),
             "dataset_files": _dataset_files,
             "data_size_total": f"{sum([getsize(_dataset_file) for _dataset_file in _dataset_files])/1073741824.:.4f}G",
-            "data_size": [f"{getsize(_dataset_file)/1073741824.:.4f}G" for _dataset_file in _dataset_files],
+            "data_size": [
+                f"{getsize(_dataset_file)/1073741824.:.4f}G"
+                for _dataset_file in _dataset_files
+            ],
             "time": _time,
         }
 

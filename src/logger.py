@@ -4,7 +4,6 @@ from typing import Dict
 
 
 class Logger:
-
     def __init__(self, logger_folder: str):
         self.log_file_path = join(logger_folder, "SAMPLING.log")
 
