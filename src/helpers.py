@@ -23,7 +23,7 @@ UNICODE_NORMALIZATION = {
 LIST_OF_SPECIAL_TOKENS = ["▁" * i for i in range(2, 25)]
 
 
-def get_normalizer(_unicode_normalization: str) -> Optional[normalizers]:
+def get_normalizer(_unicode_normalization: str) -> Optional[normalizers.Normalizer]:
     """
     get normalizer instance corresponding to abbreviation '_unicode_normalization'
 

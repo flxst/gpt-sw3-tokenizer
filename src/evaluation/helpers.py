@@ -1,7 +1,10 @@
+"""Module that contains helper functions for evaluating tokenizers"""
 from typing import Dict, List, Tuple
 import os
+import sys
 import json
 from os.path import join, isdir, isfile
+
 from src.env import Env
 
 env = Env()
@@ -35,7 +38,7 @@ def get_tokenizer(_tokenizer_name: str) -> Tuple[str, str]:
     elif isfile(join(_tokenizer_name_complete, "tokenizer.json")):
         _tokenizer_library = "HF"
     else:
-        raise Exception(
+        sys.exit(
             f"ERROR! could not determine library for tokenizer = {_tokenizer_name_complete}"
         )
 
@@ -43,21 +46,49 @@ def get_tokenizer(_tokenizer_name: str) -> Tuple[str, str]:
 
 
 def get_vocab_size(_tokenizer_name_complete: str) -> int:
+    """
+    extract vocabulary size from tokenizer name
+
+    Args:
+        _tokenizer_name_complete: e.g. [..]-v64000_tokenizer1
+
+    Returns:
+        vocab_size: e.g. 64000
+    """
     try:
         return int(_tokenizer_name_complete.split("-v")[-1].split("_")[0])
-    except Exception:
+    except Exception as exc:
         raise Exception(
-            f"ERROR! could not retrive vocabulary size from tokenizer name = {_tokenizer_name_complete}"
-        )
+            f"ERROR! could not retrieve vocabulary size from tokenizer name = {_tokenizer_name_complete}"
+        ) from exc
 
 
 def instantiate_nested_dict(
     list1: List[str], list2: List[str]
 ) -> Dict[str, Dict[str, Dict]]:
-    return {elem1: {elem2: dict() for elem2 in list2} for elem1 in list1}
+    """
+
+    Args:
+        list1: ['a', 'b']
+        list2: [0, 1]
+
+    Returns:
+        nested_dict: {
+            'a': {0: {}, 1: {}},
+            'b': {0: {}, 1: {}},
+        }
+    """
+    return {elem1: {elem2: {} for elem2 in list2} for elem1 in list1}
 
 
 def write_json(_dict: Dict, file_path: str) -> None:
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(json.dumps(_dict))
+    """
+    writes dictionary to json file
+
+    Args:
+        _dict: dictionary that is written to file_path
+        file_path: file_path that is used
+    """
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(json.dumps(_dict))
     print(f"> wrote json file {file_path}")

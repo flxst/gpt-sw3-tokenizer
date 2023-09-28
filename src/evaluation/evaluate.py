@@ -1,11 +1,14 @@
+"""Module that contains a function to evaluate a tokenizer"""
 from os.path import isfile, join, isdir
-from transformers import PreTrainedTokenizerFast
-import sentencepiece as spm
+import sys
 from collections import Counter
 import time
 import string
 import json
 from typing import Dict
+
+from transformers import PreTrainedTokenizerFast
+import sentencepiece as spm
 
 from src.env import Env
 from src.evaluation.evaluation_metrics import EvaluationMetrics
@@ -26,7 +29,7 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
         evaluation_metrics: [EvaluationMetrics]
     """
     assert isdir(_tokenizer), f"ERROR! tokenizer = {_tokenizer} does not exist."
-    ts = time.time()
+    time_start = time.time()
 
     # 0. load data
     with open(_data_path, "r", encoding="utf-8") as file:
@@ -42,9 +45,9 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
     elif isfile(join(_tokenizer, "model.model")):
         library = "SP"
         tokenizer_file = join(_tokenizer, "model.model")
-        sp = spm.SentencePieceProcessor(model_file=tokenizer_file)
+        spp = spm.SentencePieceProcessor(model_file=tokenizer_file)
     else:
-        raise Exception(f"ERROR! model seems to be neither in SP or HF format.")
+        sys.exit("ERROR! model seems to be neither in SP or HF format.")
 
     number_of_unk = 0
     sentence_length_in_subwords = 0
@@ -53,16 +56,16 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
     subwords_i = 0  # interior of word, i.e. not starting with "_" (SP) or "Ġ" (HF)
     subwords_b_proportion = 0
     subwords_i_proportion = 0
-    token_frequencies: Dict[int, int] = dict()
+    token_frequencies: Dict[int, int] = {}
 
-    for i, example in enumerate(_data):
+    for example in _data:
         if REMOVE_PUNCTUATION:
             example = example.translate(str.maketrans("", "", string.punctuation))
 
         # general
         if library == "SP":
-            encoding = sp.encode(example, out_type=int)
-            encoding_str = sp.encode(example, out_type=str)
+            encoding = spp.encode(example, out_type=int)
+            encoding_str = spp.encode(example, out_type=str)
         else:  # HF
             encoding = tokenizer_fast.encode(example)
             encoding_str = tokenizer_fast.tokenize(example)
@@ -85,7 +88,7 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
         subwords_i += len(encoding_mask) - sum(encoding_mask)
 
         # proportion
-        encoding_mask_proportion = list()
+        encoding_mask_proportion = []
         for j in range(len(encoding_mask)):
             current_elem = encoding_mask[j]
             previous_elem = encoding_mask[j - 1]
@@ -102,11 +105,11 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
         )
 
         # token frequencies
-        for k, v in dict(counter).items():
-            if k not in token_frequencies.keys():
-                token_frequencies[k] = v
+        for key, value in dict(counter).items():
+            if key not in token_frequencies:
+                token_frequencies[key] = value
             else:
-                token_frequencies[k] += v
+                token_frequencies[key] += value
 
         # debug
         if env.debug:
@@ -150,7 +153,7 @@ def evaluate(_tokenizer: str, _data_path: str) -> EvaluationMetrics:
 
         if env.verbose:
             print()
-            print(f"[time = {time.time() - ts:.2f}s]")
+            print(f"[time = {time.time() - time_start:.2f}s]")
             print()
             print(f"> number_of_unk = {number_of_unk}")
             print(f"> sentence_length_in_subwords = {sentence_length_in_subwords}")

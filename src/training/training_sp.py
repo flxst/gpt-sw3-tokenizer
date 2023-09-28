@@ -1,3 +1,4 @@
+"""Module that contains function to train a BPE tokenizer with SentencePiece (SP)"""
 import sentencepiece as spm
 
 from src.helpers import get_training_corpus_combined, add_special_tokens

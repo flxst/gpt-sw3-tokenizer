@@ -1,3 +1,4 @@
+"""Module that contains function to train a BPE tokenizer with HuggingFace (HF)"""
 from os.path import join
 from tokenizers import (
     decoders,

@@ -1,3 +1,4 @@
+"""Module that contains function to prune the vocabulary size of a tokenizer"""
 import os
 from os.path import join
 from typing import List
@@ -23,8 +24,9 @@ def prune_vocab_size(
             str(vocab_size_tokenizer) in _tokenizer
         ), f"ERROR! vocab size = {vocab_size_tokenizer} is not in _tokenizer = {_tokenizer}"
         tokenizer_file = join(_tokenizer, "model.model")
-        m = model_pb2.ModelProto()
-        m.ParseFromString(open(tokenizer_file, "rb").read())
+        model = model_pb2.ModelProto()
+        with open(tokenizer_file, "rb") as file:
+            model.ParseFromString(file.read())
 
         indices = _analyze_vocab(env, _tokenizer)
         print()
@@ -38,32 +40,32 @@ def prune_vocab_size(
             os.makedirs(pruned_tokenizer_dir, exist_ok=False)
             pruned_tokenizer = join(pruned_tokenizer_dir, "model.model")
 
-            m_pruned = deepcopy(m)
-            for i, _ in enumerate(m.pieces):
+            model_pruned = deepcopy(model)
+            for i, _ in enumerate(model.pieces):
                 if (
                     _last_regular_token_index - (vocab_size_tokenizer - _vocab_size)
                     < i
                     <= _last_regular_token_index
                 ):
                     # workaround: overwrite with extremely unlikely token
-                    m_pruned.pieces[i].piece = f"a!?x$$▁!!xyz.masdf_{i}"
+                    model_pruned.pieces[i].piece = f"a!?x$$▁!!xyz.masdf_{i}"
 
             for j in [0, 1, 2, vocab_size_tokenizer - 23, vocab_size_tokenizer - 22]:
                 assert (
-                    m.pieces[j].piece == m_pruned.pieces[j].piece
-                ), f"ERROR for j = {j}, piece: {m.pieces[j].piece} != {m_pruned.pieces[j].piece}"
+                    model.pieces[j].piece == model_pruned.pieces[j].piece
+                ), f"ERROR for j = {j}, piece: {model.pieces[j].piece} != {model_pruned.pieces[j].piece}"
                 assert (
-                    m.pieces[j].score == m_pruned.pieces[j].score
-                ), f"ERROR for j = {j}, score: {m.pieces[j].score} != {m_pruned.pieces[j].score}"
+                    model.pieces[j].score == model_pruned.pieces[j].score
+                ), f"ERROR for j = {j}, score: {model.pieces[j].score} != {model_pruned.pieces[j].score}"
 
             if env.debug:
                 for j in [0, _vocab_size - 23, _vocab_size - 22, -24, -23, -1]:
                     print(j)
-                    print(m.pieces[j])
-                    print(m_pruned.pieces[j])
+                    print(model.pieces[j])
+                    print(model_pruned.pieces[j])
 
-            with open(pruned_tokenizer, "wb") as f:
-                f.write(m_pruned.SerializeToString())
+            with open(pruned_tokenizer, "wb") as file:
+                file.write(model_pruned.SerializeToString())
             print(f"> wrote new tokenizer to {pruned_tokenizer}")
 
             _tokenizers.append(pruned_tokenizer_dir)
