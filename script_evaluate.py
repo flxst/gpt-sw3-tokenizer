@@ -37,7 +37,7 @@ def main(_tokenizer_name: str, _vocab_size: Optional[int] = None, _vocab_size_pr
 
     if _vocab_size is None:
         _vocab_size = get_vocab_size(_tokenizer)
-    _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval)]
+    _data_eval = [join(env.data_eval, elem) for elem in os.listdir(env.data_eval) if elem.endswith(".jsonl")]
 
     # _vocab_sizes = _vocab_size_pruned + [_vocab_size]
     if _vocab_size_pruned is None:

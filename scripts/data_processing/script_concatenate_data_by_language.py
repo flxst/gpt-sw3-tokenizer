@@ -32,6 +32,7 @@ def concatenate_data_by_language(directory, inplace=True):
         if isfile(join(input_directory, elem))
         and "_CONCATENATED_BY_LANGUAGE.jsonl" not in elem
         and "all_" not in elem
+        and elem.endswith(".jsonl")
     ]
 
     print()
