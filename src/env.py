@@ -1,9 +1,9 @@
 """Module that contains the Env class to represent the environment"""
-import os
-from os.path import join, abspath, isfile
+from os.path import join, abspath, dirname, isfile
 import configparser
 
 config = configparser.ConfigParser()
+BASE_DIR = abspath(dirname(dirname(__file__)))
 
 
 class Env:
@@ -14,9 +14,7 @@ class Env:
         Args:
             folder: the folder relative to the working directory where the environment file env.ini can be found
         """
-        cwd = os.getcwd()
-        base_dir = abspath(join(cwd, folder))
-        env_file = join(base_dir, "env.ini")
+        env_file = join(BASE_DIR, folder, "env.ini")
         assert isfile(env_file), f"ERROR! could not find file = {env_file}"
 
         config.read(env_file)
@@ -35,10 +33,10 @@ class Env:
             relative_paths = True
 
         if relative_paths:
-            self.data_original = join(base_dir, config["main"]["data_original"])
-            self.data_train = join(base_dir, config["main"]["data_train"])
-            self.data_eval = join(base_dir, config["main"]["data_eval"])
-            self.output = join(base_dir, config["main"]["output"])
+            self.data_original = join(BASE_DIR, config["main"]["data_original"])
+            self.data_train = join(BASE_DIR, config["main"]["data_train"])
+            self.data_eval = join(BASE_DIR, config["main"]["data_eval"])
+            self.output = join(BASE_DIR, config["main"]["output"])
         else:
             self.data_original = config["main"]["data_original"]
             self.data_train = config["main"]["data_train"]
