@@ -18,7 +18,6 @@ print(f">>> BASE_DIR: {BASE_DIR}")
 sys.path.append(BASE_DIR)
 
 from src.env import Env
-from src.sampling import get_file_path, read_sampling_weights
 
 
 def main(args):
@@ -26,7 +25,7 @@ def main(args):
     os.makedirs(env.data_original, exist_ok=True)
 
     # 1. read SAMPLING_WEIGHTS.csv
-    categories, languages, sampling_weights, _ = read_sampling_weights(verbose=True)
+    categories, languages, sampling_weights, _ = env.read_sampling_weights(verbose=True)
 
     # 2. write fake original data
     number_of_files = 0
@@ -34,9 +33,9 @@ def main(args):
     for category in categories:
         for language in languages:
             if sampling_weights[category][language] > 0:
-                file_path_original = get_file_path(category,
-                                                   language,
-                                                   kind="data_original")
+                file_path_original = env.get_file_path(category,
+                                                       language,
+                                                       kind="data_original")
                 data = [f"Example {category}_{language} nr. {n}" for n in range(args.number_of_documents)]
                 with open(file_path_original, "w") as file:
                     for elem in data:

@@ -15,7 +15,7 @@ from os.path import isfile, dirname, getsize
 import time
 
 from src.env import Env
-from src.sampling import get_file_path, read_sampling_weights, reservoir_sampling
+from src.sampling import reservoir_sampling
 from src.logger import Logger
 from scripts.data_processing.script_concatenate_data_by_language import concatenate_data_by_language
 
@@ -26,8 +26,8 @@ def main(args):
     logger = Logger(logger_folder)
 
     # 1. read SAMPLING_WEIGHTS.csv
-    categories, languages, sampling_weights, sampling_weights_sampling = read_sampling_weights(percent=args.percent,
-                                                                                               verbose=env.verbose)
+    categories, languages, sampling_weights, sampling_weights_sampling = env.read_sampling_weights(percent=args.percent,
+                                                                                                   verbose=env.verbose)
     logger.initialize(percent=args.percent, sampling_weights=sampling_weights)
 
     for category, language in product(categories, languages):
@@ -38,18 +38,18 @@ def main(args):
             logger.log_print(f"> category = {category}, language = {language}, weight = {weight}")
 
             # 2. make sure that all original data files exist
-            file_path_original = get_file_path(category,
-                                               language,
-                                               kind="data_original")
+            file_path_original = env.get_file_path(category,
+                                                   language,
+                                                   kind="data_original")
             assert isfile(file_path_original), \
                 f"ERROR! file for category = {category}, language = {language} does not exist at {file_path_original}"
             file_size_original = getsize(file_path_original)
             logger.log_print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
 
             # 3. make sure that <data_train> folder exists
-            file_path_sampled = get_file_path(category,
-                                              language,
-                                              kind="data_eval" if args.evaluation else "data_train")
+            file_path_sampled = env.get_file_path(category,
+                                                  language,
+                                                  kind="data_eval" if args.evaluation else "data_train")
             os.makedirs(dirname(file_path_sampled), exist_ok=True)
 
             # 4. sample <percent>% of the original data and write
