@@ -35,3 +35,11 @@ run end-to-end test
 
 output files (stdout & stderr) can be found at ``./e2e_tests/e2e_test_data``
 
+Step 4
+......
+
+run notebook ``e2e_test_sampling.ipynb``
+
+::
+
+    jupyter notebook

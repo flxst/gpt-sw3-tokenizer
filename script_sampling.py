@@ -37,7 +37,7 @@ def main(args):
             ts = time.time()
             logger.log_print(f"> category = {category}, language = {language}, weight = {weight}")
 
-            # 2. make sure that all original data files exist
+            # 2. make sure that all source files in <data_original> exist
             file_path_original = env.get_file_path(category,
                                                    language,
                                                    kind="data_original")
@@ -46,7 +46,7 @@ def main(args):
             file_size_original = getsize(file_path_original)
             logger.log_print(f".. size = {file_size_original/float(10**6):.1f} MB -> ", end="")
 
-            # 3. make sure that <data_train> folder exists
+            # 3. make sure that target folder <data_train> or <data_eval> exists
             file_path_sampled = env.get_file_path(category,
                                                   language,
                                                   kind="data_eval" if args.evaluation else "data_train")
