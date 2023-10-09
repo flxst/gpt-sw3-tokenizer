@@ -3,7 +3,7 @@ import os
 from os.path import dirname, join
 import sys
 import json
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 import time
 import shutil
 
@@ -313,3 +313,8 @@ def get_languages(stage: str) -> List[str]:
     files = [file for file in os.listdir(directory) if file.endswith(".jsonl")]
     languages = list({file.split("_")[-1].split(".jsonl")[0] for file in files})
     return languages
+
+
+def read_json(_path: str) -> Dict[str, Tuple[int]]:
+    with open(_path, "r") as file:
+        return json.load(file)

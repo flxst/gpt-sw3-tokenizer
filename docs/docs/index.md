@@ -59,7 +59,7 @@ This repository provides easy-to-use tools to sample (weighted) data and subsequ
 
 :fontawesome-solid-filter: [Sampling](sampling.md)
 
-- customizable amount of sampled data for training and evaluation
+- customizable amount of (disjunct) sampled data for training and evaluation
 - weighting of different categories and languages
 
 :fontawesome-solid-brain: [Training](training.md)

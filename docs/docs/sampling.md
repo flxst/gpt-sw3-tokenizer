@@ -5,8 +5,9 @@
 in the [environment file](preparation.md#environment) and proceed with the [training](training.md).*
 
 Often times, especially in the case of very large datasets,
-one only wants to use a certain fraction of the original data for the tokenizer training (and evaluation).
-In addition, the data is to be weighted for tokenizer (and model) training, see
+one only wants to use a certain fraction of the original data for the tokenizer training and evaluation. 
+Moreover, the sampled training and evaluation data should be disjunct. 
+Finally, the data is sometimes weighted for tokenizer (and model) training, see
 e.g. [GPT-3](https://arxiv.org/abs/2005.14165) or [GPT-SW3](https://arxiv.org/abs/2305.12987).
 
 ---
@@ -42,12 +43,16 @@ To sample (and weight) data from the original files in `<data_original>`, take t
 
     - `--evaluation` can be used to sample data for evaluation instead of training
 
-Note that for each combination $x = cl$ of a category $c$ and language $l$, the fraction of sampled documents is given by the product of the
+Note that 
+
+- for each combination $x = cl$ of a category $c$ and language $l$, the fraction of sampled documents is given by the product of the
 individual weight $W_x$ read from `SAMPLING_WEIGHTS.csv` and the global factor $p$ specified via `--percent`:
 
 $$
 \left(\frac{{\text{size of sampled data}}}{{\text{size of original data}}}\right)_x \approx \left(\frac{{\text{number of sampled documents}}}{{\text{number of original documents}}}\right)_x = W_x \cdot p 
 $$
+
+- when evaluation data is sampled from the original data, the previously sampled training data is excluded in order to ensure disjunct samples 
 
 ---
 ## Results

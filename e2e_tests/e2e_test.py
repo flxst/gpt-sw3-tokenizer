@@ -73,6 +73,11 @@ def test_e2e(capsys):
         print_section_finish()
 
         ################################################################################################################
+        print_section_header(f"1c. sampling (disjunct)")
+        run_cli("python e2e_tests/script_sampling_disjunct.py")
+        print_section_finish()
+
+        ################################################################################################################
         print_section_header(f"2. train")
         run_cli("python script_train.py --tokenizer_name tokenizer_test --dataset_files all")
         print_section_finish()
