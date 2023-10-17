@@ -15,7 +15,7 @@ BASE_DIR = abspath(dirname(dirname(abspath(__file__))))
 print(f">>> BASE_DIR: {BASE_DIR}")
 sys.path.append(BASE_DIR)
 
-env = Env("..")
+env = Env()
 OUTPUT_DIR = env.output
 
 
