@@ -37,9 +37,9 @@ This repository provides easy-to-use tools to sample (weighted) data and subsequ
 </div>
 <div align="center">
 <div align="center">
-Sampling &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Training &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Evaluation &nbsp;&nbsp;&nbsp;&nbsp;
+Sampling &nbsp;&nbsp;&nbsp;&nbsp;
+Training &nbsp;&nbsp;&nbsp;
+Evaluation &nbsp;&nbsp;
 Analysis &nbsp;&nbsp;
 </div>
 &nbsp;
