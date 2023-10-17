@@ -3,12 +3,34 @@
 ---
 ## Environment
 
-In the environment file `./env.ini`, one needs to specify paths for the following folders:
+The environment file `env.ini` can be used to specify paths and settings.
+By default, it looks like this:
+
+???+ example "env.ini"
+    ```
+    [main]
+    data_original = data_original
+    data_train = data_train
+    data_eval = data_eval
+    output = output
+
+    [sampling]
+    weights = SAMPLING_WEIGHTS.csv
+
+    [other]
+    debug = 0
+    verbose = 0
+    ```
+
+In the `[main]` section, the following folders are given: 
 
 - `<data_original>`: contains original text data
 - `<data_train>`: contains sampled text data for training
 - `<data_eval>`: contains sampled text data for evaluation
 - `<output>`: contains trained tokenizers (incl. vocabulary, merge rules, parameters)
+
+The `[sampling]` section contains the path to the sampling weights file (see [Sampling](sampling.md)).
+The parameters in the `[other]` section should be 0 or 1 and can be used for debugging or verbose output. 
 
 ---
 ## Data Format

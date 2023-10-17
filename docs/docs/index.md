@@ -2,13 +2,12 @@
 
 **gpt-sw3-tokenizer** - Train, evaluate and analyze BPE tokenizers.
 
-A paper associated with this repository can be found [here](https://arxiv.org/abs/2304.14780).
-
 -----------
 ## Resources
 
 * source code: [https://github.com/flxst/gpt-sw3-tokenizer](https://github.com/flxst/gpt-sw3-tokenizer)
 * documentation: [https://flxst.github.io/gpt-sw3-tokenizer](https://flxst.github.io/gpt-sw3-tokenizer)
+* paper: [https://arxiv.org/abs/2304.14780](https://arxiv.org/abs/2304.14780)
 
 -----------
 ## Installation
