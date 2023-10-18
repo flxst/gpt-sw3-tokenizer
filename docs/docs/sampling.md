@@ -6,7 +6,7 @@ in the [environment file](preparation.md#environment) and proceed with the [trai
 
 Often times, especially in the case of very large datasets,
 one only wants to use a certain fraction of the original data for the tokenizer training and evaluation. 
-Moreover, the sampled training and evaluation data should be disjunct. 
+Moreover, the sampled training and evaluation data should be disjoint. 
 Finally, the data is sometimes weighted for tokenizer (and model) training, see
 e.g. [GPT-3](https://arxiv.org/abs/2005.14165) or [GPT-SW3](https://arxiv.org/abs/2305.12987).
 
@@ -52,7 +52,7 @@ $$
 \left(\frac{{\text{size of sampled data}}}{{\text{size of original data}}}\right)_x \approx \left(\frac{{\text{number of sampled documents}}}{{\text{number of original documents}}}\right)_x = W_x \cdot p 
 $$
 
-- when evaluation data is sampled from the original data, the previously sampled training data is excluded in order to ensure disjunct samples 
+- when evaluation data is sampled from the original data, the previously sampled training data is excluded in order to ensure disjoint samples 
 
 ---
 ## Results

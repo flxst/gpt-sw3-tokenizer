@@ -35,7 +35,7 @@ def main(args):
                                                                                                    verbose=env.verbose)
     logger.initialize(percent=args.percent, sampling_weights=sampling_weights)
 
-    # 2. if evaluation, read SAMPLING.json from training for disjunct sampling
+    # 2. if evaluation, read SAMPLING.json from training for disjoint sampling
     if args.evaluation:
         train_sampling_path = join(env.data_train, "SAMPLING.json")
         train_indices = read_json(train_sampling_path)

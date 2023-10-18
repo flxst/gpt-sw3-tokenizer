@@ -73,8 +73,8 @@ def test_e2e(capsys):
         print_section_finish()
 
         ################################################################################################################
-        print_section_header(f"1c. sampling (disjunct)")
-        run_cli("python e2e_tests/script_sampling_disjunct.py")
+        print_section_header(f"1c. sampling (disjoint)")
+        run_cli("python e2e_tests/script_sampling_disjoint.py")
         print_section_finish()
 
         ################################################################################################################
