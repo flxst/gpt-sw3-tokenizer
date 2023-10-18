@@ -1,3 +1,20 @@
+# Compiled python modules.
+*.pyc
+
+# Setuptools.
+/build/
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+
+# misc
+.tox
+
+# docs
+docs/site/*
+
+# other
 *ipynb_checkpoints
 data_*_*
 output_*

@@ -2,6 +2,8 @@
 
 Train, evaluate and analyze BPE tokenizers.
 
+<a href='https://github.com/flxst/gpt-sw3-tokenizer/actions/workflows/python-package.yml'><img src='https://github.com/flxst/gpt-sw3-tokenizer/actions/workflows/python-package.yml/badge.svg' alt='CI' /></a>
+<a href='https://coveralls.io/github/flxst/gpt-sw3-tokenizer?branch=development'><img src='https://coveralls.io/repos/github/flxst/gpt-sw3-tokenizer/badge.svg?branch=development' alt='Coverage Status' /></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 ## Resources
