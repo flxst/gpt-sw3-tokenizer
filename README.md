@@ -53,6 +53,7 @@ Analysis &nbsp;&nbsp;
 
 <img src="docs/docs/images/filter-solid-margin.png" height="13">&nbsp;&nbsp;Sampling
 
+- customizable amount of (disjunct) sampled data for training and evaluation
 - weighting of different categories and languages
 
 <img src="docs/docs/images/brain-solid-margin.png" height="13">&nbsp;&nbsp;Training
